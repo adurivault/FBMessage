@@ -65,6 +65,12 @@ In order to do that please run ``parser.py `` on your ``messages.json ``.
 
 It will create a new Json file ``short_flat_messages.json`` that will have the following structure :
 
+                    {
+                        "date": "ISO 8601 formatted date",
+                        "sender": "sender name",
+                        "message": "message text"
+                        "participants": ["participant_0", "...", "participant_n"],
+                    },
 
 
 You are all set now !
