@@ -1,4 +1,12 @@
 # Create your facebook archive
 
 Facebook allows you to dowload all of your data history , particularly your messages archive. In order to do that :
-** Go to your 
+
+1. Go to your Facebook account
+2. Then click on "Settings"
+3. Click General in the lefthand column.
+4: Click Download a copy of your Facebook data at the bottom of the General Account Settings page.
+
+Then you have to wait for approximatly 10/15 minutes to receive a email with a link to dowload your data.
+
+Be patient ! Sometimes it can be very long, up to few hours. 
