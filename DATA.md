@@ -24,19 +24,42 @@ something actually useful.
 You can install the Facebook Chat Archive Parser via ``pip`` under at least
 Python 2.7:
 
-.. code:: bash
-
     pip install fbchat-archive-parser
 
 If you already have an older version installed, you can upgrade to the latest with the following command:
 
-.. code:: bash
-
     pip install --upgrade fbchat-archive-parser
 
-You can now transform ``messages.htm`` into a pretty Json file with the simple commande the command line :
+You can now transform ``messages.htm`` into a pretty Json file with the simple commande line :
 
     fbcap ./messages.htm -f pretty json > messages.json 
 
 It will transorme ``messages.htm`` into a pretty Json and then store it a new Json file call ``messages.json ``
+
+You can do some others thing with fcap, as store it in a CSV file, or text File, but here we are only interested about Json.
+
+## Transform the original Json file
+
+If you open ``messages.json `` you would see that the Json file has the following structure 
+
+    {
+        "threads": [
+            {
+                "participants": ["participant_0", "...", "participant_n"],
+                "messages": [
+                    {
+                        "date": "ISO 8601 formatted date",
+                        "sender": "sender name",
+                        "message": "message text"
+                    },
+                    "..."
+                ]
+            },
+            "..."
+        ]
+    }
+
+This structue is a little bit for our work, so we need to simplify it. 
+
+In order to do that please run ``parser.py ``
 
