@@ -34,9 +34,9 @@ You can now transform ``messages.htm`` into a pretty Json file with the simple c
 
     fbcap ./messages.htm -f pretty json > messages.json 
 
-It will transorme ``messages.htm`` into a pretty Json and then store it a new Json file call ``messages.json ``
+It will transorme ``messages.htm`` into a pretty Json and then store it in a new Json file call ``messages.json ``
 
-You can do some others thing with fcap, as store it in a CSV file, or text File, but here we are only interested about Json.
+You can do some others thing with fcap, as store it in a CSV file, or text File, have some statistics about your data, etc, but here we are only interested about the Json fonctionnality.
 
 ## Transform the original Json file
 
