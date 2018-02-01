@@ -12,3 +12,8 @@ Facebook allows you to dowload all of your data history , particularly your mess
 Then you have to wait for approximatly 10/15 minutes to receive a email with a link to dowload your data.
 
 Be patient ! Sometimes it can be very long, up to few hours. 
+
+One you have it, you can see that all of your conversation history is stored in ``messages.htm``.
+
+## Transform it into a pretty Json
+
