@@ -61,5 +61,11 @@ If you open ``messages.json `` you would see that the Json file has the followin
 
 This structue is a little bit complicated for our work, so we need to simplify it. 
 
-In order to do that please run ``parser.py ``
+In order to do that please run ``parser.py `` on your ``messages.json ``.
+
+It will create a new Json file ``short_flat_messages.json`` that will have the following structure :
+
+
+
+You are all set now !
 
