@@ -59,7 +59,7 @@ If you open ``messages.json `` you would see that the Json file has the followin
         ]
     }
 
-This structue is a little bit for our work, so we need to simplify it. 
+This structue is a little bit complicated for our work, so we need to simplify it. 
 
 In order to do that please run ``parser.py ``
 
