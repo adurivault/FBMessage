@@ -34,9 +34,9 @@ If you already have an older version installed, you can upgrade to the latest wi
 
     pip install --upgrade fbchat-archive-parser
 
-You can now transform ``messages.htm`` into a pretty Json file with the simple commande :
+You can now transform ``messages.htm`` into a pretty Json file with the simple commande the command line :
 
-``fbcap ./messages.htm -f pretty json > messages.json `` option to the command line.
+    fbcap ./messages.htm -f pretty json > messages.json 
 
 It will transorme ``messages.htm`` into a pretty Json and then store it a new Json file call ``messages.json ``
 
