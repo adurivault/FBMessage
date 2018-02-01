@@ -2,31 +2,29 @@
 
 ## Create your facebook archive
 
-Facebook allows you to dowload all of your data history , particularly your messages archive. In order to do that :
+Facebook allows you to dowload all of your data history, particularly your messages archive. In order to do that :
 
 1. Go to your Facebook account
 2. Then click on <b>"Settings"</b>
 3. Click <b>General</b> in the lefthand column.
 4. Click <b>Download a copy of your Facebook data</b> at the bottom of the General Account Settings page.
 
-Then you have to wait for approximatly 10/15 minutes to receive a email with a link to dowload your data.
+Then you have to wait for approximatly 10/15 minutes before receiving an email with a link to dowload your data.
 
-Be patient ! Sometimes it can be very long, up to few hours. 
+Be patient! It can be long sometimes, up to a few hours. 
 
-One you have it, you can see that all of your conversation history is stored in ``messages.htm``.
+Once you have it, you can see that all of your conversation history is stored in ``messages.htm``.
 
 ## Transform it into a Json file
 
-The Facebook Chat Archive Parser is a command line tool (and library for
-advanced users) for easily transforming your ``messages.htm`` file into
-something actually useful.
+The Facebook Chat Archive Parser is a command line tool (and library for advanced users) for easily transforming your ``messages.htm`` file into something actually useful.
 
 You can install the Facebook Chat Archive Parser via ``pip`` under at least
 Python 2.7:
 
     pip install fbchat-archive-parser
 
-If you already have an older version installed, you can upgrade to the latest with the following command:
+If you already have an older version installed, you can upgrade it to the latest with the following command:
 
     pip install --upgrade fbchat-archive-parser
 
@@ -36,11 +34,11 @@ You can now transform ``messages.htm`` into a pretty Json file with the simple c
 
 It will transorme ``messages.htm`` into a pretty Json and then store it in a new Json file call ``messages.json ``
 
-You can do some others thing with fcap, as store it in a CSV file, or text File, have some statistics about your data, etc, but here we are only interested about the Json fonctionnality.
+You can do some others thing with fcap, like storing it in a CSV file, or text File, computing some statistics about your data, etc, but here we are only interested about the Json functionnality.
 
 ## Transform the original Json file
 
-If you open ``messages.json `` you would see that the Json file has the following structure 
+If you open ``messages.json `` you would see that the Json file has the following structure:
 
     {
         "threads": [
@@ -59,7 +57,7 @@ If you open ``messages.json `` you would see that the Json file has the followin
         ]
     }
 
-This structue is a little bit complicated for our work, so we need to simplify it. 
+This structure is a little bit complicated for our work, so we need to simplify it. 
 
 In order to do that please run ``parser.py `` on your ``messages.json ``.
 
