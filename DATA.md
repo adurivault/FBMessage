@@ -15,6 +15,8 @@ Be patient! It can be long sometimes, up to a few hours.
 
 Once you have it, you can see that all of your conversation history is stored in ``messages.htm``.
 
+In order to use it, please go see in [PROCESSING.md]
+
 ## Transform it into a Json file
 
 The Facebook Chat Archive Parser is a command line tool (and library for advanced users) for easily transforming your ``messages.htm`` file into something actually useful.
