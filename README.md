@@ -8,7 +8,7 @@ The goal of this project is to allow you to visualize your own Facebook Messages
 Just follow the instructions from the <a href="/DATA.md"> DATA.md</a> file and the <a href="/PROCESSING.md"> PROCESSING.md</a>, everything is explained. 
 
 ### Use your data in the web interface
-We di not put any data in example, because it is private. But you can use yours !
+We did not put any data in example, because it is private. But you can use yours !
 
 ## What will it look like ? 
 [TODO]
