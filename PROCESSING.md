@@ -42,7 +42,7 @@ If you open ``messages.json `` you would see that the Json file has the followin
 
 This structure is a little bit complicated for our work, so we need to simplify it. 
 
-In order to do that please run ``parser.py `` on your ``messages.json ``.
+In order to do that please run ``parser.py `` on your ``messages.json ``. Here is the [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py)
 
 It will create a new Json file ``short_flat_messages.json`` that will have the following structure :
 
