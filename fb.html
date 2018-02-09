@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-time.v1.min.js"></script>
+  <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+  <style>
+   div.tooltip {  
+    position: absolute;     
+    text-align: center;     
+    width: 120px;          
+    height: 120px;         
+    padding: 2px;       
+    font: 12px sans-serif;    
+    background: lightsteelblue; 
+    border: 0px;    
+    border-radius: 8px;     
+    pointer-events: none;     
+}
+
+  </style>
+</head>
+
+<body>
+  <script>
+
+
+var margin = {
+              top: 20,
+              right: 20,
+              bottom: 50,
+              left: 70
+                };
+var w = 1000 - margin.left - margin.right ;
+var h = 800 - margin.top - margin.bottom;    
+
+
+var parseUTCDate = d3.timeParse("%Y-%m-%dT%H:%M%Z");
+
+var dat = "2016-11-18T12:01+01:00";
+
+var hh = dat.substring(0, dat.length - 3) + dat.substring(dat.length - 2, dat.length);
+
+// Define the div for the tooltip
+var div = d3.select("body").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+
+var data =  d3.json("flat_messages.json", function(json){
+
+        // Create the SVG 
+        var svg = d3.select("body")
+                      .append("svg")
+                      .attr("width", w + margin.left + margin.right )
+                      .attr("height", h + margin.top + margin.bottom )
+                      .append("g")
+
+       // y scale 
+
+        var y = d3.scaleLinear()
+                  .domain([0,24]) 
+                  .range([0,h]);   
+         
+
+        // x scale
+        
+        var mindate = new Date(2017,0,1),
+            maxdate = new Date(2017,11,31); 
+        
+        var x = d3.scaleTime()  
+                  .domain([mindate, maxdate]) 
+                  .range([0, w]);
+
+        // X absis 
+                  
+        var xAxis = d3.axisBottom()
+                    .scale(x);   
+
+          // moves the 'group' element to the top left margin
+          svg.attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+         // Parse the Date  
+         json.data.forEach(function(element)
+      {
+        element.date = parseUTCDate(element.date.substring(0, element.date.length - 3) + element.date.substring(element.date.length - 2, element.date.length));
+      });
+  
+  
+         svg.selectAll("circle")
+          .data(json.data.filter(function(element){
+          return element.date.getFullYear() == "2017";}))
+          .enter()
+          .append("circle")
+          .attr("fill", function(element){
+            if (element.sender == "Mathilde Reynaud"){
+              return "purple";
+            }
+            else
+            {
+              return "blue";
+            }})
+          .attr("cx", function(element){return x(element.date);})
+          .attr("cy", function(element){return y(element.date.getHours() + element.date.getMinutes()/60);})
+          .attr('fill-opacity', 0.2)
+          .attr("r", 2)
+          .on("mouseover", function(element) {    
+            div.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");  
+            })          
+        .on("mouseout", function(element) {   
+            div.transition()    
+                .duration(500)    
+                .style("opacity", 0); 
+        });
+
+
+           svg.append('g')
+              .attr('transform', 'translate(0,' + h + ')')
+              .attr('class', 'x axis')
+              .call(xAxis);
+
+       });
+   
+
+
+
+
+    
+  </script>
+</body>
