@@ -78,8 +78,8 @@ var y2 = d3.scaleLinear()
           .range([0,h2]);
 
 // x scale
-var mindate = new Date(2017,0,1),
-    maxdate = new Date(2017,11,31);
+var mindate = new Date(2010,0,1),
+    maxdate = new Date(2019,11,31);
 
 
 var x1 = d3.scaleTime()
@@ -96,13 +96,14 @@ var xAxis2 = d3.axisBottom()
             .scale(x2);
 
 var brush = d3.brushX()
-    .extent([[0, 0], [w2, h2]])
+    .extent([[margin.left, h1 + 2*margin.top + margin.bottom], [margin.left + w2, h1 + 2*margin.top + margin.bottom + h2]])
+    .on("brush start", brushed)
     .on("brush end", brushed);
 
 var zoom = d3.zoom()
   .scaleExtent([1, Infinity])
   .translateExtent([[0, 0], [w1, h1]])
-  .extent([[0, 0], [w1, h1]])
+  .extent([[margin.left, margin.top], [margin.left + w1, margin.top + h1]])
   .on("zoom", zoomed);
 
 
@@ -112,7 +113,7 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("class", "focus");
 
-var data =  d3.json("flat_messages.json", function(json){
+var data =  d3.json("short_flat_messages.json", function(json){
 
   // Create the SVG
 
@@ -141,7 +142,6 @@ var data =  d3.json("flat_messages.json", function(json){
 
   x1.domain([mindate_total, maxdate_total]);
   x2.domain([mindate_total, maxdate_total]);
-
 
   focus.selectAll("circle.message")
     .data(json.data.filter(function(element){
@@ -181,7 +181,6 @@ var data =  d3.json("flat_messages.json", function(json){
     .attr('class', 'x axis--x')
     .call(xAxis1);
 
-
   context.selectAll("circle.message2")
     .data(json.data.filter(function(element){
         return (element.date < maxdate && element.date > mindate);
@@ -210,27 +209,27 @@ var data =  d3.json("flat_messages.json", function(json){
     .attr('class', 'x axis--x')
     .call(xAxis2);
 
-
   context.append("g")
       .attr("class", "brush")
       .call(brush)
       .call(brush.move, x2.range());
 
-    svg.append("rect")
-        .attr("class", "zoom")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .call(zoom);
-
-
+/*  svg.append("rect")
+      .attr("class", "zoom")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", "translate(" + margin.left + "," + (h1 + margin.top) + ")")
+      .call(zoom);
+*/
  });
 
+
  function brushed() {
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
     var s = d3.event.selection || x2.range();
     x1.domain(s.map(x2.invert, x2));
-    focus.selectAll("circle.message");
+    focus.selectAll("circle.message")
+      .attr("cx", function(d){return x1(d.date)});
     focus.select(".axis--x").call(xAxis1);
     svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
@@ -238,10 +237,12 @@ var data =  d3.json("flat_messages.json", function(json){
   }
 
 function zoomed() {
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+  //return;
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
     var t = d3.event.transform;
     x1.domain(t.rescaleX(x2).domain());
-    focus.selectAll("circle.message");
+    focus.selectAll("circle.message")
+      .attr("cx", function(d){return x1(d.date)});
     focus.select(".axis--x").call(xAxis1);
     context.select(".brush").call(brush.move, x1.range().map(t.invertX, t));
 }
