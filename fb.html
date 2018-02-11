@@ -42,7 +42,7 @@ var margin = {
               top: 20,
               right: 20,
               bottom: 50,
-              left: 70
+              left: 70,
                 };
 
 var width = 1400;
@@ -56,6 +56,7 @@ var h3 = 1.0 * height - margin.top - margin.bottom
 
 var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
 var parseUTCDate = d3.timeParse("%Y-%m-%d");
+
 
 // Define the div for the tooltip
 var div = d3.select("body").append("div")
@@ -95,17 +96,6 @@ var xAxis1 = d3.axisBottom()
 var xAxis2 = d3.axisBottom()
             .scale(x2);
 
-var brush = d3.brushX()
-    .extent([[margin.left, h1 + 2*margin.top + margin.bottom], [margin.left + w2, h1 + 2*margin.top + margin.bottom + h2]])
-    .on("brush start", brushed)
-    .on("brush end", brushed);
-
-var zoom = d3.zoom()
-  .scaleExtent([1, Infinity])
-  .translateExtent([[0, 0], [w1, h1]])
-  .extent([[margin.left, margin.top], [margin.left + w1, margin.top + h1]])
-  .on("zoom", zoomed);
-
 
 var focus = svg.append("g")
     .attr("class", "focus");
@@ -113,7 +103,7 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("class", "focus");
 
-var data =  d3.json("short_flat_messages.json", function(json){
+var data =  d3.json("flat_messages2.json", function(json){
 
   // Create the SVG
 
@@ -166,7 +156,7 @@ var data =  d3.json("short_flat_messages.json", function(json){
         div.transition()
             .duration(200)
             .style("opacity", .9);
-        div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)
+        div.html(element.date + "<br/>"  + element.sender)
             .style("left", (d3.event.pageX) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
         })
@@ -209,11 +199,6 @@ var data =  d3.json("short_flat_messages.json", function(json){
     .attr('class', 'x axis--x')
     .call(xAxis2);
 
-  context.append("g")
-      .attr("class", "brush")
-      .call(brush)
-      .call(brush.move, x2.range());
-
 /*  svg.append("rect")
       .attr("class", "zoom")
       .attr("width", width)
@@ -221,31 +206,122 @@ var data =  d3.json("short_flat_messages.json", function(json){
       .attr("transform", "translate(" + margin.left + "," + (h1 + margin.top) + ")")
       .call(zoom);
 */
+
+   function brushed() {
+      if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
+      var s = d3.event.selection || x2.range();
+      x1.domain(s.map(x2.invert, x2));
+
+      focus.selectAll('circle.message')
+                            .remove();
+
+      focus.selectAll("circle.message")
+          .data(json.data.filter(function(element){
+         return (element.date > x1.domain()[0] && element.date < x1.domain()[1]);
+      }))
+          .enter()
+          .append("circle")
+          .attr("class" , "message")
+          .attr("fill", function(element){
+            if (element.sender == "Augustin Du Rivet"){
+              return "purple";
+            }
+            else
+            {
+              return "blue";
+            }})
+          .attr("cx", function(element){return x1(element.date);})
+          .attr("cy", function(element){return y1(element.time);})
+          .attr('fill-opacity', 0.2)
+          .attr("r", 2)
+          .on("mouseover", function(element) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+          .on("mouseout", function(element) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+      });
+
+      focus.select(".axis--x").call(xAxis1);
+      svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
+          .scale(width / (s[1] - s[0]))
+          .translate(-s[0], 0));
+
+        }
+
+
+  function zoomed() {
+      if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
+      var t = d3.event.transform;
+      x1.domain(t.rescaleX(x2).domain());
+
+      focus.selectAll('circle.message')
+                            .remove();
+
+      focus.selectAll("circle.message")
+          .data(json.data.filter(function(element){
+         return (element.date > x1.domain()[0] && element.date < x1.domain()[1]);
+      }))
+          .enter()
+          .append("circle")
+          .attr("class" , "message")
+          .attr("fill", function(element){
+            if (element.sender == "Augustin Du Rivet"){
+              return "purple";
+            }
+            else
+            {
+              return "blue";
+            }})
+          .attr("cx", function(element){return x1(element.date);})
+          .attr("cy", function(element){return y1(element.time);})
+          .attr('fill-opacity', 0.2)
+          .attr("r", 2)
+          .on("mouseover", function(element) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+          .on("mouseout", function(element) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);    });
+
+
+      focus.select(".axis--x").call(xAxis1);
+      context.select(".brush").call(brush.move, x1.range().map(t.invertX, t));
+  }
+
+  var brush = d3.brushX()
+      .extent([[0, h1 + 2*margin.top + margin.bottom], [w2, h1 + 2*margin.top + margin.bottom + h2]])
+      .on("brush start", brushed)
+      .on("brush end", brushed);
+
+  var zoom = d3.zoom()
+    .scaleExtent([1, Infinity])
+    .translateExtent([[0, h1 + 2*margin.top + margin.bottom], [w2, h1 + 2*margin.top + margin.bottom + h2]])
+    //.translateExtent([[0, 0], [w1, h1]])
+    .extent([[0, h1 + 2*margin.top + margin.bottom], [w2, h1 + 2*margin.top + margin.bottom + h2]])
+    //.extent([[margin.left, margin.top], [margin.left + w1, margin.top + h1]])
+    .on("zoom", zoomed);
+
+  context.append("g")
+        .attr("class", "brush")
+        .call(brush)
+        .call(brush.move, x2.range());
+
  });
 
 
- function brushed() {
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
-    var s = d3.event.selection || x2.range();
-    x1.domain(s.map(x2.invert, x2));
-    focus.selectAll("circle.message")
-      .attr("cx", function(d){return x1(d.date)});
-    focus.select(".axis--x").call(xAxis1);
-    svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
-        .scale(width / (s[1] - s[0]))
-        .translate(-s[0], 0));
-  }
-
-function zoomed() {
-  //return;
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
-    var t = d3.event.transform;
-    x1.domain(t.rescaleX(x2).domain());
-    focus.selectAll("circle.message")
-      .attr("cx", function(d){return x1(d.date)});
-    focus.select(".axis--x").call(xAxis1);
-    context.select(".brush").call(brush.move, x1.range().map(t.invertX, t));
-}
 
   </script>
 </body>
