@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-time.v1.min.js"></script>
+  <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+  <style>
+  </style>
+</head>
+
+<body>
+
+  <!-- A title -->
+  <h3>Coloured grids</h3>
+  <!-- An input field with a default value. -->
+  <input type="text" id="text-input" value="5000">
+  <!-- An explanation... -->
+  <div id="text-explain">...takes numbers between 1 and 10k</div>
+  <!-- ...and a container for the canvas element. -->
+  <div id="container"></div>
+
+  <script>
+    var width = 750;
+    var height = 400;
+
+    var data = [];
+    d3.range(500).forEach(function(el) {
+      data.push({ value: el });
+    });
+
+    console.log(data)
+
+    var canvas = d3.select('#container')
+      .append('canvas')
+      .attr('width', width)
+      .attr('height', height);
+
+    var customBase = document.createElement('custom');
+    var custom = d3.select(customBase);
+    // This is your SVG replacement and the parent of all other elements
+    var context = canvas.node().getContext('2d');
+
+    // Settings for a grid with 10 cells in a row,
+    // 100 cells in a block and 1000 cells in a row.
+    var groupSpacing = 4;
+    var cellSpacing = 2;
+    var offsetTop = height / 5;
+    var cellSize = Math.floor((width - 11 * groupSpacing) / 100) - cellSpacing;
+
+    function databind(data){
+
+      var join = custom.selectAll('custom.rect')
+        .data(data);
+
+      var enterSel = join.enter()
+        .append('custom')
+        .attr('class', 'rect')
+        .attr("x", function(d, i) {
+          return d.value; })
+        .attr("y", function(d, i) {
+          return d.value})
+        .attr('width', 4)
+        .attr('height', 4)
+        .attr('fillStyle', "red");
+
+      var exitSel = join.exit()
+        .transition()
+        .attr('width', 0)
+        .attr('height', 0)
+        .remove();
+    };
+
+    function draw() {
+        context.clearRect(0, 0, width, height); // Clear the canvas.
+        // Draw each individual custom element with their properties.
+        var elements = custom.selectAll('custom.rect');
+        // Grab all elements you bound data to in the databind() function.
+        elements.each(function(d,i) { // For each virtual/custom element..
+          console.log("lkjc")
+          var node = d3.select(this);
+          // This is each individual element in the loop.
+
+          context.fillStyle = node.attr('fillStyle');
+          // Here you retrieve the colour from the individual in-memory node and set the fillStyle for the canvas paint
+          context.fillStyle = "red";
+context.beginPath();
+//context.arc(x-center, y-center, radius, startAngle, endAngle, counterclockwise)
+//A circle would thus look like:
+context.arc(100, 100, 50, 0,  2 * Math.PI, true);
+context.fill();
+context.closePath();
+          // Here you retrieve the position of the node and apply it to the fillRect context function which will fill and paint the square.
+        }); // Loop through each element.
+
+    };
+
+
+    databind(data);
+    draw();
+
+
+
+  </script>
+</body>
