@@ -4,6 +4,7 @@
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="https://d3js.org/d3-time.v1.min.js"></script>
   <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
   <style>
 
   .area {
@@ -33,9 +34,6 @@
 </head>
 
 <body>
-    <input type="checkbox" class="myCheckbox" value="2015"> 2015
-    <input type="checkbox" class="myCheckbox" value="2016"> 2016
-    <input type="checkbox" class="myCheckbox" value="2017"> 2017
   <script>
 
 var margin = {
@@ -56,6 +54,7 @@ var h3 = 1.0 * height - margin.top - margin.bottom
 
 var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
 var parseUTCDate = d3.timeParse("%Y-%m-%d");
+var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
 
 
 // Define the div for the tooltip
@@ -75,8 +74,8 @@ var y1 = d3.scaleLinear()
           .range([0,h1]);
 
 var y2 = d3.scaleLinear()
-          .domain([0,24])
-          .range([0,h2]);
+          .domain([0,600])
+          .range([h2,0]);
 
 // x scale
 var mindate = new Date(2010,0,1),
@@ -96,6 +95,11 @@ var xAxis1 = d3.axisBottom()
 var xAxis2 = d3.axisBottom()
             .scale(x2);
 
+function sortByDateAscending(a, b) {
+    // Dates will be cast to numbers automagically:
+    return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
+}
+
 
 var focus = svg.append("g")
     .attr("class", "focus");
@@ -103,7 +107,7 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("class", "focus");
 
-var data =  d3.json("flat_messages2.json", function(json){
+var data =  d3.json("flat_messages.json", function(json){
 
   // Create the SVG
 
@@ -171,28 +175,58 @@ var data =  d3.json("flat_messages2.json", function(json){
     .attr('class', 'x axis--x')
     .call(xAxis1);
 
-  context.selectAll("circle.message2")
-    .data(json.data.filter(function(element){
-        return (element.date < maxdate && element.date > mindate);
-    }))
+  Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+     date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    // January 4 is always in week 1.
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                          - 3 + (week1.getDay() + 6) % 7) / 7);
+  }
+
+  var nested_data = d3.nest().key(function(d){
+    return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
+    .rollup(function(leaves) {
+        return  leaves.length
+    })
+    .entries(json.data);
+
+nested_data = nested_data.sort(sortByDateAscending);
+
+var max_message = d3.max(nested_data, function(d){return d.value});
+
+y2.domain([0, max_message]);
+
+var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .x(function(d) { return x2(parseUTCDate2(d.key));})
+    .y0(h2)
+    .y1(function(d) { return y2(d.value); });
+
+
+focus.append("path")
+      .datum(nested_data)
+      .attr("class", "area")
+      .attr("d", area)
+      .attr('transform', 'translate(0,' + (h1 + 2*margin.top + margin.bottom) + ')')
+
+/*  context.selectAll("circle.message2")
+    .data(nested_data)
       .enter()
       .append("circle")
       .attr("class" , "message2")
-      .attr("fill", function(element){
-        if (element.sender == "Augustin Du Rivet"){
-          return "purple";
-        }
-        else
-        {
-          return "blue";
-        }})
-      .attr("cx", function(element){return x2(element.date);})
-      .attr("cy", function(element){return y2(element.time);})
+      .attr("fill", "purple")
+      .attr("cx", function(element){
+        return
+      .attr("cy", function(element){return y2(element.value);})
       .attr('fill-opacity', 0.2)
       .attr("r", 2);
 
   context.selectAll("circle.message2")
-    .attr("transform", "translate(" + 0 + "," + (h1 + 2*margin.top + margin.bottom) +")");
+    .attr("transform", "translate(" + 0 + "," + (h1 + 2*margin.top + margin.bottom) +")"); */
 
   context.append('g')
     .attr('transform', 'translate(0,' + (h2 + h1 + 2*margin.top + margin.bottom) + ')')
