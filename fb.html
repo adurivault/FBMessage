@@ -30,6 +30,15 @@
       border-radius: 8px;
       pointer-events: none;
     }
+
+    .bar rect {
+  fill: steelblue;
+}
+
+.bar text {
+  fill: #fff;
+  font: 10px sans-serif;
+}
   </style>
 </head>
 
@@ -40,7 +49,7 @@ var margin = {
               top: 20,
               right: 20,
               bottom: 50,
-              left: 70,
+              left: 20,
                 };
 
 var width = 1400;
@@ -49,13 +58,12 @@ var w1 = 0.7 * width - margin.left - margin.right
 var h1 = 0.8 * height - margin.top - margin.bottom
 var w2 = 0.7 * width - margin.left - margin.right
 var h2 = 0.2 * height - margin.top - margin.bottom
-var w3 = 0.7 * width - margin.left - margin.right
-var h3 = 1.0 * height - margin.top - margin.bottom
+var w3 = 0.3 * width - margin.left - margin.right
+var h3 = 0.5 * height - margin.top - margin.bottom
 
 var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
 var parseUTCDate = d3.timeParse("%Y-%m-%d");
 var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
-
 
 // Define the div for the tooltip
 var div = d3.select("body").append("div")
@@ -87,6 +95,9 @@ var x1 = d3.scaleTime()
 
 var x2 = d3.scaleTime()
           .range([0, w2]);
+
+var x3 = d3.scaleLinear()
+            .rangeRound([0,w3]);
 
 // X absis
 var xAxis1 = d3.axisBottom()
@@ -175,7 +186,7 @@ var data =  d3.json("flat_messages.json", function(json){
     .attr('class', 'x axis--x')
     .call(xAxis1);
 
-  Date.prototype.getWeek = function() {
+Date.prototype.getWeek = function() {
     var date = new Date(this.getTime());
      date.setHours(0, 0, 0, 0);
     // Thursday in current week decides the year.
@@ -213,25 +224,71 @@ focus.append("path")
       .attr("d", area)
       .attr('transform', 'translate(0,' + (h1 + 2*margin.top + margin.bottom) + ')')
 
-/*  context.selectAll("circle.message2")
-    .data(nested_data)
-      .enter()
-      .append("circle")
-      .attr("class" , "message2")
-      .attr("fill", "purple")
-      .attr("cx", function(element){
-        return
-      .attr("cy", function(element){return y2(element.value);})
-      .attr('fill-opacity', 0.2)
-      .attr("r", 2);
-
-  context.selectAll("circle.message2")
-    .attr("transform", "translate(" + 0 + "," + (h1 + 2*margin.top + margin.bottom) +")"); */
-
-  context.append('g')
+context.append('g')
     .attr('transform', 'translate(0,' + (h2 + h1 + 2*margin.top + margin.bottom) + ')')
     .attr('class', 'x axis--x')
     .call(xAxis2);
+
+
+var nested_data_hist = d3.nest().key(function(d){
+  return d.date;  })
+  .rollup(function(leaves) {
+      return  leaves.length
+  })
+  .entries(json.data);
+//  .map(function(d){
+//    return d.value;});
+var min_num = d3.min(nested_data_hist, function(d){return d.value}),
+    max_num = d3.max(nested_data_hist, function(d){return d.value});
+
+x3.domain([min_num,max_num]);
+
+var histogram = d3.histogram()
+    .value(function(d) {return +d.value;})
+    .domain(x3.domain())
+    .thresholds(x3.ticks(20));
+
+var bins = histogram(nested_data_hist);
+
+var y3 = d3.scaleLinear()
+    .domain([0, d3.max(bins, function(d) { return d.length; })])
+    .range([h3, 0]);
+
+var bar = svg.selectAll(".bar")
+  .data(bins)
+  .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x3(d.x0) + "," + y3(d.length) + ")"; });
+
+bar.append("rect")
+    .attr("x", 1)
+    .attr("width", x3(bins[0].x1) - x3(bins[0].x0) - 1)
+    .attr("height", function(d) { return h3 - y3(d.length); })
+    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + margin.top + ")");
+
+bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", 6)
+    .attr("x", (x3(bins[0].x1) - x3(bins[0].x0)) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.length; })
+    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + margin.top + ")");
+
+
+svg.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + (h3 + margin.top) + ")")
+    .call(d3.axisBottom(x3));
+  //
+
+
+
+/* bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", 6)
+    .attr("x", (x3(bins[0].x1) - x3(bins[0].x0)) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatCount(d.length); }); */
 
 /*  svg.append("rect")
       .attr("class", "zoom")
