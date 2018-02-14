@@ -86,9 +86,6 @@ var y2 = d3.scaleLinear()
           .range([h2,0]);
 
 // x scale
-var mindate = new Date(2010,0,1),
-    maxdate = new Date(2019,11,31);
-
 
 var x1 = d3.scaleTime()
           .range([0, w1]);
@@ -118,7 +115,7 @@ var focus = svg.append("g")
 var context = svg.append("g")
     .attr("class", "focus");
 
-var data =  d3.json("flat_messages.json", function(json){
+var data =  d3.json("short_flat_messages.json", function(json){
 
   // Create the SVG
 
@@ -148,15 +145,20 @@ var data =  d3.json("flat_messages.json", function(json){
   x1.domain([mindate_total, maxdate_total]);
   x2.domain([mindate_total, maxdate_total]);
 
+function create_scatterplot(data_sca, max_date ,min_date){
+
+  focus.selectAll('circle.message')
+                        .remove();
+
   focus.selectAll("circle.message")
-    .data(json.data.filter(function(element){
-        return (element.date < maxdate && element.date > mindate);
+    .data(data_sca.filter(function(element){
+        return (element.date < max_date && element.date > min_date);
     }))
       .enter()
       .append("circle")
       .attr("class" , "message")
       .attr("fill", function(element){
-        if (element.sender == "Augustin Du Rivet"){
+        if (element.sender == "Mathilde Reynaud"){
           return "purple";
         }
         else
@@ -180,6 +182,10 @@ var data =  d3.json("flat_messages.json", function(json){
             .duration(500)
             .style("opacity", 0);
       });
+
+}
+
+create_scatterplot(json.data, maxdate_total, mindate_total);
 
   focus.append('g')
     .attr('transform', 'translate(0,' + h1 + ')')
@@ -303,41 +309,7 @@ svg.append("g")
       var s = d3.event.selection || x2.range();
       x1.domain(s.map(x2.invert, x2));
 
-      focus.selectAll('circle.message')
-                            .remove();
-
-      focus.selectAll("circle.message")
-          .data(json.data.filter(function(element){
-         return (element.date > x1.domain()[0] && element.date < x1.domain()[1]);
-      }))
-          .enter()
-          .append("circle")
-          .attr("class" , "message")
-          .attr("fill", function(element){
-            if (element.sender == "Augustin Du Rivet"){
-              return "purple";
-            }
-            else
-            {
-              return "blue";
-            }})
-          .attr("cx", function(element){return x1(element.date);})
-          .attr("cy", function(element){return y1(element.time);})
-          .attr('fill-opacity', 0.2)
-          .attr("r", 2)
-          .on("mouseover", function(element) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-            div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-          .on("mouseout", function(element) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-      });
+create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
 
       focus.select(".axis--x").call(xAxis1);
       svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
@@ -346,47 +318,12 @@ svg.append("g")
 
         }
 
-
   function zoomed() {
       if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
       var t = d3.event.transform;
       x1.domain(t.rescaleX(x2).domain());
 
-      focus.selectAll('circle.message')
-                            .remove();
-
-      focus.selectAll("circle.message")
-          .data(json.data.filter(function(element){
-         return (element.date > x1.domain()[0] && element.date < x1.domain()[1]);
-      }))
-          .enter()
-          .append("circle")
-          .attr("class" , "message")
-          .attr("fill", function(element){
-            if (element.sender == "Augustin Du Rivet"){
-              return "purple";
-            }
-            else
-            {
-              return "blue";
-            }})
-          .attr("cx", function(element){return x1(element.date);})
-          .attr("cy", function(element){return y1(element.time);})
-          .attr('fill-opacity', 0.2)
-          .attr("r", 2)
-          .on("mouseover", function(element) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-            div.html(element.date + "<br/>"  + element.message + "<br/>"  + element.sender)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-          .on("mouseout", function(element) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);    });
-
+create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
 
       focus.select(".axis--x").call(xAxis1);
       context.select(".brush").call(brush.move, x1.range().map(t.invertX, t));
