@@ -31,13 +31,10 @@
       pointer-events: none;
     }
 
-    .bar rect {
-  fill: steelblue;
-}
 
 .bar text {
-  fill: #fff;
-  font: 10px sans-serif;
+  fill: purple;
+  font: 15px sans-serif;
 }
   </style>
 </head>
@@ -47,9 +44,9 @@
 
 var margin = {
               top: 20,
-              right: 20,
+              right: 60,
               bottom: 50,
-              left: 20,
+              left: 30,
                 };
 
 var width = 1400;
@@ -59,7 +56,7 @@ var h1 = 0.8 * height - margin.top - margin.bottom
 var w2 = 0.7 * width - margin.left - margin.right
 var h2 = 0.2 * height - margin.top - margin.bottom
 var w3 = 0.3 * width - margin.left - margin.right
-var h3 = 0.5 * height - margin.top - margin.bottom
+var h3 = 0.4 * height - margin.top - margin.bottom
 
 var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
 var parseUTCDate = d3.timeParse("%Y-%m-%d");
@@ -93,8 +90,8 @@ var x1 = d3.scaleTime()
 var x2 = d3.scaleTime()
           .range([0, w2]);
 
-var x3 = d3.scaleLinear()
-            .rangeRound([0,w3]);
+var y3 = d3.scaleLinear()
+            .rangeRound([0,h3]);
 
 // X absis
 var xAxis1 = d3.axisBottom()
@@ -159,11 +156,11 @@ function create_scatterplot(data_sca, max_date ,min_date){
       .attr("class" , "message")
       .attr("fill", function(element){
         if (element.sender == "Mathilde Reynaud"){
-          return "purple";
+          return "blue";
         }
         else
         {
-          return "blue";
+          return "purple";
         }})
       .attr("cx", function(element){return x1(element.date);})
       .attr("cy", function(element){return y1(element.time);})
@@ -235,60 +232,103 @@ context.append('g')
     .attr('class', 'x axis--x')
     .call(xAxis2);
 
+function draw_histogram(data_hist, max_date, min_date){
 
-var nested_data_hist = d3.nest().key(function(d){
-  return d.date;  })
-  .rollup(function(leaves) {
-      return  leaves.length
-  })
-  .entries(json.data);
-//  .map(function(d){
-//    return d.value;});
-var min_num = d3.min(nested_data_hist, function(d){return d.value}),
-    max_num = d3.max(nested_data_hist, function(d){return d.value});
+  svg.selectAll('.bar')
+      .remove();
 
-x3.domain([min_num,max_num]);
+  svg.selectAll('.y_hist')
+      .remove();
 
-var histogram = d3.histogram()
-    .value(function(d) {return +d.value;})
-    .domain(x3.domain())
-    .thresholds(x3.ticks(20));
+  var nested_data_hist = d3.nest().key(function(d){
+    return d.date;  })
+    .rollup(function(leaves) {
+        return  leaves.length
+    })
+    .entries(data_hist.filter(function(element){
+        return (element.date < max_date && element.date > min_date);
+    }));
+  //  .map(function(d){
+  //    return d.value;});
+  var min_num = d3.min(nested_data_hist, function(d){return d.value}),
+      max_num = d3.max(nested_data_hist, function(d){return d.value});
 
-var bins = histogram(nested_data_hist);
+  y3.domain([min_num,max_num]);
 
-var y3 = d3.scaleLinear()
-    .domain([0, d3.max(bins, function(d) { return d.length; })])
-    .range([h3, 0]);
+  var histogram = d3.histogram()
+      .value(function(d) {return +d.value;})
+      .domain(y3.domain())
+      .thresholds(y3.ticks(20));
 
-var bar = svg.selectAll(".bar")
-  .data(bins)
-  .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(" + x3(d.x0) + "," + y3(d.length) + ")"; });
+  var bins = histogram(nested_data_hist);
 
-bar.append("rect")
-    .attr("x", 1)
-    .attr("width", x3(bins[0].x1) - x3(bins[0].x0) - 1)
-    .attr("height", function(d) { return h3 - y3(d.length); })
-    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + margin.top + ")");
+  var x3 = d3.scaleLinear()
+      .domain([0, d3.max(bins, function(d) { return d.length; })])
+      .range([0, w3]);
 
-bar.append("text")
-    .attr("dy", ".75em")
-    .attr("y", 6)
-    .attr("x", (x3(bins[0].x1) - x3(bins[0].x0)) / 2)
-    .attr("text-anchor", "middle")
-    .text(function(d) { return d.length; })
-    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + margin.top + ")");
+  var bar = svg.selectAll(".bar")
+    .data(bins)
+    .enter().append("g")
+      .attr("class", "bar")
+      .attr("transform", function(d) { return "translate(" + 0 + "," + y3(d.x0) + ")"; });
 
+  var clicked_rect = null;
 
-svg.append("g")
-    .attr("class", "axis axis--x")
-    .attr("transform", "translate(" + (w1 + margin.right + 2*margin.left) + "," + (h3 + margin.top) + ")")
-    .call(d3.axisBottom(x3));
+  bar.append("rect")
+      .style("fill", "steelblue")
+      .attr("y", 1)
+      .attr("height", y3(bins[0].x1) - y3(bins[0].x0) - 1)
+      .attr("width", function(d) {return x3(d.length); })
+      .attr("transform", "translate(" + (w1 + margin.right + margin.left) + "," + margin.top + ")")
+      .on ("click", function(d){
+          d3.selectAll("circle.message")
+          .attr('fill-opacity', 0.2);
+
+          d3.selectAll("g")
+            .selectAll(".bar")
+            .selectAll("rect")
+            .style("fill","steelblue");
+
+        if (clicked_rect !== d){
+
+          d3.select(this)
+            .style("fill", "purple");
+
+          d3.selectAll("circle.message")
+          .attr('fill-opacity', 0);
+
+              for (var i=0;  i < d.length; i++ ){
+                  d3.selectAll("circle.message")
+                    .filter(function(e) {
+                        return e.date == d[i].key;
+                              })
+                    .attr('fill-opacity', 0.2);
+          }
+            clicked_rect = d;
+        }
+        else {
+        clicked_rect = null;
+        }
+
+      });
+
+  bar.append("text")
+      .attr("dy", ".75em")
+      .attr("y", 6)
+      .attr("x", function(d) { return x3(d.length) + 12 ; })
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d.length; })
+      .attr("transform", "translate(" + (w1 + margin.right + margin.left) + "," + margin.top + ")");
+
+  svg.append("g")
+      .attr("class", "y_hist")
+      .attr("transform", "translate(" + (w1 + margin.right + margin.left) + "," + margin.top + ")")
+      .call(d3.axisLeft(y3));
+
+}
+
+draw_histogram(json.data, maxdate_total, mindate_total);
   //
-
-
-
 /* bar.append("text")
     .attr("dy", ".75em")
     .attr("y", 6)
@@ -304,12 +344,20 @@ svg.append("g")
       .call(zoom);
 */
 
-   function brushed() {
+  function brushed() {
       if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
       var s = d3.event.selection || x2.range();
       x1.domain(s.map(x2.invert, x2));
 
-create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
+
+      create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
+      if (x1.domain()[1] > x1.domain()[0]) {
+          draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
+          }
+      else {
+          draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
+      }
+
 
       focus.select(".axis--x").call(xAxis1);
       svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
@@ -323,7 +371,15 @@ create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
       var t = d3.event.transform;
       x1.domain(t.rescaleX(x2).domain());
 
-create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
+      create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
+
+      create_scatterplot(json.data, x1.domain()[1], x1.domain()[0]);
+      if (x1.domain()[1] > x1.domain()[0]) {
+          draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
+          }
+      else {
+          draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
+      }
 
       focus.select(".axis--x").call(xAxis1);
       context.select(".brush").call(brush.move, x1.range().map(t.invertX, t));
