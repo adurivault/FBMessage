@@ -43,9 +43,11 @@ If you open ``messages.json `` you would see that the Json file has the followin
 This structure is a little bit complicated for our work, so we need to simplify it with a custom file of ours. 
 In order to do this, please download the script [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py), and insert it in the folder where you created your ``messages.json`` file. 
 
-If you're on Mac or Linux, then python is already installed. Through your terminal, just type in the command : 
+If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command : 
 
     python parser.py "message.json"
+
+If you have a PC, then maybe you need to install Python first. 
 
 This will create a new JSON file ``flat_messages.json`` that will have the following structure :
 
