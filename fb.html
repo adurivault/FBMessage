@@ -51,21 +51,24 @@
 
   <script>
 
-var div_density_time = d3.select('#density_time')
-var div_main = d3.select('#main')
-var div_filters = d3.select('#filters')
-var div_density_date = d3.select('#density_date')
-var div_offset = d3.select('#offset')
-
-var canvas = document.querySelector("canvas"),
-    context_canvas = canvas.getContext("2d");
-
-var div_filters_2 = document.getElementById("filters")
-var div_main_2 = document.getElementById("main")
-var div_density_date_2 = document.getElementById("density_date")
-var div_density_time_2 = document.getElementById("density_time")
-
 var json;
+// Define div, svg, etc..
+{
+    var div_density_time = d3.select('#density_time')
+    var div_main = d3.select('#main')
+    var div_filters = d3.select('#filters')
+    var div_density_date = d3.select('#density_date')
+    var div_offset = d3.select('#offset')
+
+    var canvas = document.querySelector("canvas"),
+        context_canvas = canvas.getContext("2d");
+
+    var div_filters_2 = document.getElementById("filters")
+    var div_main_2 = document.getElementById("main")
+    var div_density_date_2 = document.getElementById("density_date")
+    var div_density_time_2 = document.getElementById("density_time")
+
+}
 
 //Define heights and widths
 {
@@ -184,7 +187,7 @@ var json;
 }
 
 //Load data
-var data =  d3.json("flat_messages.json", function(json_file){
+var data =  d3.json("short_flat_messages.json", function(json_file){
 
   json = json_file;
   parse_date()
@@ -214,241 +217,243 @@ var data =  d3.json("flat_messages.json", function(json_file){
         .call(brush)
         .call(brush.move, x2.range())
         .attr('transform', 'translate(' + margin2.left + ',' + 0 + ')');
- });
+});
 
- function parse_date(){
-   json.data.forEach(function(d){
-     date = d.date;
-     date = parseUTCDateHour(date.substring(0, date.length - 3) + date.substring(date.length - 2, date.length));
-     d.time = getTime(date);
-     d.date = getDate(date);
-   })
- };
+function parse_date(){
+json.data.forEach(function(d){
+ date = d.date;
+ date = parseUTCDateHour(date.substring(0, date.length - 3) + date.substring(date.length - 2, date.length));
+ d.time = getTime(date);
+ d.date = getDate(date);
+})
+};
 
- function intialize_conditions(){
-   json.data.forEach(function(d){
-     d._cd_date = true;
-     d._cd_sent_received = true;
-     d._cd_message_per_day = true;
-     d._visible = true;
-  })
+function intialize_conditions(){
+json.data.forEach(function(d){
+ d._cd_date = true;
+ d._cd_sent_received = true;
+ d._cd_message_per_day = true;
+ d._visible = true;
+})
 }
 
- function update_cd_date(){
-   json.data.forEach(function(d){
-     d._cd_date = d.date > x1.domain()[0] && d.date < x1.domain()[1]
-   })
- }
+function update_cd_date(){
+json.data.forEach(function(d){
+ d._cd_date = d.date > x1.domain()[0] && d.date < x1.domain()[1]
+})
+}
 
-  function update_visible(){
-    json.data.forEach(function(d){
-      d._visible = d._cd_date && d._cd_sent_received && d._cd_message_per_day;
-    })
-  }
+function update_visible(){
+json.data.forEach(function(d){
+  d._visible = d._cd_date && d._cd_sent_received && d._cd_message_per_day;
+})
+}
 
- function draw_density(){
+function draw_density(){
 
-  var nested_data = d3.nest().key(function(d){
-    return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
-    .rollup(function(leaves) {
-        return  leaves.length
-    })
-    .entries(json.data);
+var nested_data = d3.nest().key(function(d){
+return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
+.rollup(function(leaves) {
+    return  leaves.length
+})
+.entries(json.data);
 
-  nested_data = nested_data.sort(sortByDateAscending);
+nested_data = nested_data.sort(sortByDateAscending);
 
-  var max_message = d3.max(nested_data, function(d){return d.value});
+var max_message = d3.max(nested_data, function(d){return d.value});
 
-  y2.domain([0, max_message]);
+y2.domain([0, max_message]);
 
-  var area = d3.area()
-      .curve(d3.curveBasisOpen)
-      .x(function(d) { return x2(parseUTCDate2(d.key));})
-      .y0(h2)
-      .y1(function(d) { return y2(d.value); });
+var area = d3.area()
+  .curve(d3.curveBasisOpen)
+  .x(function(d) { return x2(parseUTCDate2(d.key));})
+  .y0(h2)
+  .y1(function(d) { return y2(d.value); });
 
-  density_date.append("path")
-        .datum(nested_data)
-        .attr("class", "area")
-        .attr("d", area)
-        .attr('transform', 'translate(' + margin2.left + ',' + (margin2.top) + ')')
+density_date.append("path")
+    .datum(nested_data)
+    .attr("class", "area")
+    .attr("d", area)
+    .attr('transform', 'translate(' + margin2.left + ',' + (margin2.top) + ')')
 
-  density_date.append('g')
-      .attr('transform', 'translate(' + margin2.left + ',' + (h2 + margin2.top) + ')')
-      .attr('class', 'x axis--x')
-      .call(xAxis2);
-  }
+density_date.append('g')
+  .attr('transform', 'translate(' + margin2.left + ',' + (h2 + margin2.top) + ')')
+  .attr('class', 'x axis--x')
+  .call(xAxis2);
+}
 
- function draw_histogram(data_hist, max_date, min_date){
+function draw_histogram(data_hist, max_date, min_date){
 
-   filters.selectAll('.bar')
-       .remove();
-   filters.selectAll('.y_hist')
-       .remove();
+  //Remove old histogram
+  filters.selectAll('.bar')
+     .remove();
+  filters.selectAll('.y_hist')
+     .remove();
 
-   var nested_data_hist = d3.nest()
+  //Create nested dataset
+  var nested_data_hist = d3.nest()
      .key(function(d){return d.date;})
      .rollup(function(leaves) {return leaves.length})
-     .entries(data_hist.filter(function(element){
-         return (element.date < max_date && element.date > min_date);
-     }));
+     .entries(data_hist.filter(function(d){return d._visible;}));
 
-   var min_num = d3.min(nested_data_hist, function(d){return d.value}),
-       max_num = d3.max(nested_data_hist, function(d){return d.value});
+  //Define domain vertical axis
+  var min_num = d3.min(nested_data_hist, function(d){return d.value}),
+      max_num = d3.max(nested_data_hist, function(d){return d.value});
 
-   y3.domain([min_num,max_num]);
+  y3.domain([min_num,max_num]);
 
-   var histogram = d3.histogram()
-       .value(function(d) {return +d.value;})
-       .domain(y3.domain())
-       .thresholds(y3.ticks(10));
+  var histogram = d3.histogram()
+     .value(function(d) {return +d.value;})
+     .domain(y3.domain())
+     .thresholds(y3.ticks(10));
 
-   var bins = histogram(nested_data_hist);
+  var bins = histogram(nested_data_hist);
 
-   x3.domain([0, d3.max(bins, function(d) { return d.length; })])
+  x3.domain([0, d3.max(bins, function(d) { return d.length; })])
 
-   var bar = filters.selectAll(".bar")
-     .data(bins)
-     .enter().append("g")
-       .attr("class", "bar")
-       .attr("transform", function(d) { return "translate(" + 0 + "," + y3(d.x0) + ")"; });
+  var bar = filters.selectAll(".bar")
+   .data(bins)
+   .enter().append("g")
+     .attr("class", "bar")
+     .attr("transform", function(d) { return "translate(" + 0 + "," + y3(d.x0) + ")"; });
 
-   var clicked_rect = null;
+  var clicked_rect = null;
 
-   bar.append("rect")
-       .style("fill", "steelblue")
-       .attr("y", 1)
-       .attr("height", y3(bins[0].x1) - y3(bins[0].x0) - 1)
-       .attr("width", function(d) {return x3(d.length); })
-       .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")")
-       .on("click", function(d){
-         json.data.forEach(function(element){
-            element._cd_message_per_day = true;
+  bar.append("rect")
+     .style("fill", "steelblue")
+     .attr("y", 1)
+     .attr("height", y3(bins[0].x1) - y3(bins[0].x0) - 1)
+     .attr("width", function(d) {return x3(d.length); })
+     .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")")
+     .on("click", function(d){
+       json.data.forEach(function(element){
+          element._cd_message_per_day = true;
+        });
+
+        filters.selectAll(".bar")
+           .selectAll("rect")
+           .style("fill","steelblue");
+
+        if (clicked_rect !== d){
+
+          var all_dates = new Set();
+
+          for (var i=0;  i < d.length; i++ ){
+            all_dates.add(d[i].key)
+          };
+
+          d3.select(this)
+             .style("fill", "purple");
+
+          json.data.forEach(function(element){
+               element._cd_message_per_day = false;
           });
 
-          filters.selectAll(".bar")
-             .selectAll("rect")
-             .style("fill","steelblue");
+          json.data
+              .filter(function(e){return all_dates.has(String(e.date));})
+              .forEach(function(element){element._cd_message_per_day = true;});
+           clicked_rect = d;
+        }
+        else {
+          clicked_rect = null;
+        }
+        create_scatterplot();
+     });
 
-          if (clicked_rect !== d){
+  bar.append("text")
+     .attr("dy", ".75em")
+     .attr("y", 6)
+     .attr("x", function(d) { return x3(d.length) + 12 ; })
+     .attr("text-anchor", "middle")
+     .text(function(d) { return d.length; })
+     .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
 
-            var all_dates = new Set();
+  filters.append("g")
+     .attr("class", "y_hist")
+     .attr("transform", "translate(" + (margin3.left) + "," + margin3.top + ")")
+     .call(d3.axisLeft(y3));
 
-            for (var i=0;  i < d.length; i++ ){
-              all_dates.add(d[i].key)
-            };
+}
 
-            d3.select(this)
-               .style("fill", "purple");
+function zoomed(){
+ if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
+ var t = d3.event.transform;
+ x1.domain(t.rescaleX(x2).domain());
+ intialize_conditions();
+ update_cd_date();
+ create_scatterplot();
 
-            json.data.forEach(function(element){
-                 element._cd_message_per_day = false;
-            });
-
-            json.data
-                .filter(function(e){return all_dates.has(String(e.date));})
-                .forEach(function(element){element._cd_message_per_day = true;});
-             clicked_rect = d;
-          }
-          else {
-            clicked_rect = null;
-          }
-          create_scatterplot();
-       });
-
-   bar.append("text")
-       .attr("dy", ".75em")
-       .attr("y", 6)
-       .attr("x", function(d) { return x3(d.length) + 12 ; })
-       .attr("text-anchor", "middle")
-       .text(function(d) { return d.length; })
-       .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
-
-   filters.append("g")
-       .attr("class", "y_hist")
-       .attr("transform", "translate(" + (margin3.left) + "," + margin3.top + ")")
-       .call(d3.axisLeft(y3));
-
+ if (x1.domain()[1] > x1.domain()[0]) {
+     draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
+ }
+ else {
+     draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
  }
 
- function zoomed(){
-     if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
-     var t = d3.event.transform;
-     x1.domain(t.rescaleX(x2).domain());
-     update_cd_date();
-     create_scatterplot();
+ axis_focus.select(".axis--x").call(xAxis1);
 
-     if (x1.domain()[1] > x1.domain()[0]) {
-         draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
-     }
-     else {
-         draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
-     }
+ density_date.select(".brush")
+    .call(brush.move, x1.range().map(t.invertX, t));
+}
 
-     axis_focus.select(".axis--x").call(xAxis1);
+function brushed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
+  var s = d3.event.selection || x2.range();
+  x1.domain(s.map(x2.invert, x2));
+  intialize_conditions();
+  update_cd_date();
+  create_scatterplot();
 
-     density_date.select(".brush")
-        .call(brush.move, x1.range().map(t.invertX, t));
- }
-
- function create_scatterplot(){
-   update_visible();
-   context_canvas.clearRect(0, 0, canvas.width, canvas.height);
-   json.data.filter(function(d){return (d._visible);})
-    .forEach(function(d){
-        context_canvas.beginPath();
-        context_canvas.arc(margin1.left + x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
-        context_canvas.fill()
-        context_canvas.closePath();
-    })
+  if (x1.domain()[1] > x1.domain()[0]) {
+      draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
+      }
+  else {
+      draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
   }
 
- function brushed() {
-     if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
-     var s = d3.event.selection || x2.range();
-     x1.domain(s.map(x2.invert, x2));
-     update_cd_date();
+  axis_focus.select(".axis--x").call(xAxis1);
 
-     create_scatterplot();
+  density_date.select(".zoom")
+   .call(zoom.transform, d3.zoomIdentity
+                            .scale(width / (s[1] - s[0]))
+                            .translate(-s[0], 0)
+        );
+}
 
-     if (x1.domain()[1] > x1.domain()[0]) {
-         draw_histogram(json.data, x1.domain()[1], x1.domain()[0]);
-         }
-     else {
-         draw_histogram(json.data, x1.domain()[0], x1.domain()[1])
-     }
+function create_scatterplot(){
+update_visible();
+context_canvas.clearRect(0, 0, canvas.width, canvas.height);
+json.data.filter(function(d){return (d._visible);})
+.forEach(function(d){
+    context_canvas.beginPath();
+    context_canvas.arc(margin1.left + x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
+    context_canvas.fill()
+    context_canvas.closePath();
+})
+}
 
-     axis_focus.select(".axis--x").call(xAxis1);
+getDate = function(date){
+string = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+return parseUTCDate(string);
+}
 
-     density_date.select(".zoom")
-      .call(zoom.transform, d3.zoomIdentity
-                               .scale(width / (s[1] - s[0]))
-                               .translate(-s[0], 0)
-           );
-  }
+getTime = function(date){ //Remove the ":" in order to match the correct format
+return date.getHours() + date.getMinutes()/60;
+};
 
- getDate = function(date){
-   string = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
-   return parseUTCDate(string);
- }
+Date.prototype.getWeek = function() {
+ var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+ // Thursday in current week decides the year.
+ date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+ // January 4 is always in week 1.
+ var week1 = new Date(date.getFullYear(), 0, 4);
+ // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+ return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                       - 3 + (week1.getDay() + 6) % 7) / 7);
+}
 
- getTime = function(date){ //Remove the ":" in order to match the correct format
-   return date.getHours() + date.getMinutes()/60;
- };
-
- Date.prototype.getWeek = function() {
-     var date = new Date(this.getTime());
-      date.setHours(0, 0, 0, 0);
-     // Thursday in current week decides the year.
-     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-     // January 4 is always in week 1.
-     var week1 = new Date(date.getFullYear(), 0, 4);
-     // Adjust to Thursday in week 1 and count number of weeks from date to week1.
-     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
-                           - 3 + (week1.getDay() + 6) % 7) / 7);
- }
-
- function sortByDateAscending(a, b) {
+function sortByDateAscending(a, b) {
      // Dates will be cast to numbers automagically:
      return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
  }
