@@ -10,6 +10,7 @@ def parse(file):
 
     user_name = d['user']
     df = json_normalize(d, ["threads", "messages"], [["threads", "participants"]], errors="ignore")
+    df["sent"] = df["sender"] == user_name
     df.head(2000).to_json("short_flat_messages.json", orient="table") # Short file, in order to do tests
     df.to_json("flat_messages.json", orient="table") # Full file
 
