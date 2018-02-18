@@ -40,11 +40,14 @@ If you open ``messages.json `` you would see that the Json file has the followin
         ]
     }
 
-This structure is a little bit complicated for our work, so we need to simplify it. 
+This structure is a little bit complicated for our work, so we need to simplify it with a custom file of ours. 
+In order to do this, please download the script [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py), and insert it in the folder where you created your ``messages.json`` file. 
 
-In order to do that please run ``parser.py `` on your ``messages.json ``. Here is the [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py)
+If you're on Mac or Linux, then python is already installed. Through your terminal, just type in the command : 
 
-It will create a new Json file ``short_flat_messages.json`` that will have the following structure :
+    python parser.py "message.json"
+
+This will create a new JSON file ``flat_messages.json`` that will have the following structure :
 
                     {
                         "date": "ISO 8601 formatted date",
@@ -53,5 +56,6 @@ It will create a new Json file ``short_flat_messages.json`` that will have the f
                         "participants": ["participant_0", "...", "participant_n"],
                     },
 
+NB : It will also create a smaller JSON file ``short_flat_messages.json`` which is the same one as above, except only the 2000 first messages are kept. You can use it in case you need to run some quick test for example. 
 
 You are all set now !
