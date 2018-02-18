@@ -109,7 +109,7 @@ var json;
     left: 70,
   };
   var margin5 = {
-    top: 10,
+    top: 30,
     right: 10,
     bottom: 10,
     left: 10,
@@ -222,10 +222,8 @@ var json;
 }
 
 //Load data
-var data =  d3.json("short_flat_messages.json", function(json_file){
+var data =  d3.json("flat_messages.json", function(json_file){
   json = json_file;
-  console.log(json);
-  console.log(json.user);
   parse_date()
   intialize_conditions()
   add_message_displayer();
@@ -258,6 +256,8 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
 
 function add_message_displayer(){
   d3.select(canvas).on("mousemove", function() {
+
+    console.log("vegin display")
     var find_date = x1.invert(d3.event.clientX - canvas.getBoundingClientRect().left - margin1.left);
     find_date.setHours(0, 0, 0, 0)
     var find_time = y1.invert(d3.event.clientY - canvas.getBoundingClientRect().top)
@@ -269,8 +269,15 @@ function add_message_displayer(){
       message_displayer.selectAll("text").remove();
       message_displayer.append("text")
         .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+        .attr("dy", "0em")
         .text(message_tooltip[0].date)
+
+      message_displayer.append("text")
+      .attr("dy", "1em") // you can vary how far apart it shows up
+      .text(message_tooltip[0].message)
     }
+
+      console.log("end display")
   })
 }
 
@@ -511,7 +518,7 @@ function draw_histogram_mpd(){
      .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
 
   filters.append("g")
-     .attr("class", "y_hist")
+     .attr("class", "y_hist_mpd")
      .attr("transform", "translate(" + (margin3.left) + "," + margin3.top + ")")
      .call(d3.axisLeft(y3));
 }
