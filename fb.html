@@ -369,7 +369,7 @@ function draw_histogram_rs(){
      .attr("class", "bar_rs")
      .attr("transform", function(d, i) { return "translate(" + 0 + "," + y4(i) + ")"; });
 
-  var clicked_rect = null;
+  var clicked_rs = null;
 
   bar.append("rect")
      .style("fill", "steelblue")
@@ -377,37 +377,29 @@ function draw_histogram_rs(){
      .attr("height", y4(1))
      .attr("width", function(d) {console.log(x4(d.value)); return x4(d.value); })
      .attr("transform", "translate(" + margin3.left + "," + (margin3.top + y3.range()[1]) + ")")
-    /* .on("click", function(d){
+     .on("click", function(d){
+       console.log(d)
        json.data.forEach(function(element){
-          element._cd_message_per_day = true;
-        });
+          element._cd_sent_received = true;
+       });
 
-        filters.selectAll(".bar_rs")
+       filters.selectAll(".bar_rs")
            .selectAll("rect")
            .style("fill","steelblue");
 
-        if (clicked_rect !== d){
-
-          var all_dates = new Set();
-
-          for (var i=0;  i < d.length; i++ ){
-            all_dates.add(d[i].key)
-          };
-
-          d3.select(this)
-             .style("fill", "purple");
+       if (clicked_rs !== d){
+          d3.select(this).style("fill", "purple");
 
           json.data.forEach(function(element){
-               element._cd_message_per_day = false;
+               element._cd_sent_received = false;
           });
 
           json.data
-              .filter(function(e){return all_dates.has(String(e.date));})
-              .forEach(function(element){element._cd_message_per_day = true;});
-           clicked_rect = d;
-        }
-        else {
-          clicked_rect = null;
+              .filter(function(e){return String(e.sent) == d.key;})
+              .forEach(function(element){element._cd_sent_received = true;});
+          clicked_rs = d;
+        } else {
+          clicked_rs = null;
         }
         create_scatterplot();
      });
@@ -424,7 +416,7 @@ function draw_histogram_rs(){
      .attr("class", "_rs")
      .attr("transform", "translate(" + (margin3.left) + "," + margin3.top + ")")
      .call(d3.axisLeft(y3));
-     */
+
 }
 
 function draw_histogram_mpd(){
