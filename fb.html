@@ -18,22 +18,28 @@
     pointer-events: all;
   }
 
-  div.tooltip {
-    position: absolute;
-    text-align: center;
-    width: 120px;
-    height: 120px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
-  }
-
   .bar text {
     fill: purple;
     font: 15px sans-serif;
+  }
+
+  .bar rect {
+    stroke: white ;
+    stroke-width: 2px;
+    stroke-opacity: 0.0;
+  }
+
+  .tooltip {
+     position: absolute;
+     text-align: center;
+     width: 120px;
+     height: 120px;
+     padding: 2px;
+     font: 12px sans-serif;
+     background: lightsteelblue;
+     border: 0px;
+     border-radius: 8px;
+     pointer-events: none;
   }
 
   </style>
@@ -44,9 +50,10 @@
     <div id="main" style="background-color: white; width: 70%; vertical-align: top; height: 800px; display: inline-block;">
       <canvas></canvas>
     </div>
-    <div id="filters" style="background-color: green; width:19%; height: 950px; float: right; vertical-align: top; display: inline-block;"></div>
+    <div id="filters" style="background-color: green; width:19%; height: 800px; float: right; vertical-align: top; display: inline-block;"></div>
     <div id="place_holder" style="background-color: yellow; width: 10%; height: 150px; display: inline-block;"></div>
     <div id="density_date" style="background-color: red; width: 70%; height: 150px; display: inline-block;"></div>
+    <div id="message_displayer" style="background-color: purple; width: 19%; height: 150px; display: inline-block;"></div>
   </div>
 
   <script>
@@ -58,7 +65,7 @@ var json;
     var div_main = d3.select('#main')
     var div_filters = d3.select('#filters')
     var div_density_date = d3.select('#density_date')
-    var div_offset = d3.select('#offset')
+    var div_message_displayer = d3.select('#message_displayer')
 
     var canvas = document.querySelector("canvas"),
         context_canvas = canvas.getContext("2d");
@@ -67,6 +74,7 @@ var json;
     var div_main_2 = document.getElementById("main")
     var div_density_date_2 = document.getElementById("density_date")
     var div_density_time_2 = document.getElementById("density_time")
+    var div_message_displayer_2 = document.getElementById("message_displayer")
 
 }
 
@@ -96,6 +104,12 @@ var json;
     bottom: 50,
     left: 70,
   };
+  var margin5 = {
+    top: 10,
+    right: 10,
+    bottom: 10,
+    left: 10,
+  };
 
   var width = window.innerWidth;
   var height = window.innerHeight;
@@ -105,6 +119,8 @@ var json;
   var h2 = div_density_date_2.clientHeight - margin2.top - margin2.bottom;
   var w3 = div_filters_2.clientWidth - margin3.left - margin3.right;
   var h3 = div_filters_2.clientHeight - margin3.top - margin3.bottom;
+  var h5 = div_message_displayer_2.clientHeight - margin5.top - margin5.bottom;
+  var w5 = div_message_displayer_2.clientWidth - margin5.top - margin5.bottom;
 
   canvas.width = w1 + margin1.left;
   canvas.height = h1;
@@ -123,19 +139,22 @@ var json;
                         .append("svg")
                         .attr("height", (h2 + margin2.top + margin2.bottom))
                         .attr("width", (w2 + margin2.left + margin2.right))
-                        //.attr("transform", "translate(0," + (h1 + margin1.top + margin1.bottom) + ")");
 
   var axis_focus = div_main
                     .append("svg")
                     .attr("width", (w1 + margin1.left + margin1.right))
                     .attr("height", margin1.bottom)
-                    //.attr("transform", "translate(" + margin1.left + "," + (h1 + margin1.top) + ")");
 
   var filters = div_filters
             .append("svg")
             .attr("height", (h3 + margin3.top + margin3.bottom))
             .attr("width", (w3 + margin3.left + margin3.right))
-            //.attr("transform", "translate(" + (w1 + margin1.left + margin1.right) + ", 0)");
+
+  var message_displayer = div_message_displayer
+      .append("svg")
+      .attr("height", h5 + margin5.top + margin5.bottom)
+      .attr("width", w5 + margin5.left + margin5.right)
+
 }
 
 //Define parsers
@@ -171,6 +190,7 @@ var json;
 
   var xAxis2 = d3.axisBottom()
               .scale(x2);
+
 }
 
 //Defin brush and zoom
@@ -190,8 +210,9 @@ var json;
 var data =  d3.json("short_flat_messages.json", function(json_file){
 
   json = json_file;
-  parse_date()
-  intialize_conditions()
+  parse_date();
+  intialize_conditions();
+  add_message_displayer();
 
   //initialize domains
   var mindate_total = d3.min(json.data, function(d){return d.date}),
@@ -218,6 +239,24 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
         .call(brush.move, x2.range())
         .attr('transform', 'translate(' + margin2.left + ',' + 0 + ')');
 });
+
+function add_message_displayer(){
+  d3.select(canvas).on("mousemove", function() {
+    var find_date = x1.invert(d3.event.clientX - canvas.getBoundingClientRect().left - margin1.left);
+    find_date.setHours(0, 0, 0, 0)
+    var find_time = y1.invert(d3.event.clientY - canvas.getBoundingClientRect().top)
+    var message_tooltip = json.data.filter(function(d){
+      return (d.date == String(find_date) && precisionRound(d.time,1) === precisionRound(find_time,1))
+    })
+
+    if (message_tooltip.length > 0 ){
+      message_displayer.selectAll("text").remove();
+      message_displayer.append("text")
+        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+        .text(message_tooltip[0].date)
+    }
+  })
+}
 
 function parse_date(){
 json.data.forEach(function(d){
@@ -325,6 +364,16 @@ function draw_histogram(data_hist, max_date, min_date){
      .attr("height", y3(bins[0].x1) - y3(bins[0].x0) - 1)
      .attr("width", function(d) {return x3(d.length); })
      .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")")
+
+     // modifidier
+     .on("mouseover", function () {
+                    d3.select(this).style("stroke-opacity", 1);
+                })
+    .on("mouseout", function () {
+                    d3.select(this).style("stroke-opacity", 0.0);
+                })
+
+    // modifier
      .on("click", function(d){
        json.data.forEach(function(element){
           element._cd_message_per_day = true;
@@ -332,7 +381,7 @@ function draw_histogram(data_hist, max_date, min_date){
 
         filters.selectAll(".bar")
            .selectAll("rect")
-           .style("fill","steelblue");
+           .style("fill","grey");
 
         if (clicked_rect !== d){
 
@@ -343,7 +392,7 @@ function draw_histogram(data_hist, max_date, min_date){
           };
 
           d3.select(this)
-             .style("fill", "purple");
+             .style("fill", "steelblue");
 
           json.data.forEach(function(element){
                element._cd_message_per_day = false;
@@ -356,6 +405,10 @@ function draw_histogram(data_hist, max_date, min_date){
         }
         else {
           clicked_rect = null;
+
+          filters.selectAll(".bar")
+             .selectAll("rect")
+             .style("fill","steelblue");
         }
         create_scatterplot();
      });
@@ -457,6 +510,11 @@ function sortByDateAscending(a, b) {
      // Dates will be cast to numbers automagically:
      return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
  }
+
+function precisionRound(number, precision) {
+  var factor = Math.pow(10, precision);
+  return Math.round(number * factor) / factor;
+}
 
   </script>
 
