@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="https://d3js.org/d3-time.v1.min.js"></script>
-  <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
-  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script type="text/javascript" src="../d3/d3.js"></script>
   <style>
 
   .area {
@@ -86,7 +83,7 @@ var json;
 {
   var margin1 = {
     top: 20,
-    right: 20,
+    right: 50,
     bottom: 50,
     left: 70,
   };
@@ -123,6 +120,8 @@ var json;
   var h2 = div_density_date_2.clientHeight - margin2.top - margin2.bottom;
   var w3 = div_filters_2.clientWidth - margin3.left - margin3.right;
   var h3 = div_filters_2.clientHeight - margin3.top - margin3.bottom;
+  var w4 = div_density_time_2.clientWidth - margin4.left - margin4.right;
+  var h4 = div_density_time_2.clientHeight - margin4.top - margin4.bottom;
   var h5 = div_message_displayer_2.clientHeight - margin5.top - margin5.bottom;
   var w5 = div_message_displayer_2.clientWidth - margin5.top - margin5.bottom;
 
@@ -138,29 +137,35 @@ var json;
 
   var body = d3.select("body");
 
-
   var density_date = div_density_date
-                        .append("svg")
-                        .attr("height", (h2 + margin2.top + margin2.bottom))
-                        .attr("width", (w2 + margin2.left + margin2.right))
-                        //.attr("transform", "translate(0," + (h1 + margin1.top + margin1.bottom) + ")");
+      .append("svg")
+      .attr("height", (h2 + margin2.top + margin2.bottom))
+      .attr("width", (w2 + margin2.left + margin2.right));
 
-  var axis_focus = div_main
-                    .append("svg")
-                    .attr("width", (w1 + margin1.left + margin1.right))
-                    .attr("height", margin1.bottom)
-                    //.attr("transform", "translate(" + margin1.left + "," + (h1 + margin1.top) + ")");
+  var density_time = div_density_time
+      .append("svg")
+      .attr("height", (h4 + margin4.top + margin4.bottom))
+      .attr("width", (w4 + margin4.left + margin4.right));
+
+  var axis_date_focus = div_main
+      .append("svg")
+      .attr("width", (w1 + margin1.left + margin1.right))
+      .attr("height", margin1.bottom);
+
+  var axis_time_focus = div_main
+      .append("svg")
+      .attr("width", margin1.left)
+      .attr("height", h1 + margin1.bottom + margin1.top);
 
   var filters = div_filters
-            .append("svg")
-            .attr("height", (h3 + margin3.top + margin3.bottom))
-            .attr("width", (w3 + margin3.left + margin3.right))
-            //.attr("transform", "translate(" + (w1 + margin1.left + margin1.right) + ", 0)");
+      .append("svg")
+      .attr("height", (h3 + margin3.top + margin3.bottom))
+      .attr("width", (w3 + margin3.left + margin3.right));
 
   var message_displayer = div_message_displayer
       .append("svg")
       .attr("height", h5 + margin5.top + margin5.bottom)
-      .attr("width", w5 + margin5.left + margin5.right)
+      .attr("width", w5 + margin5.left + margin5.right);
 }
 
 //Define parsers
@@ -170,18 +175,29 @@ var json;
   var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
 }
 
+// Defin constants
+{
+  var min_time = new Date(2000, 0, 1);
+  var max_time = new Date(2000, 0, 1);
+  max_time.setHours(23);
+  max_time.setMinutes(59);
+}
+
 // Define scales and axes
 {
   //Main canvas
   var x1 = d3.scaleTime()
             .range([0, w1]);
 
-  var y1 = d3.scaleLinear()
-            .domain([0,24])
+  var y1 = d3.scaleTime()
+            .domain([min_time, max_time])
             .range([0,h1]);
 
   var xAxis1 = d3.axisBottom()
             .scale(x1);
+
+  var yAxis1 = d3.axisLeft()
+            .scale(y1);
 
   // Density date
   var x2 = d3.scaleTime()
@@ -200,19 +216,33 @@ var json;
   var y3 = d3.scaleLinear()
               .rangeRound([0,h3/3]);
 
-  // Histrogram Received/Sent
+  // Density time
   var x4 = d3.scaleLinear()
               .range([0, w3]);
 
-  var y4 = d3.scaleLinear()
+  var y4 = d3.scaleTime()
+            .range([0, h4]);
+
+  var yAxis4 = d3.axisLeft()
+              .scale(y4);
+
+  // Histrogram Received/Sent
+  var x5 = d3.scaleLinear()
+              .range([0, w3]);
+
+  var y5 = d3.scaleLinear()
               .rangeRound([0,h3/6]);
 }
 
 //Defin brush and zoom
 {
-  var brush = d3.brushX()
+  var brush_date = d3.brushX()
       .extent([[0, margin2.top], [w2, margin2.top + h2]])
-      .on("brush end", brushed);
+      .on("brush end", brushed_date);
+
+  var brush_time = d3.brushY()
+      .extent([[margin4.left, 0], [margin4.left + w4, h4]])
+      .on("brush end", brushed_time);
 
   var zoom = d3.zoom()
     .scaleExtent([1, Infinity])
@@ -222,7 +252,7 @@ var json;
 }
 
 //Load data
-var data =  d3.json("flat_messages.json", function(json_file){
+var data =  d3.json("short_flat_messages.json", function(json_file){
   json = json_file;
   parse_date()
   intialize_conditions()
@@ -237,27 +267,38 @@ var data =  d3.json("flat_messages.json", function(json_file){
 
   create_scatterplot();
 
-  axis_focus.append('g')
+  axis_date_focus.append('g')
     .attr('transform', 'translate(' + margin1.left + ',' + 0 + ')')
     .attr('class', 'x axis--x')
     .call(xAxis1);
 
-  draw_density();
+  axis_time_focus.append('g')
+    .attr('transform', 'translate(' + (margin1.left ) + ',' + 0 + ')')
+    .attr('class', 'y axis--y')
+    .call(yAxis1);
+
+  draw_density_date();
+  draw_density_time();
 
   draw_histogram_mpd();
-  draw_histogram_rs()
+  //draw_histogram_rs()
 
   density_date.append("g")
         .attr("class", "brush")
-        .call(brush)
-        .call(brush.move, x2.range())
+        .call(brush_date)
+        .call(brush_date.move, x2.range())
         .attr('transform', 'translate(' + margin2.left + ',' + 0 + ')');
+
+  density_time.append("g")
+        .attr("class", "brush")
+        .call(brush_time)
+        .call(brush_time.move, y4.range())
+        .attr('transform', 'translate(' + 0 + ',' + margin4.top + ')');
 });
 
 function add_message_displayer(){
   d3.select(canvas).on("mousemove", function() {
 
-    console.log("vegin display")
     var find_date = x1.invert(d3.event.clientX - canvas.getBoundingClientRect().left - margin1.left);
     find_date.setHours(0, 0, 0, 0)
     var find_time = y1.invert(d3.event.clientY - canvas.getBoundingClientRect().top)
@@ -277,7 +318,6 @@ function add_message_displayer(){
       .text(message_tooltip[0].message)
     }
 
-      console.log("end display")
   })
 }
 
@@ -311,7 +351,7 @@ function update_visible(){
   })
 }
 
-function draw_density(){
+function draw_density_date(){
   var nested_data = d3.nest().key(function(d){
   return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
   .rollup(function(leaves) {
@@ -343,6 +383,39 @@ function draw_density(){
     .call(xAxis2);
 }
 
+function draw_density_time(){
+  /*
+  var nested_data = d3.nest().key(function(d){
+  return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
+  .rollup(function(leaves) {
+      return  leaves.length
+  })
+  .entries(json.data);
+
+  nested_data = nested_data.sort(sortByDateAscending);
+
+  var max_message = d3.max(nested_data, function(d){return d.value});
+
+  y4.domain([0, max_message]);
+
+  var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .x(function(d) { return x4(parseUTCDate2(d.key));})
+    .y0(h4)
+    .y1(function(d) { return y4(d.value); });
+
+  density_date.append("path")
+      .datum(nested_data)
+      .attr("class", "area")
+      .attr("d", area)
+      .attr('transform', 'translate(' + margin4.left + ',' + (margin4.top) + ')')
+` */
+  density_time.append('g')
+    .attr('transform', 'translate(' + margin4.left + ',' + (margin4.top) + ')')
+    .attr('class', function(d) {console.log("lkj"); return 'y axis--y'})
+    .call(yAxis4);
+}
+
 function draw_histogram_rs(){
 
   //Remove old histogram
@@ -357,28 +430,27 @@ function draw_histogram_rs(){
      .rollup(function(array) {return array.length})
      .entries(json.data.filter(function(d){return d._visible;}));
 
-  y4.domain([0, 2]);
+  y5.domain([0, 2]);
 
   // Define domain horizontal axis
   var nb_max_message_per_bar = d3.max(nested_data_rs, function(d) {return d.value;})
-  x4.domain([0, nb_max_message_per_bar])
+  x5.domain([0, nb_max_message_per_bar])
 
   var bar = filters.selectAll(".bar_rs")
    .data(nested_data_rs)
    .enter().append("g")
      .attr("class", "bar_rs")
-     .attr("transform", function(d, i) { return "translate(" + 0 + "," + y4(i) + ")"; });
+     .attr("transform", function(d, i) { return "translate(" + 0 + "," + y5(i) + ")"; });
 
   var clicked_rs = null;
 
   bar.append("rect")
      .style("fill", "steelblue")
      .attr("y", 1)
-     .attr("height", y4(1))
-     .attr("width", function(d) {console.log(x4(d.value)); return x4(d.value); })
+     .attr("height", y5(1))
+     .attr("width", function(d) {console.log(x5(d.value)); return x5(d.value); })
      .attr("transform", "translate(" + margin3.left + "," + (margin3.top + y3.range()[1]) + ")")
      .on("click", function(d){
-       console.log(d)
        json.data.forEach(function(element){
           element._cd_sent_received = true;
        });
@@ -530,13 +602,14 @@ function zoomed(){
        draw_histogram_mpd()
    }
 
-   axis_focus.select(".axis--x").call(xAxis1);
+   axis_date_focus.select(".axis--x").call(xAxis1);
+   axis_time_focus.select(".axis--y").call(yAxis1);
 
    density_date.select(".brush")
-      .call(brush.move, x1.range().map(t.invertX, t));
+      .call(brush_date.move, x1.range().map(t.invertX, t));
 }
 
-function brushed() {
+function brushed_date() {
   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
   var s = d3.event.selection || x2.range();
   x1.domain(s.map(x2.invert, x2));
@@ -551,7 +624,31 @@ function brushed() {
       draw_histogram_mpd()
   }
 
-  axis_focus.select(".axis--x").call(xAxis1);
+  axis_date_focus.select(".axis--x").call(xAxis1);
+
+  density_date.select(".zoom")
+   .call(zoom.transform, d3.zoomIdentity
+                            .scale(width / (s[1] - s[0]))
+                            .translate(-s[0], 0)
+        );
+}
+
+function brushed_time() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
+  var s = d3.event.selection || y4.range();
+  y1.domain(s.map(y4.invert, y4));
+  intialize_conditions();
+  update_cd_date();
+  create_scatterplot();
+
+  if (y1.domain()[1] > y1.domain()[0]) {
+      draw_histogram_mpd();
+      }
+  else {
+      draw_histogram_mpd()
+  }
+
+  axis_date_focus.select(".axis--y").call(yAxis1);
 
   density_date.select(".zoom")
    .call(zoom.transform, d3.zoomIdentity
@@ -578,7 +675,10 @@ getDate = function(date){
 }
 
 getTime = function(date){ //Remove the ":" in order to match the correct format
-  return date.getHours() + date.getMinutes()/60;
+  var day = new Date(2000, 0, 1);
+  day.setHours(date.getHours());
+  day.setMinutes(date.getMinutes());
+  return day;
 };
 
 Date.prototype.getWeek = function() {
