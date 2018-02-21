@@ -47,14 +47,14 @@
 </head>
 <body>
   <div>
-    <div id="density_time" style="background-color: blue; width: 10%; height: 800px; display: inline-block;"></div>
-    <div id="main" style="background-color: white; width: 70%; vertical-align: top; height: 800px; display: inline-block;">
-      <canvas></canvas>
+    <div id="density_time" style="width: 10%; height: 800px; display: inline-block;"></div>
+    <div id="main" style="width: 70%; vertical-align: top; height: 800px; display: inline-block;">
+      <canvas id="canvas"></canvas>
     </div>
-    <div id="filters" style="background-color: green; width:19%; height: 800px; float: right; vertical-align: top; display: inline-block;"></div>
-    <div id="place_holder" style="background-color: yellow; width: 10%; height: 150px; display: inline-block;"></div>
-    <div id="density_date" style="background-color: red; width: 70%; height: 150px; display: inline-block;"></div>
-    <div id="message_displayer" style="background-color: purple; width: 19%; height: 150px; display: inline-block;"></div>
+    <div id="filters" style="width:19%; height: 800px; float: right; vertical-align: top; display: inline-block;"></div>
+    <div id="place_holder" style="width: 10%; height: 150px; display: inline-block;"></div>
+    <div id="density_date" style="width: 70%; height: 150px; display: inline-block;"></div>
+    <div id="message_displayer" style="width: 19%; height: 150px; display: inline-block;"></div>
   </div>
 
   <script>
@@ -77,9 +77,10 @@ var json;
     var div_density_time_2 = document.getElementById("density_time")
     var div_message_displayer_2 = document.getElementById("message_displayer")
 
+
 }
 
-//Define heights and widths
+//Define margins, heights and widths
 {
   var margin1 = {
     top: 20,
@@ -103,7 +104,7 @@ var json;
     top: 20,
     right: 20,
     bottom: 50,
-    left: 70,
+    left: 50,
   };
   var margin5 = {
     top: 30,
@@ -166,6 +167,13 @@ var json;
       .append("svg")
       .attr("height", h5 + margin5.top + margin5.bottom)
       .attr("width", w5 + margin5.left + margin5.right);
+/*
+  var test = d3.select("body").append("canvas").attr("transform", "translate(0, 1000)")
+  var canvas_ = d3.select("canvas").attr("transform", "translate(100, 1000)")
+  @og(d3.select("canvas"))
+  console.log(d3.select("body"))
+  console.log(d3.select("cmkjhsdfkj"))
+  */
 }
 
 //Define parsers
@@ -254,10 +262,18 @@ var json;
 //Load data
 var data =  d3.json("short_flat_messages.json", function(json_file){
   json = json_file;
-  parse_date()
-  intialize_conditions()
+  parse_date();
+  intialize_conditions();
   add_message_displayer();
+  initialize_scatterplot();
+  draw_density_date();
+  draw_density_time();
+  draw_histogram_mpd();
+  draw_histogram_rs();
+  initialize_brush();
+});
 
+function initialize_scatterplot(){
   //initialize domains
   var mindate_total = d3.min(json.data, function(d){return d.date}),
       maxdate_total = d3.max(json.data, function(d){return d.date});
@@ -276,13 +292,9 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
     .attr('transform', 'translate(' + (margin1.left ) + ',' + 0 + ')')
     .attr('class', 'y axis--y')
     .call(yAxis1);
+}
 
-  draw_density_date();
-  draw_density_time();
-
-  draw_histogram_mpd();
-  //draw_histogram_rs()
-
+function initialize_brush(){
   density_date.append("g")
         .attr("class", "brush")
         .call(brush_date)
@@ -294,7 +306,7 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
         .call(brush_time)
         .call(brush_time.move, y4.range())
         .attr('transform', 'translate(' + 0 + ',' + margin4.top + ')');
-});
+}
 
 function add_message_displayer(){
   d3.select(canvas).on("mousemove", function() {
@@ -332,10 +344,11 @@ function parse_date(){
 
 function intialize_conditions(){
   json.data.forEach(function(d){
-   d._cd_date = true;
-   d._cd_sent_received = true;
-   d._cd_message_per_day = true;
-   d._visible = true;
+    d._cd_date = true;
+    d._cd_time = true;
+    d._cd_sent_received = true;
+    d._cd_message_per_day = true;
+    d._visible = true;
   })
 }
 
@@ -345,19 +358,23 @@ function update_cd_date(){
   })
 }
 
+function update_cd_time(){
+  json.data.forEach(function(d){
+   d._cd_time = d.time > y1.domain()[0] && d.time < y1.domain()[1]
+  })
+}
+
 function update_visible(){
   json.data.forEach(function(d){
-    d._visible = d._cd_date && d._cd_sent_received && d._cd_message_per_day;
+    d._visible = d._cd_date && d._cd_time && d._cd_sent_received && d._cd_message_per_day;
   })
 }
 
 function draw_density_date(){
-  var nested_data = d3.nest().key(function(d){
-  return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
-  .rollup(function(leaves) {
-      return  leaves.length
-  })
-  .entries(json.data);
+  var nested_data = d3.nest()
+                      .key(function(d){return d.date.getWeek() + '-' + d.date.getMonth() + '-' + d.date.getFullYear();})
+                      .rollup(function(leaves){return leaves.length})
+                      .entries(json.data);
 
   nested_data = nested_data.sort(sortByDateAscending);
 
@@ -412,7 +429,7 @@ function draw_density_time(){
 ` */
   density_time.append('g')
     .attr('transform', 'translate(' + margin4.left + ',' + (margin4.top) + ')')
-    .attr('class', function(d) {console.log("lkj"); return 'y axis--y'})
+    .attr('class', function(d) {return 'y axis--y'})
     .call(yAxis4);
 }
 
@@ -448,7 +465,7 @@ function draw_histogram_rs(){
      .style("fill", "steelblue")
      .attr("y", 1)
      .attr("height", y5(1))
-     .attr("width", function(d) {console.log(x5(d.value)); return x5(d.value); })
+     .attr("width", function(d) {return x5(d.value); })
      .attr("transform", "translate(" + margin3.left + "," + (margin3.top + y3.range()[1]) + ")")
      .on("click", function(d){
        json.data.forEach(function(element){
@@ -496,9 +513,15 @@ function draw_histogram_mpd(){
   //Remove old histogram
   filters.selectAll('.bar_mpd')
      .remove();
+
+
+  console.log(filters.selectAll('.y_hist_mpd'))
+
+
   filters.selectAll('.y_hist_mpd')
      .remove();
 
+       console.log(filters.selectAll('.y_hist_mpd'))
   //Create nested dataset
   var nested_data_hist = d3.nest()
      .key(function(d){return d.date;})
@@ -593,14 +616,10 @@ function zoomed(){
    x1.domain(t.rescaleX(x2).domain());
    intialize_conditions();
    update_cd_date();
+   update_cd_time();
    create_scatterplot();
-
-   if (x1.domain()[1] > x1.domain()[0]) {
-       draw_histogram_mpd();
-   }
-   else {
-       draw_histogram_mpd()
-   }
+   draw_histogram_mpd();
+   draw_histogram_rs();
 
    axis_date_focus.select(".axis--x").call(xAxis1);
    axis_time_focus.select(".axis--y").call(yAxis1);
@@ -616,13 +635,8 @@ function brushed_date() {
   intialize_conditions();
   update_cd_date();
   create_scatterplot();
-
-  if (x1.domain()[1] > x1.domain()[0]) {
-      draw_histogram_mpd();
-      }
-  else {
-      draw_histogram_mpd()
-  }
+  draw_histogram_mpd();
+  draw_histogram_rs();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
 
@@ -638,17 +652,12 @@ function brushed_time() {
   var s = d3.event.selection || y4.range();
   y1.domain(s.map(y4.invert, y4));
   intialize_conditions();
-  update_cd_date();
+  update_cd_time();
   create_scatterplot();
+  draw_histogram_mpd();
+  draw_histogram_rs();
 
-  if (y1.domain()[1] > y1.domain()[0]) {
-      draw_histogram_mpd();
-      }
-  else {
-      draw_histogram_mpd()
-  }
-
-  axis_date_focus.select(".axis--y").call(yAxis1);
+  axis_time_focus.select(".axis--y").call(yAxis1);
 
   density_date.select(".zoom")
    .call(zoom.transform, d3.zoomIdentity
