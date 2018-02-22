@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript" src="../d3/d3.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-time.v1.min.js"></script>
+  <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
   <style>
 
   .area {
-    fill: steelblue;
+    fill: #2c7bb6;
     clip-path: url(#clip);
   }
 
@@ -29,12 +32,18 @@
   }
 
   .bar_mpd text {
-    fill: purple;
-    font: 15px sans-serif;
+    fill: #00a6ca;
+    font: 12px sans-serif;
+  }
+
+  .legend {
+    fill: #2c7bb6;
+    font: 18px sans-serif;
+    font-weight: bold;
   }
 
   .bar_mpd rect {
-      stroke: white ;
+      stroke: #2c7bb6;
       stroke-width: 2px;
       stroke-opacity: 0.0;
     }
@@ -84,21 +93,21 @@ var json;
 {
   var margin1 = {
     top: 20,
-    right: 50,
+    right: 20,
     bottom: 50,
     left: 70,
   };
   var margin2 = {
-    top: 20,
+    top: 10,
     right: 20,
-    bottom: 50,
+    bottom: 30,
     left: 70,
   };
   var margin3 = {
-    top: 20,
-    right: 20,
+    top: 40,
+    right: 60,
     bottom: 50,
-    left: 30,
+    left: 40,
   };
   var margin4 = {
     top: 20,
@@ -259,6 +268,27 @@ var json;
     .on("zoom", zoomed);
 }
 
+// Define Legend and border
+
+{
+  filters.append("text")
+    .attr("class", "legend")
+    .attr("text-anchor","start")
+    .attr('transform', 'translate(' + margin3.left + ',' + (margin3.top/2) + ')')
+    .attr("dy", "0em")
+    .text("Messages per day")
+
+  var borderPath = filters.append("rect")
+   .attr("x", 0)
+   .attr("y", 0)
+   .attr("height", h3 + margin3.top + margin3.bottom)
+   .attr("width", w3 + margin3.right +margin3.left)
+   .style("stroke", "#00a6ca")
+   .style("fill", "none")
+   .style("stroke-width", "2px")
+
+}
+
 //Load data
 var data =  d3.json("short_flat_messages.json", function(json_file){
   json = json_file;
@@ -271,6 +301,7 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
   draw_histogram_mpd();
   draw_histogram_rs();
   initialize_brush();
+
 });
 
 function initialize_scatterplot(){
@@ -435,7 +466,7 @@ function draw_density_time(){
 
 function draw_histogram_rs(){
 
-  //Remove old histogram
+/*  //Remove old histogram
   filters.selectAll('.bar_rs')
      .remove();
   filters.selectAll('.y_hist_rs')
@@ -502,10 +533,10 @@ function draw_histogram_rs(){
      .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
 
   filters.append("g")
-     .attr("class", "_rs")
+     .attr("class", "y_hist_rs")
      .attr("transform", "translate(" + (margin3.left) + "," + margin3.top + ")")
      .call(d3.axisLeft(y3));
-
+*/
 }
 
 function draw_histogram_mpd(){
@@ -513,15 +544,8 @@ function draw_histogram_mpd(){
   //Remove old histogram
   filters.selectAll('.bar_mpd')
      .remove();
-
-
-  console.log(filters.selectAll('.y_hist_mpd'))
-
-
-  filters.selectAll('.y_hist_mpd')
+  filters.selectAll(".y_hist_mpd")
      .remove();
-
-       console.log(filters.selectAll('.y_hist_mpd'))
   //Create nested dataset
   var nested_data_hist = d3.nest()
      .key(function(d){return d.date;})
@@ -554,7 +578,7 @@ function draw_histogram_mpd(){
   var clicked_rect = null;
 
   bar.append("rect")
-     .style("fill", "steelblue")
+     .style("fill", "#2c7bb6")
      .attr("y", 1)
      .attr("height", y3(bins[0].x1) - y3(bins[0].x0) - 1)
      .attr("width", function(d) {return x3(d.length); })
@@ -568,7 +592,7 @@ function draw_histogram_mpd(){
 
         filters.selectAll(".bar_mpd")
            .selectAll("rect")
-           .style("fill","steelblue");
+           .style("fill","#E0E0E0");
 
         if (clicked_rect !== d){
 
@@ -579,7 +603,7 @@ function draw_histogram_mpd(){
           };
 
           d3.select(this)
-             .style("fill", "purple");
+             .style("fill", "#2c7bb6");
 
           json.data.forEach(function(element){
                element._cd_message_per_day = false;
@@ -592,6 +616,9 @@ function draw_histogram_mpd(){
         }
         else {
           clicked_rect = null;
+          filters.selectAll(".bar_mpd")
+             .selectAll("rect")
+             .style("fill","#2c7bb6");
         }
         create_scatterplot();
      });
@@ -599,7 +626,7 @@ function draw_histogram_mpd(){
   bar.append("text")
      .attr("dy", ".75em")
      .attr("y", 6)
-     .attr("x", function(d) { return x3(d.length) + 12 ; })
+     .attr("x", function(d) { return x3(d.length) + 15 ; })
      .attr("text-anchor", "middle")
      .text(function(d) { return d.length; })
      .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
@@ -672,6 +699,13 @@ function create_scatterplot(){
   json.data.filter(function(d){return (d._visible);})
   .forEach(function(d){
       context_canvas.beginPath();
+      if (d.sender == "Mathilde Reynaud"){
+        context_canvas.fillStyle = "#2c7bb6";
+      }
+      else {
+        context_canvas.fillStyle = "#00ccbc";
+      }
+      context_canvas.globalAlpha = 0.1;
       context_canvas.arc(margin1.left + x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
       context_canvas.fill()
       context_canvas.closePath();
