@@ -13,7 +13,7 @@ If you already have an older version installed, you can upgrade it to the latest
 
 You can now transform ``messages.htm`` into a pretty Json file with the simple commande line :
 
-    fbcap ./messages.htm -f pretty json > messages.json 
+    fbcap ./messages.htm -f pretty-json > messages.json 
 
 It will transorme ``messages.htm`` into a pretty Json and then store it in a new Json file call ``messages.json ``
 
