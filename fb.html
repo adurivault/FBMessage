@@ -54,7 +54,7 @@
   }
   </style>
 </head>
-<body>
+<body bgcolor= #303030>
   <div>
     <div id="density_time" style="width: 10%; height: 800px; display: inline-block;"></div>
     <div id="main" style="width: 70%; vertical-align: top; height: 800px; display: inline-block;">
@@ -290,7 +290,7 @@ var json;
 }
 
 //Load data
-var data =  d3.json("short_flat_messages.json", function(json_file){
+var data =  d3.json("flat_messages.json", function(json_file){
   json = json_file;
   parse_date();
   intialize_conditions();
