@@ -47,29 +47,25 @@
       pointer-events: none;
     }
 
-    .bar_weekday text {
-      fill: #00a6ca;
-      font: 12px sans-serif;
-    }
-
-    .bar_rs text {
-      fill: #00a6ca;
-      font: 12px sans-serif;
-    }
-
-    .bar_person text {
-      fill: #00a6ca;
-      font: 12px sans-serif;
-    }
-
-    .legend {
-      fill: #A0A0A0;
+    .title_graph {
+      color: #A0A0A0;
       font: 18px sans-serif;
       font-weight: bold;
     }
 
-    .title {
+    .legend_hist_num {
+      fill: #00a6ca;
+      font: 12px sans-serif;
+    }
+
+    .legend_hist_text {
       fill: #A0A0A0;
+      font: 12px sans-serif;
+      font-weight: bold;
+    }
+
+    .title {
+      color: #A0A0A0;
       font: 30px sans-serif;
       font-weight: bold;
     }
@@ -92,10 +88,6 @@
       font-weight: bold;
     }
 
-    .legend_rs {
-      fill: #A0A0A0;
-      font: 14px sans-serif;
-    }
     .legend_message {
       fill: #A0A0A0;
       font: 13px sans-serif;
@@ -125,28 +117,119 @@
       stroke-opacity: 0.0;
     }
 
+    #filters::-webkit-scrollbar {
+        width: 1em;
+    }
+
+    #filters::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    }
+
+    #filters::-webkit-scrollbar-thumb {
+      background-color: darkgrey;
+      outline: 1px solid slategrey;
+    }
+
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    li {
+        float: left;
+    }
+
+    li a {
+        display: block;
+        font:15px sans-serif;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    /* Change the link color to #111 (black) on hover */
+    li a:hover {
+        background-color: #111;
+    }
+
+    .active {
+        background-color: #4CAF50;
+    }
+
+    .custom-file-upload {
+        fill: #A0A0A0;
+        background-color: #A0A0A0;
+        font:15px sans-serif;
+        font-weight: bold;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+    input[type="file"] {
+        display: none;
+    }
+
+
+
   </style>
 </head>
 <body bgcolor= #303030>
   <div>
-    <div id="title" style="display: inline-block; "></div>
-      <div id="density_time" style="display: inline-block; "></div>
-      <section id="main" style="display: inline-block; position: relative"></section>
-      <div id="filters" style="display: inline-block;"></div>
-      <div id="place_holder" style="display: inline-block;"></div>
-      <div id="density_date" style="display: inline-block;"></div>
-      <div id="message_displayer" style="display: inline-block;"></div>
+    <ul>
+      <li class="title">FBMessage Explorer</li>
+      <li style="float:right">
+        <a href="about.html">About</a>
+      </li>
+      <li  style="float:right">
+        <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)">
+        <label for="file" class="custom-file-upload">Upload your own file</label>
+      </li>
+    </ul>
+    <div id="density_time" style="display: inline-block; "></div>
+    <section id="main" style="display: inline-block; position: relative"></section>
+    <div id="filters" style="display: inline-block; overflow: scroll;"></div>
+    <div id="place_holder" style="display: inline-block;"></div>
+    <div id="density_date" style="display: inline-block;"></div>
+    <div id="message_displayer" style="display: inline-block;"></div>
   </div>
 
   <script>
 
+  var inputs = document.querySelectorAll( '.inputfile' );
+  Array.prototype.forEach.call( inputs, function( input )
+  {
+  	var label	 = input.nextElementSibling,
+  		labelVal = label.innerHTML;
+
+  	input.addEventListener( 'change', function( e )
+  	{
+  		var fileName = '';
+  		if( this.files && this.files.length > 1 )
+  			fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+  		else
+  			fileName = e.target.value.split( '\\' ).pop();
+
+  		if( fileName )
+  			label.querySelector( 'span' ).innerHTML = fileName;
+  		else
+  			label.innerHTML = labelVal;
+  	});
+  });
+
 // Define stuff
 {
+  var reader;
   var json;
   var messages, dim_sender, dim_date, dim_time, dim_weekday, dim_sent;
   var clicked_rs = new Set(),
       clicked_weekday = new Set(),
       clicked_person = new Set();
+
   // Define div, svg, etc..
   {
     //D3 elements
@@ -174,7 +257,7 @@
     var margin1 = {
       top: 10,
       right: 20,
-      bottom: 50,
+      bottom: 20,
       left: 40,
     };
     //Density date
@@ -195,7 +278,7 @@
     var margin4 = {
       top: 10,
       right: 10,
-      bottom: 50,
+      bottom: 20,
       left: 40,
     };
     //Message Displayer
@@ -217,11 +300,9 @@
     var height = window.innerHeight;
 
     // Set heights
-    var title_row_height = (height*0.08) + "px";
     var first_row_height = (height*0.73) + "px";
     var second_row_height = (height*0.17) + "px";
 
-    div_title_2.style.height = title_row_height;
     div_density_time_2.style.height = first_row_height;
     div_main_2.style.height = first_row_height;
     div_filters_2.style.height = first_row_height;
@@ -234,7 +315,6 @@
     var second_col_width = "69%";
     var third_col_width = "19%";
 
-    div_title_2.style.width = "100%";
     div_density_time_2.style.width = first_col_width;
     div_main_2.style.width = second_col_width;
     div_filters_2.style.width = third_col_width;
@@ -252,10 +332,10 @@
     var h4 = div_density_time_2.clientHeight - margin4.top - margin4.bottom;
     var h5 = div_message_displayer_2.clientHeight - margin5.top - margin5.bottom;
     var w5 = div_message_displayer_2.clientWidth - margin5.right - margin5.left;
-    var h6 = div_title_2.clientHeight - margin6.top - margin6.bottom;
-    var w6 = div_title_2.clientWidth - margin6.right - margin6.left;
 
     margin3.inter = h3/10
+
+    var h_bar = 12;
 
     var h3_weekday = h3/3
     var w3_weekday = w3
@@ -296,8 +376,6 @@
         .attr("height", h1)
         .style("padding-top", margin1.top + "px")
         .style("vertical-align", "top")
-        //.style("transform", "translate(" + (5 *margin1.left) + ")")
-        //.style("transform", "translateY(" + margin1.top + ")")
 
     var canvas_el = document.querySelector("canvas");
     var context_canvas = canvas_el.getContext("2d");
@@ -310,20 +388,25 @@
         .style("left", 0 + "px")
         .style("top", (margin1.top + h1) + "px");
 
-    var filters = div_filters
-        .append("svg")
-        .attr("height", (h3 + margin3.top + margin3.bottom))
-        .attr("width", (w3 + margin3.left + margin3.right));
-
     var message_displayer = div_message_displayer
         .append("svg")
         .attr("height", h5 + margin5.top + margin5.bottom)
         .attr("width", w5 + margin5.left + margin5.right);
 
-    var title = div_title
-        .append("svg")
-        .attr("height", h6 + margin6.top + margin6.bottom)
-        .attr("width", w6 + margin6.left + margin6.right);
+    var div_weekday = div_filters.append("div"),
+        title_weekday = div_weekday.append("h1"),
+        hist_weekday = div_weekday.append("svg");
+
+    var div_rs = div_filters.append("div"),
+        title_rs = div_rs.append("h1"),
+        hist_rs = div_rs.append("svg");
+
+    var div_person = div_filters.append("div"),
+        title_person = div_person.append("h1"),
+        hist_person = div_person.append("svg");
+
+    console.log(hist_person.getBBox)
+
   }
 
   //Define parsers
@@ -334,7 +417,7 @@
     var parseUTCDate_time = d3.timeParse("%Y-%m-%d-%H-%M");
   }
 
-  // Defin constants
+  // Define constants
   {
     var min_time = new Date(2000, 0, 1);
     min_time.setSeconds(1)
@@ -371,9 +454,6 @@
     var x3_weekday = d3.scaleLinear()
                 .range([0, w3]);
 
-    var y3_weekday = d3.scaleLinear()
-                .rangeRound([0,h3_weekday]);
-
     var num_to_day = d3.scaleOrdinal()
                 .domain([0,6])
                 .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
@@ -385,6 +465,9 @@
     var y3_rs = d3.scaleLinear()
                 .rangeRound([0,h3_rs]);
 
+    var num_to_rs = d3.scaleOrdinal()
+                .domain([0,1])
+                .range(["Recvd", "Sent"]);
     // Histogram Persons / Conversations
     var x3_person = d3.scaleLinear()
                 .range([0, w3]);
@@ -405,7 +488,7 @@
 
   }
 
-  //Define brush and zoom
+  // Define brush and zoom
   {
     var brush_date = d3.brushX()
         .extent([[0, margin2.top], [w2, margin2.top + h2]])
@@ -422,10 +505,29 @@
       .on("zoom", zoomed);
   }
 
+  //Define Histogram titles
+  {
+    title_weekday
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
+      .text("Week day")
+
+    title_rs
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' + 0 + ','+ 0 + ')')
+      .text("Sent/Received")
+
+    title_person
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Top 10 contacts")
+  }
+
+/*
   // Define Legend and border
-
-
-
   {
     title.append("text")
         .attr("class", "title")
@@ -472,29 +574,7 @@
         .attr("dy", "1em")
         .attr('transform', 'translate(' + (w6) + ',' + (margin6.top) + ')')
         .text("adurivault")
-
-    filters.append("text")
-      .attr("class", "legend")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' + margin3.left + ',' + (margin3.top/2) + ')')
-      .attr("dy", "0em")
-      .text("Week day")
-
-
-    filters.append("text")
-      .attr("class", "legend")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' + margin3.left + ',' + (margin3.inter*(2/3) + margin3.top + h3/3) + ')')
-      .attr("dy", "0em")
-      .text("Sent/Received")
-
-    filters.append("text")
-      .attr("class", "legend")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' + margin3.left + ',' + (margin3.inter*(5/3) + y3_weekday.range()[1] + y3_rs.range()[1] + margin3.top) + ')')
-      .attr("dy", "0em")
-      .text("Top 10 contacts")
-
+/*
     var borderPath_filters = filters.append("rect")
      .attr("x", 0)
      .attr("y", 0)
@@ -504,87 +584,90 @@
      .style("fill", "none")
      .style("stroke-width", "2px")
 
-     var borderPath_tooltip = message_displayer.append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("height", h5 + margin5.top + margin5.bottom)
-      .attr("width", w5 + margin5.right +margin5.left)
-      .style("stroke", "#C8C8C8")
-      .style("fill", "none")
-      .style("stroke-width", "2px")
+}
+*/
 
+  // Define message_displayer
+{
+  var borderPath_tooltip = message_displayer.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("height", h5 + margin5.top + margin5.bottom)
+    .attr("width", w5 + margin5.right +margin5.left)
+    .style("stroke", "#C8C8C8")
+    .style("fill", "none")
+    .style("stroke-width", "2px")
 
-      message_displayer.append("text")
-        .attr("class", "legend_message")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "1em")
-        .attr("text-anchor","start")
-        .text("Message")
+  message_displayer.append("text")
+    .attr("class", "legend_message")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "1em")
+    .attr("text-anchor","start")
+    .text("Message")
 
-      first_part_text = message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "2em")
-        .attr("text-anchor","start")
-        .text("")
+  first_part_text = message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "2em")
+    .attr("text-anchor","start")
+    .text("")
 
-      second_part_text = message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "3em")
-        .attr("text-anchor","start")
-        .text("")
+  second_part_text = message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "3em")
+    .attr("text-anchor","start")
+    .text("")
 
-      third_part_text = message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "4em")
-        .attr("text-anchor","start")
-        .text("")
+  third_part_text = message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "4em")
+    .attr("text-anchor","start")
+    .text("")
 
-      message_displayer.append("text")
-        .attr("class", "legend_message")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "5em")
-        .attr("text-anchor","start")
-        .text("Sender")
+  message_displayer.append("text")
+    .attr("class", "legend_message")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "5em")
+    .attr("text-anchor","start")
+    .text("Sender")
 
-      sender_message = message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "6em")
-        .attr("text-anchor","start")
-        .text("")
+  sender_message = message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "6em")
+    .attr("text-anchor","start")
+    .text("")
 
-      message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "7em")
-        .attr("text-anchor","start")
-        .text("")
+  message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "7em")
+    .attr("text-anchor","start")
+    .text("")
 
-      message_displayer.append("text")
-        .attr("class", "legend_message")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "8em")
-        .attr("text-anchor","start")
-        .text("Date")
+  message_displayer.append("text")
+    .attr("class", "legend_message")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "8em")
+    .attr("text-anchor","start")
+    .text("Date")
 
-      date_message = message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "9em")
-        .attr("text-anchor","start")
-        .text("")
+  date_message = message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "9em")
+    .attr("text-anchor","start")
+    .text("")
 
-      message_displayer.append("text")
-        .attr("class", "legend_message_2")
-        .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-        .attr("dy", "10em")
-        .attr("text-anchor","start")
-        .text("")
-
-  }
+  message_displayer.append("text")
+    .attr("class", "legend_message_2")
+    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
+    .attr("dy", "10em")
+    .attr("text-anchor","start")
+    .text("")
+    }
 
   // Define colors
   {
@@ -595,10 +678,27 @@
   }
 }
 
-//Load data
-var data =  d3.json("short_flat_messages.json", function(json_file){
+function read(file){
+  reader = new FileReader();
+  reader.onloadend = assign_file;
+  reader.readAsText(file[0])
+}
+
+function assign_file(){
+  json = JSON.parse(reader.result);
+  user_name = json.user;
+  main();
+}
+
+d3.json("short_flat_messages.json", load_demo)
+
+function load_demo(json_file){
   json = json_file;
-  user_name = json.user
+  user_name = json.user;
+  main();
+}
+
+function main(){
   parse_date();
   initialize_crossfilter();
   add_message_displayer();
@@ -609,13 +709,11 @@ var data =  d3.json("short_flat_messages.json", function(json_file){
   draw_histogram_rs();
   draw_histogram_person();
   initialize_brush();
-
-});
+}
 
 function initialize_crossfilter(){
   messages = crossfilter(json.data)
   dim_sent = messages.dimension(function(d) {return d.sent;})
-  dim_index = messages.dimension(function(d) {return d.index;})
   dim_date = messages.dimension(function(d) {return d.date;})
   dim_time = messages.dimension(function(d) {return d.time;})
   dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
@@ -631,6 +729,9 @@ function initialize_crossfilter(){
 
 function initialize_scatterplot(){
   //initialize domains
+  axis_time_focus.selectAll(".axis--y").remove();
+  axis_date_focus.selectAll(".axis--x").remove();
+
   var mindate_total = d3.min(json.data, function(d){return d.date}),
       maxdate_total = d3.max(json.data, function(d){return d.date});
 
@@ -651,6 +752,9 @@ function initialize_scatterplot(){
 }
 
 function initialize_brush(){
+  density_date.selectAll(".brush").remove()
+  density_time.selectAll(".brush").remove()
+
   density_date.append("g")
         .attr("class", "brush")
         .call(brush_date)
@@ -710,8 +814,9 @@ function parse_date(){
   })
 };
 
-
 function draw_density_date(){
+  density_date.selectAll().remove()
+
   var nested_data_date = group_date.all()
   nested_data_date = d3.nest()
                           .key(function(d){ return d.key.getWeek() + '-' + d.key.getMonth() + '-' + d.key.getFullYear();})
@@ -770,6 +875,7 @@ function update_density_date(){
 }
 
 function draw_density_time(){
+  density_time.selectAll().remove()
   nested_data_time = group_time.all();
   var max_message = d3.max(nested_data_time, function(d){return d.value});
 
@@ -815,9 +921,9 @@ function update_density_time(){
 
 function draw_histogram_rs(){
  //Remove old histogram
-  filters.selectAll('.bar_rs')
+  hist_rs.selectAll('.bar_rs')
      .remove();
-  filters.selectAll('.y_hist_rs')
+  hist_rs.selectAll('.y_hist_rs')
      .remove();
 
  //Create nested dataset
@@ -830,11 +936,11 @@ function draw_histogram_rs(){
   var nb_max_message_per_bar = d3.max(nested_data_rs, function(d) {return d.value;})
   x3_rs.domain([0, nb_max_message_per_bar])
 
-  var bar_rs = filters.selectAll(".bar_rs")
+  var bar_rs = hist_rs.selectAll(".bar_rs")
    .data(nested_data_rs)
    .enter().append("g")
      .attr("class", "bar_rs")
-     .attr("transform", function(d, i) { return "translate(" + 0 + "," + y3_rs(i*1.05) + ")"; });
+     .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
 
   bar_rs.append("rect")
       .style("fill", function(d){
@@ -844,10 +950,9 @@ function draw_histogram_rs(){
           } else {
             return color_unselected;
           };})
-     .attr("y", 1)
-     .attr("height", y3_rs(1))
+     .attr("height", h_bar)
      .attr("width", function(d) {return x3_rs(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (y3_weekday.range()[1] + margin3.inter + margin3.top) + ")")
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
      .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
      .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
      .on("click", function(d){
@@ -859,14 +964,14 @@ function draw_histogram_rs(){
 
         if (clicked_rs.size == 0) {
           //Colors all bar as selected
-          filters.selectAll(".bar_rs")
+          hist_rs.selectAll(".bar_rs")
             .selectAll("rect")
             .style("fill", color_selected);
           //Remove filter
           dim_sent.filter()
         } else {
           //Color all bars according to selected or not
-          filters.selectAll(".bar_rs")
+          hist_rs.selectAll(".bar_rs")
             .selectAll("rect")
             .style("fill", function(d){
                 if(clicked_rs.has(d.key)){
@@ -886,49 +991,52 @@ function draw_histogram_rs(){
       create_scatterplot();
      });
 
-  // Add legends and stuff
-  bar_rs.append("text")
-     .attr("dy", ".75em")
-     .attr("y", 6)
-     .attr("x", function(d) { return x3_rs(d.value) + 20 ; })
-     .attr("text-anchor", "middle")
-     .text(function(d) { return d.value; })
-     .attr("transform", "translate(" + margin3.left + "," + (margin3.top + margin3.inter + h3/2.8) + ")");
+ // Add legends and stuff
+ bar_rs.append("text")
+    .attr("class", "legend_hist_num")
+    .attr("dy", "0.35em")
+    .attr("y", h_bar/2 + "px")
+    .attr("x", function(d) { return x3_rs(d.value) +2; })
+    .attr("text-anchor", "left")
+    .text(function(d) { return d.value; })
+    .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
 
- filters.append("text")
-   .attr("class", "legend_rs")
-   .attr("transform", "translate(" + margin3.left/1.8 + "," + (margin3.top + margin3.inter + h3/2.95 + y3_rs(1)) + ") rotate(270)")
-   .text("Received");
+ bar_rs.append("text")
+    .attr("class", "legend_hist_text")
+    .attr("dy", "0.35em")
+    .attr("y", h_bar/2 + "px")
+    .text(function(d){return num_to_rs(d.key)});
 
- filters.append("text")
-   .attr("class", "legend_rs")
-   .attr("transform", "translate(" + margin3.left/1.8 + "," + (margin3.top + margin3.inter + h3/3 + 2*y3_rs(1)) + ") rotate(270)")
-   .text("Send");
+ // Adjust svg size
+ bbox = hist_rs.nodes()[0].getBBox();
+ hist_rs
+   .attr("width", bbox.x + bbox.width  + "px")
+   .attr("height",bbox.y + bbox.height + "px")
+
 }
 
 function draw_histogram_weekday(){
- //Remove old histogram
-  filters.selectAll('.bar_weekday')
+   //Remove old histogram
+  hist_weekday.selectAll('.bar_weekday')
      .remove();
-  filters.selectAll('.y_hist_weekday')
+  hist_weekday.selectAll('.y_hist_weekday')
      .remove();
 
  //Create nested dataset
   nested_data_weekday = group_weekday.all()
 
-  //Define domain vertical axis
-  y3_weekday.domain([0,7]);
-
   // Define domain horizontal axis
   var nb_max_message_per_bar = d3.max(nested_data_weekday, function(d) {return d.value;})
   x3_weekday.domain([0, nb_max_message_per_bar])
 
-  var bar_weekday = filters.selectAll(".bar_weekday")
+  // Add one group for each bar. Each group contains the bar, and the legends
+  var bar_weekday = hist_weekday.selectAll(".bar_weekday")
    .data(nested_data_weekday)
    .enter().append("g")
      .attr("class", "bar_weekday")
-     .attr("transform", function(d, i) {return "translate(" + 0 + "," + y3_weekday(i*1.05) + ")"; });
+     .attr("transform", function(d, i) {return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
 
+  // Add rectangles to the groups
   bar_weekday.append("rect")
       .style("fill", function(d){
           if (clicked_weekday.size == 0) {return color_selected;}
@@ -937,10 +1045,9 @@ function draw_histogram_weekday(){
           } else {
             return color_unselected;
           };})
-     .attr("y", 1)
-     .attr("height", y3_weekday(1))
+     .attr("height", h_bar)
      .attr("width", function(d) {return x3_weekday(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (margin3.inter*(3/4)) + ")")
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
      .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
      .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
      .on("click", function(d){
@@ -952,14 +1059,14 @@ function draw_histogram_weekday(){
 
         if (clicked_weekday.size == 0) {
           //Colors all bar as selected
-          filters.selectAll(".bar_weekday")
+          hist_weekday.selectAll(".bar_weekday")
             .selectAll("rect")
             .style("fill", color_selected);
           //Remove filter
           dim_weekday.filter(null)
         } else {
           //Color all bars according to selected or not
-          filters.selectAll(".bar_weekday")
+          hist_weekday.selectAll(".bar_weekday")
             .selectAll("rect")
             .style("fill", function(d){
                 if(clicked_weekday.has(d.key)){
@@ -979,27 +1086,34 @@ function draw_histogram_weekday(){
       create_scatterplot();
      });
 
-
   // Add legends and stuff
   bar_weekday.append("text")
-     .attr("dy", ".75em")
-     .attr("y", 3)
-     .attr("x", function(d) { return (x3_weekday(d.value) + 20 ); })
-     .attr("text-anchor", "middle")
+     .attr("class", "legend_hist_num")
+     .attr("dy", "0.35em")
+     .attr("y", h_bar/2 + "px")
+     .attr("x", function(d) { return (x3_weekday(d.value) + 2); })
+     .attr("text-anchor", "left")
      .text(function(d) { return d.value; })
-     .attr("transform", "translate(" + margin3.left + "," + (margin3.inter*(3/4)) + ")");
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
 
   bar_weekday.append("text")
-     .attr("class", "legend_weekday")
-     .attr("transform", "translate(" + margin3.left/3 + "," + (margin3.inter*(3/4) + y3_weekday(1)/2) + ")")
+     .attr("class", "legend_hist_text")
+     .attr("dy", "0.35em")
+     .attr("y", h_bar/2 + "px")
      .text(function(d){return num_to_day(d.key)});
+
+ // Adjust svg size
+ bbox = hist_weekday.nodes()[0].getBBox();
+ hist_weekday
+   .attr("width", bbox.x + bbox.width  + "px")
+   .attr("height",bbox.y + bbox.height + "px")
 }
 
 function draw_histogram_person(){
  //Remove old histogram
-  filters.selectAll('.bar_person')
+  hist_person.selectAll('.bar_person')
      .remove();
-  filters.selectAll('.y_hist_person')
+  hist_person.selectAll('.y_hist_person')
      .remove();
 
   //Create nested dataset
@@ -1010,13 +1124,13 @@ function draw_histogram_person(){
   x3_person.domain([0, max_num]);
   y3_person.domain([0, 11.1])
 
-  var bar = filters.selectAll(".bar_person")
+  var bar_person = hist_person.selectAll(".bar_person")
    .data(nested_data_person_short)
    .enter().append("g")
      .attr("class", "bar_person")
-     .attr("transform", function(d,i) { return "translate(" + 0 + "," + y3_person(i*1.1) + ")"; });
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
 
-  bar.append("rect")
+  bar_person.append("rect")
       .style("fill", function(d){
           if (clicked_person.size == 0) {return color_selected;}
           if(clicked_person.has(d.key)){
@@ -1024,10 +1138,9 @@ function draw_histogram_person(){
           } else {
             return color_unselected;
           };})
-     .attr("y", 1)
-     .attr("height", y3_person(1))
+     .attr("height", h_bar)
      .attr("width", function(d) {return x3_person(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (margin3.top + y3_weekday.range()[1] + y3_rs.range()[1] + 2*margin3.inter) + ")")
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
      .on("mouseover", function(d) {
             div.transition()
                 .duration(200)
@@ -1051,14 +1164,14 @@ function draw_histogram_person(){
 
           if (clicked_person.size == 0) {
             //Colors all bar as selected
-            filters.selectAll(".bar_person")
+            hist_person.selectAll(".bar_person")
               .selectAll("rect")
               .style("fill", color_selected);
             //Remove filter
             dim_person.filter()
           } else {
             //Color all bars according to selected or not
-            filters.selectAll(".bar_person")
+            hist_person.selectAll(".bar_person")
               .selectAll("rect")
               .style("fill", function(d){
                   if(clicked_person.has(d.key)){
@@ -1078,14 +1191,20 @@ function draw_histogram_person(){
           create_scatterplot();
        });
 
-  bar.append("text")
-     .attr("dy", ".75em")
-     .attr("y", 6)
-     .attr("x", function(d) { return x3_person(d.value) + 18 ; })
-     .attr("text-anchor", "middle")
-     .text(function(d) { return d.value; })
-     .attr("transform", "translate(" + margin3.left + "," + (margin3.top + y3_weekday.range()[1] + y3_rs.range()[1] + 2*margin3.inter) + ")");
+   bar_person.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_person(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
 
+  // Adjust svg size
+  bbox = hist_person.nodes()[0].getBBox();
+  hist_person
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
 }
 
 function zoomed(){
@@ -1171,7 +1290,7 @@ getDate = function(date){
   return parseUTCDate(string);
 }
 
-getTime = function(date){ //Remove the ":" in order to match the correct format
+getTime = function(date){
   var day = new Date(2000, 0, 1);
   day.setHours(date.getHours());
   day.setMinutes(date.getMinutes());
