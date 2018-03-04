@@ -117,6 +117,12 @@
       stroke-opacity: 0.0;
     }
 
+    .sender rect {
+      stroke: #2c7bb6;
+      stroke-width: 2px;
+      stroke-opacity: 0.0;
+    }
+
     #filters::-webkit-scrollbar {
         width: 1em;
     }
@@ -228,7 +234,8 @@
   var messages, dim_sender, dim_date, dim_time, dim_weekday, dim_sent;
   var clicked_rs = new Set(),
       clicked_weekday = new Set(),
-      clicked_person = new Set();
+      clicked_person = new Set()
+      clicked_sender = new Set();
 
   // Define div, svg, etc..
   {
@@ -336,15 +343,6 @@
     margin3.inter = h3/10
 
     var h_bar = 12;
-
-    var h3_weekday = h3/3
-    var w3_weekday = w3
-
-    var h3_rs = h3/6
-    var w3_rs = w3
-
-    var h3_person = h3/3
-    var w3_person = w3
   }
 
   // Define div, svg, etc..
@@ -405,7 +403,9 @@
         title_person = div_person.append("h1"),
         hist_person = div_person.append("svg");
 
-    console.log(hist_person.getBBox)
+    var div_sender = div_filters.append("div"),
+        title_sender = div_sender.append("h1"),
+        hist_sender = div_sender.append("svg");
 
   }
 
@@ -462,18 +462,17 @@
     var x3_rs = d3.scaleLinear()
                 .range([0, w3]);
 
-    var y3_rs = d3.scaleLinear()
-                .rangeRound([0,h3_rs]);
-
     var num_to_rs = d3.scaleOrdinal()
                 .domain([0,1])
                 .range(["Recvd", "Sent"]);
+
     // Histogram Persons / Conversations
     var x3_person = d3.scaleLinear()
                 .range([0, w3]);
 
-    var y3_person = d3.scaleLinear()
-                .rangeRound([0,h3_person]);
+    // Histogram Sender
+    var x3_sender = d3.scaleLinear()
+                .range([0, w3]);
 
     // Density time
     var x4 = d3.scaleLinear()
@@ -523,7 +522,13 @@
       .attr("class", "title_graph")
       .attr("text-anchor","start")
       .attr('transform', 'translate(' +0 + ',' + 0 + ')')
-      .text("Top 10 contacts")
+      .text("Top 10 conversations")
+
+    title_sender
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Top 10 senders")
   }
 
 /*
@@ -708,6 +713,7 @@ function main(){
   draw_histogram_weekday();
   draw_histogram_rs();
   draw_histogram_person();
+  draw_histogram_sender();
   initialize_brush();
 }
 
@@ -717,12 +723,14 @@ function initialize_crossfilter(){
   dim_date = messages.dimension(function(d) {return d.date;})
   dim_time = messages.dimension(function(d) {return d.time;})
   dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
+  dim_sender = messages.dimension(function(d) {return d.sender;})
   dim_weekday = messages.dimension(function(d) {return d.date.getDay();})
 
   group_sent = dim_sent.group()
   group_date = dim_date.group()
   group_time = dim_time.group()
   group_person = dim_person.group()
+  group_sender = dim_sender.group()
   group_weekday = dim_weekday.group()
 
 }
@@ -929,9 +937,6 @@ function draw_histogram_rs(){
  //Create nested dataset
   nested_data_rs = group_sent.all()
 
-  //Define domain vertical axis
-  y3_rs.domain([0, 2]);
-
   // Define domain horizontal axis
   var nb_max_message_per_bar = d3.max(nested_data_rs, function(d) {return d.value;})
   x3_rs.domain([0, nb_max_message_per_bar])
@@ -986,6 +991,7 @@ function draw_histogram_rs(){
 
       draw_histogram_weekday ();
       draw_histogram_person();
+      draw_histogram_sender();
       update_density_date();
       update_density_time();
       create_scatterplot();
@@ -1081,6 +1087,7 @@ function draw_histogram_weekday(){
 
       draw_histogram_rs();
       draw_histogram_person();
+      draw_histogram_sender();
       update_density_date();
       update_density_time();
       create_scatterplot();
@@ -1122,7 +1129,6 @@ function draw_histogram_person(){
   //nested_data_person_short = nested_data_person.slice(0,10)
 
   x3_person.domain([0, max_num]);
-  y3_person.domain([0, 11.1])
 
   var bar_person = hist_person.selectAll(".bar_person")
    .data(nested_data_person_short)
@@ -1186,6 +1192,7 @@ function draw_histogram_person(){
 
           draw_histogram_weekday();
           draw_histogram_rs();
+          draw_histogram_sender();
           update_density_date();
           update_density_time();
           create_scatterplot();
@@ -1207,6 +1214,106 @@ function draw_histogram_person(){
     .attr("height",bbox.y + bbox.height + "px")
 }
 
+
+function draw_histogram_sender(){
+ //Remove old histogram
+  hist_sender.selectAll('.bar_sender')
+     .remove();
+  hist_sender.selectAll('.y_hist_sender')
+     .remove();
+
+  //Create nested dataset
+  var nested_data_sender_short = group_sender.top(10)
+  var max_num = nested_data_sender_short["0"]["value"]
+
+  x3_sender.domain([0, max_num]);
+
+  var bar_sender = hist_sender.selectAll(".bar_sender")
+   .data(nested_data_sender_short)
+   .enter().append("g")
+     .attr("class", "bar_sender")
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
+
+  bar_sender.append("rect")
+      .style("fill", function(d){
+          if (clicked_sender.size == 0) {return color_selected;}
+          if(clicked_sender.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_sender(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
+     .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div	.html(d.key.substring(0, 30))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            d3.select(this).style("stroke-opacity", 1);
+      })
+      .on("mouseout", function(d) {
+          div.transition().duration(500).style("opacity", 0);
+          d3.select(this).style("stroke-opacity", 0.0);
+      })
+      .on("click", function(d){
+          //Update the clicked rectangles
+          if (clicked_sender.has(d.key))
+             {clicked_sender.delete(d.key)}
+          else
+             {clicked_sender.add(d.key);}
+
+          if (clicked_sender.size == 0) {
+            //Colors all bar as selected
+            hist_sender.selectAll(".bar_sender")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            dim_sender.filter()
+          } else {
+            //Color all bars according to selected or not
+            hist_sender.selectAll(".bar_sender")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(clicked_sender.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+              //Apply filters
+              dim_sender.filter(function(a){return clicked_sender.has(a)})
+          }
+
+          draw_histogram_weekday();
+          draw_histogram_rs();
+          draw_histogram_person();
+          update_density_date();
+          update_density_time();
+          create_scatterplot();
+       });
+
+   bar_sender.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_sender(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  // Adjust svg size
+  bbox = hist_sender.nodes()[0].getBBox();
+  hist_sender
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
+}
+
+
+
 function zoomed(){
    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
    var t = d3.event.transform;
@@ -1218,6 +1325,7 @@ function zoomed(){
    draw_histogram_weekday();
    draw_histogram_rs();
    draw_histogram_person();
+   draw_histogram_sender();
    create_scatterplot();
 
    axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1236,6 +1344,7 @@ function brushed_date() {
   draw_histogram_weekday();
   draw_histogram_rs();
   draw_histogram_person();
+  draw_histogram_sender();
   create_scatterplot();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1256,6 +1365,7 @@ function brushed_time() {
   draw_histogram_weekday();
   draw_histogram_rs();
   draw_histogram_person();
+  draw_histogram_sender();
   create_scatterplot();
 
   axis_time_focus.select(".axis--y").call(yAxis1);
