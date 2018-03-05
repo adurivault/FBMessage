@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<head>
+<head
+<html lang="en">
   <meta charset="utf-8">
   <title>FBMessage Explorer</title>
   <link rel="icon" type="image/JPG" href="fb.jpg"/>
@@ -174,12 +175,62 @@
         font-weight: bold;
         display: inline-block;
         padding: 6px 12px;
+        margin-right: 10px;
         cursor: pointer;
     }
     input[type="file"] {
         display: none;
     }
 
+    .custom-about {
+      fill: #A0A0A0;
+      background-color: #A0A0A0;
+      font:14px sans-serif;
+      font-weight: bold;
+      display: inline-block;
+      padding: 6px 12px;
+
+      cursor: pointer;
+    }
+
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        font: 16px sans-serif;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
 
 
   </style>
@@ -188,8 +239,10 @@
   <div>
     <ul>
       <li class="title">FBMessage Explorer</li>
-      <li style="float:right">
-        <a href="about.html">About</a>
+      <li class = "nav-item" style="float:right">
+            <button type="button" class="custom-about" id="myBtn">
+                About
+            </button>
       </li>
       <li  style="float:right">
         <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)">
@@ -203,6 +256,42 @@
     <div id="density_date" style="display: inline-block;"></div>
     <div id="message_displayer" style="display: inline-block;"></div>
   </div>
+
+  <!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>
+    <p>
+    Authors :
+    				<a href="https://github.com/MathReynaud"> Mathilde Reynaud </a> |
+    				<a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
+
+    </p>
+    <h2> Want to upload your own data ?</h2>
+    <p>
+    As soon as we discovered that we could download our Facebook History, we always wanted
+    to explore our data. The dataset use here is a false datased, with one purpose only : the demonstration.
+    But the good news is that you can upload yours. In order to have it, juste follow the
+    instructions <a href="https://github.com/adurivault/FBMessage/blob/master/DATA.md"> here</a>.
+    Once you followed all the steps and you have your file ready, just click on "Upload you own file" and just
+    enjoy !
+    <p>
+
+    <h2> How do I use the tool ?</h2>
+
+    If you are a little bit lost, you can go see our Youtube video where everything is explained in details.
+
+    <h2> Want to learn more about it ?</h2>
+    If you want to learn more about this project you can directly go on the Github
+    <a href="https://github.com/adurivault/FBMessage"> repository </a>
+
+    </p>
+  </div>
+
+</div>
 
   <script>
 
@@ -343,6 +432,35 @@
     margin3.inter = h3/10
 
     var h_bar = 12;
+  }
+
+  // Defin the About pop up
+  {
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
   }
 
   // Define div, svg, etc..
@@ -695,7 +813,7 @@ function assign_file(){
   main();
 }
 
-d3.json("short_flat_messages.json", load_demo)
+d3.json("anonyms_flat_messages.json", load_demo)
 
 function load_demo(json_file){
   json = json_file;
@@ -1442,3 +1560,4 @@ function precisionRound(number, precision) {
   </script>
 
 </body>
+</html>
