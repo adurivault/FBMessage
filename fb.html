@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>FBMessage Explorer</title>
   <link rel="icon" type="image/JPG" href="fb.jpg"/>
-<script src="d3.js"></script>
-<script src="crossfilter.js"></script>
+  <script src="d3.js"></script>
+  <script src="crossfilter.js"></script>
   <style>
 
     .axis--x line{stroke: #A0A0A0;}
@@ -887,6 +887,8 @@ function initialize_crossfilter(){
   dim_sent = messages.dimension(function(d) {return d.sent;})
   dim_date = messages.dimension(function(d) {return d.date;})
   dim_time = messages.dimension(function(d) {return d.time;})
+  dim_date_tt = messages.dimension(function(d) {return d.date;}) //For tooltip
+  dim_time_tt = messages.dimension(function(d) {return d.time;}) //For tooltip
   dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
   dim_sender = messages.dimension(function(d) {return d.sender;})
   dim_length = messages.dimension(find_length_tick);
@@ -994,13 +996,17 @@ function initialize_brush(){
 function add_message_displayer(){
   canvas.on("mousemove", function() {
 
-    var find_date = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left);
-    find_date.setHours(0, 0, 0, 0)
-    var find_time = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top)
-    find_time.setSeconds(0)
-    var message_tooltip = messages.allFiltered().filter(function(d){
-      return (d.date == String(find_date))
-    })
+    var find_date_min = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left-2);
+    var find_date_max = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left+2);
+    var find_time_min = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top-2);
+    var find_time_max = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top+2);
+
+    dim_date_tt.filterRange([find_date_min, find_date_max]);
+    dim_time_tt.filterRange([find_time_min, find_time_max]);
+    var message_tooltip = messages.allFiltered()
+
+    dim_date_tt.filter();
+    dim_time_tt.filter();
 
     if (message_tooltip.length > 0 ){
       first_part_text.text("")
