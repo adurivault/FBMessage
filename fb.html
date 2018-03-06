@@ -5,7 +5,6 @@
   <title>FBMessage Explorer</title>
   <link rel="icon" type="image/JPG" href="fb.jpg"/>
 <script src="d3.js"></script>
-<script src="reductio0.js"></script>
 <script src="crossfilter.js"></script>
   <style>
 
@@ -196,7 +195,6 @@
       font-weight: bold;
       display: inline-block;
       padding: 6px 12px;
-
       cursor: pointer;
     }
 
@@ -221,7 +219,7 @@
         margin: auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 30%;
+        width: 45%;
     }
 
     /* The Close Button */
@@ -239,6 +237,17 @@
         cursor: pointer;
     }
 
+    .reset-button {
+      fill: #A0A0A0;
+      background-color: #A0A0A0;
+      font:14px sans-serif;
+      font-weight: bold;
+      display: inline-block;
+      padding: 6px 12px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
 
   </style>
 </head>
@@ -253,12 +262,20 @@
       </li>
       <li  style="float:right">
         <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)">
-        <label for="file" class="custom-file-upload">Upload your own file</label>
+        <label for="file" class="custom-file-upload">Use your own file</label>
+      </li>
+      <li  style="float:right">
+      <input name="resetButton"
+            class = "reset-button"
+             type="button"
+             value="Reset All Filters"
+             onclick="resetFilters()" />
       </li>
     </ul>
     <div id="density_time" style="display: inline-block; "></div>
     <section id="main" style="display: inline-block; position: relative"></section>
-    <div id="filters" style="display: inline-block; overflow: scroll;"></div>
+    <div id="filters" style="display: inline-block; overflow: scroll;">
+    </div>
     <div id="place_holder" style="display: inline-block;"></div>
     <div id="density_date" style="display: inline-block;"></div>
     <div id="message_displayer" style="display: inline-block;"></div>
@@ -277,13 +294,13 @@
     				<a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
 
     </p>
-    <h2> Want to upload your own data ?</h2>
+    <h2> Want to use your own data ?</h2>
     <p>
     As soon as we discovered that we could download our Facebook History, we always wanted
     to explore our data. The dataset use here is a false datased, with one purpose only : the demonstration.
-    But the good news is that you can upload yours. In order to have it, juste follow the
+    But the good news is that you can use yours. In order to have it, juste follow the
     instructions <a href="https://github.com/adurivault/FBMessage/blob/master/DATA.md"> here</a>.
-    Once you followed all the steps and you have your file ready, just click on "Upload you own file" and just
+    Once you followed all the steps and you have your file ready, just click on "Use you own file" and just
     enjoy !
     <p>
 
@@ -827,15 +844,16 @@
   }
 }
 
-function read(file){
+function read(files){
   reader = new FileReader();
   reader.onloadend = assign_file;
-  reader.readAsText(file[0])
+  reader.readAsText(files[0]);
 }
 
 function assign_file(){
   json = JSON.parse(reader.result);
   user_name = json.user;
+  resetFilters();
   main();
 }
 
@@ -865,6 +883,7 @@ function main(){
 
 function initialize_crossfilter(){
   messages = crossfilter(json.data)
+
   dim_sent = messages.dimension(function(d) {return d.sent;})
   dim_date = messages.dimension(function(d) {return d.date;})
   dim_time = messages.dimension(function(d) {return d.time;})
@@ -880,6 +899,34 @@ function initialize_crossfilter(){
   group_sender = dim_sender.group()
   group_length = dim_length.group()
   group_weekday = dim_weekday.group()
+}
+
+function resetFilters(){
+  dim_sent.filter();
+  dim_date.filter();
+  dim_time.filter();
+  dim_person.filter();
+  dim_sender.filter();
+  dim_length.filter();
+  dim_weekday.filter();
+
+
+  clicked_rs = new Set();
+  clicked_weekday = new Set();
+  clicked_person = new Set();
+  clicked_length = new Set();
+  clicked_sender = new Set();
+
+  draw_histogram_weekday ();
+  draw_histogram_person();
+  draw_histogram_sender();
+  draw_histogram_length();
+  draw_histogram_rs();
+  update_density_date();
+  update_density_time();
+  create_scatterplot();
+  initialize_brush();
+
 }
 
 function initialize_length_ticks(){
@@ -952,7 +999,7 @@ function add_message_displayer(){
     var find_time = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top)
     find_time.setSeconds(0)
     var message_tooltip = messages.allFiltered().filter(function(d){
-      return ( d.date == String(find_date))
+      return (d.date == String(find_date))
     })
 
     if (message_tooltip.length > 0 ){
@@ -1364,6 +1411,7 @@ function draw_histogram_person(){
           draw_histogram_weekday();
           draw_histogram_rs();
           draw_histogram_sender();
+          draw_histogram_length();
           update_density_date();
           update_density_time();
           create_scatterplot();
@@ -1662,7 +1710,7 @@ function create_scatterplot(){
 }
 
 getDate = function(date){
-  string = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+  string = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
   return parseUTCDate(string);
 }
 
