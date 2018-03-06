@@ -12,6 +12,7 @@ If you already have an older version installed, you can upgrade it to the latest
     pip install --upgrade fbchat-archive-parser
 
 ``messages.htm`` just acts as a manifest for the contents of a directory called ``messages/``. Both are required to use this tool.
+Under the ``html/`` folder simply run the command fbcap in your terminal with your messages.htm file as the argument.
 You can now transform ``messages.htm`` into a pretty Json file with the simple commande line :
 
     fbcap ./messages.htm -f pretty-json > messages.json 
