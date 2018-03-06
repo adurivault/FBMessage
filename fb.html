@@ -5,6 +5,7 @@
   <title>FBMessage Explorer</title>
   <link rel="icon" type="image/JPG" href="fb.jpg"/>
 <script src="d3.js"></script>
+<script src="reductio0.js"></script>
 <script src="crossfilter.js"></script>
   <style>
 
@@ -61,7 +62,7 @@
 
     .legend_hist_text {
       fill: #A0A0A0;
-      font: 12px sans-serif;
+      font: 10px sans-serif;
       font-weight: bold;
     }
 
@@ -113,6 +114,12 @@
     }
 
     .bar_person rect {
+      stroke: #2c7bb6;
+      stroke-width: 2px;
+      stroke-opacity: 0.0;
+    }
+
+    .bar_length rect {
       stroke: #2c7bb6;
       stroke-width: 2px;
       stroke-opacity: 0.0;
@@ -258,7 +265,7 @@
   </div>
 
   <!-- The Modal -->
-<div id="myModal" class="modal">
+<div id="myModal" style="overflow: scroll;" class="modal">
 
   <!-- Modal content -->
   <div class="modal-content">
@@ -318,12 +325,15 @@
 
 // Define stuff
 {
+
+  var length_ticks;
   var reader;
   var json;
   var messages, dim_sender, dim_date, dim_time, dim_weekday, dim_sent;
   var clicked_rs = new Set(),
       clicked_weekday = new Set(),
-      clicked_person = new Set()
+      clicked_person = new Set(),
+      clicked_length = new Set(),
       clicked_sender = new Set();
 
   // Define div, svg, etc..
@@ -525,6 +535,10 @@
         title_sender = div_sender.append("h1"),
         hist_sender = div_sender.append("svg");
 
+    var div_length = div_filters.append("div"),
+        title_length = div_length.append("h1"),
+        hist_length = div_length.append("svg");
+
   }
 
   //Define parsers
@@ -592,6 +606,10 @@
     var x3_sender = d3.scaleLinear()
                 .range([0, w3]);
 
+    // Histogram Sender
+    var x3_length = d3.scaleLinear()
+                .range([0, w3]);
+
     // Density time
     var x4 = d3.scaleLinear()
                 .range([0, w4]);
@@ -641,6 +659,12 @@
       .attr("text-anchor","start")
       .attr('transform', 'translate(' +0 + ',' + 0 + ')')
       .text("Top 10 conversations")
+
+    title_length
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Number of characters")
 
     title_sender
       .attr("class", "title_graph")
@@ -813,7 +837,7 @@ function assign_file(){
   main();
 }
 
-d3.json("anonyms_flat_messages.json", load_demo)
+d3.json("demo_flat_messages.json", load_demo)
 
 function load_demo(json_file){
   json = json_file;
@@ -823,6 +847,7 @@ function load_demo(json_file){
 
 function main(){
   parse_date();
+  initialize_length_ticks();
   initialize_crossfilter();
   add_message_displayer();
   initialize_scatterplot();
@@ -832,6 +857,7 @@ function main(){
   draw_histogram_rs();
   draw_histogram_person();
   draw_histogram_sender();
+  draw_histogram_length();
   initialize_brush();
 }
 
@@ -842,6 +868,7 @@ function initialize_crossfilter(){
   dim_time = messages.dimension(function(d) {return d.time;})
   dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
   dim_sender = messages.dimension(function(d) {return d.sender;})
+  dim_length = messages.dimension(find_length_tick);
   dim_weekday = messages.dimension(function(d) {return d.date.getDay();})
 
   group_sent = dim_sent.group()
@@ -849,8 +876,29 @@ function initialize_crossfilter(){
   group_time = dim_time.group()
   group_person = dim_person.group()
   group_sender = dim_sender.group()
+  group_length = dim_length.group()
   group_weekday = dim_weekday.group()
+}
 
+function initialize_length_ticks(){
+  length_ticks = [0,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]
+  length_ticks_str = ["0","1","2","5","10","20","50","100","200","500","1k","2k","5k","10k"]
+}
+
+function tick_to_bin(tick){
+  for (i=1; i<14; i++){
+    if (tick < length_ticks[i]) {
+      return  length_ticks_str[i-1] + "-" + length_ticks_str[i];
+    }
+  }
+  return length_ticks_str[13] + "- ∞"
+}
+
+function find_length_tick(d){
+  for (i=1; i<14; i++){
+    if (d.length < length_ticks[i]) {return length_ticks[i-1];}
+  }
+  return 10000;
 }
 
 function initialize_scatterplot(){
@@ -941,7 +989,8 @@ function parse_date(){
 };
 
 function draw_density_date(){
-  density_date.selectAll().remove()
+  density_date.selectAll(".area").remove();
+  density_date.selectAll(".x axis--x").remove();
 
   var nested_data_date = group_date.all()
   nested_data_date = d3.nest()
@@ -1110,6 +1159,7 @@ function draw_histogram_rs(){
       draw_histogram_weekday ();
       draw_histogram_person();
       draw_histogram_sender();
+      draw_histogram_length();
       update_density_date();
       update_density_time();
       create_scatterplot();
@@ -1206,6 +1256,7 @@ function draw_histogram_weekday(){
       draw_histogram_rs();
       draw_histogram_person();
       draw_histogram_sender();
+      draw_histogram_length();
       update_density_date();
       update_density_time();
       create_scatterplot();
@@ -1409,6 +1460,7 @@ function draw_histogram_sender(){
           draw_histogram_weekday();
           draw_histogram_rs();
           draw_histogram_person();
+          draw_histogram_length();
           update_density_date();
           update_density_time();
           create_scatterplot();
@@ -1430,7 +1482,107 @@ function draw_histogram_sender(){
     .attr("height",bbox.y + bbox.height + "px")
 }
 
+function draw_histogram_length(){
+ //Remove old histogram
+  hist_length.selectAll('.bar_length')
+     .remove();
+  hist_length.selectAll('.y_hist_length')
+     .remove();
 
+  //Create nested dataset
+  var nested_data_length = group_length.all()
+
+  // Define domain horizontal axis
+  var nb_max_message_per_bar = d3.max(nested_data_length, function(d) {return d.value;})
+  x3_length.domain([0, nb_max_message_per_bar])
+
+  var bar_length = hist_length.selectAll(".bar_length")
+   .data(nested_data_length)
+   .enter().append("g")
+     .attr("class", "bar_length")
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
+
+  bar_length.append("rect")
+      .style("fill", function(d){
+          if (clicked_length.size == 0) {return color_selected;}
+          if(clicked_length.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_length(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
+     .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+
+            d3.select(this).style("stroke-opacity", 1);
+      })
+      .on("mouseout", function(d) {
+          div.transition().duration(500).style("opacity", 0);
+          d3.select(this).style("stroke-opacity", 0.0);
+      })
+      .on("click", function(d){
+          //Update the clicked rectangles
+          if (clicked_length.has(d.key))
+             {clicked_length.delete(d.key)}
+          else
+             {clicked_length.add(d.key);}
+
+          if (clicked_length.size == 0) {
+            //Colors all bar as selected
+            hist_length.selectAll(".bar_length")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            dim_length.filter()
+          } else {
+            //Color all bars according to selected or not
+            hist_length.selectAll(".bar_length")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(clicked_length.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+              //Apply filters
+              dim_length.filter(function(a){return clicked_length.has(a)})
+          }
+
+          draw_histogram_weekday();
+          draw_histogram_rs();
+          draw_histogram_person();
+          draw_histogram_sender();
+          update_density_date();
+          update_density_time();
+          create_scatterplot();
+       });
+
+   bar_length.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_length(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  bar_length.append("text")
+      .attr("class", "legend_hist_text")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .text(function(d){return tick_to_bin(d.key)});
+
+  // Adjust svg size
+  bbox = hist_length.nodes()[0].getBBox();
+  hist_length
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
+}
 
 function zoomed(){
    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
@@ -1444,6 +1596,7 @@ function zoomed(){
    draw_histogram_rs();
    draw_histogram_person();
    draw_histogram_sender();
+   draw_histogram_length();
    create_scatterplot();
 
    axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1463,6 +1616,7 @@ function brushed_date() {
   draw_histogram_rs();
   draw_histogram_person();
   draw_histogram_sender();
+  draw_histogram_length();
   create_scatterplot();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1484,6 +1638,7 @@ function brushed_time() {
   draw_histogram_rs();
   draw_histogram_person();
   draw_histogram_sender();
+  draw_histogram_length();
   create_scatterplot();
 
   axis_time_focus.select(".axis--y").call(yAxis1);
