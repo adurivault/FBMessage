@@ -3,7 +3,7 @@
 The Facebook Chat Archive Parser is a command line tool (and library for advanced users) for easily transforming your ``messages.htm`` file into something actually useful.
 
 You can install the Facebook Chat Archive Parser via ``pip`` under at least
-Python 2.7:
+Python 3:
 
     pip install fbchat-archive-parser
 
@@ -47,7 +47,7 @@ If you open ``messages.json `` you would see that the Json file has the followin
 This structure is a little bit complicated for our work, so we need to simplify it with a custom file of ours. 
 In order to do this, please download the script [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py), and insert it in the folder where you created your ``messages.json`` file. 
 
-If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command : 
+If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command on Python 3 (you need to have pandas install) : 
 
     python parser.py "message.json"
 
