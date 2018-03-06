@@ -1513,17 +1513,6 @@ function draw_histogram_length(){
      .attr("height", h_bar)
      .attr("width", function(d) {return x3_length(d.value); })
      .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
-     .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-
-            d3.select(this).style("stroke-opacity", 1);
-      })
-      .on("mouseout", function(d) {
-          div.transition().duration(500).style("opacity", 0);
-          d3.select(this).style("stroke-opacity", 0.0);
-      })
       .on("click", function(d){
           //Update the clicked rectangles
           if (clicked_length.has(d.key))
