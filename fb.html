@@ -990,7 +990,7 @@ function parse_date(){
 
 function draw_density_date(){
   density_date.selectAll(".area").remove();
-  density_date.selectAll(".x axis--x").remove();
+  density_date.selectAll(".axis--x").remove();
 
   var nested_data_date = group_date.all()
   nested_data_date = d3.nest()
