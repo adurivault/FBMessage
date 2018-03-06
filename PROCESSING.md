@@ -11,9 +11,9 @@ If you already have an older version installed, you can upgrade it to the latest
 
     pip install --upgrade fbchat-archive-parser
 
-``messages.htm`` just acts as a manifest for the contents of a directory called ``messages/``. Both are required to use this tool.
+Under the ``html/`` folder simply run the command fbcap in your terminal with your ``messages.htm`` file as the argument.
 
-Under the ``html/`` folder simply run the command fbcap in your terminal with your messages.htm file as the argument.
+``messages.htm`` just acts as a manifest for the contents of a directory called ``messages/``. Both are required to use this tool.
 
 You can now transform ``messages.htm`` into a pretty Json file with the simple commande line :
 
@@ -47,7 +47,7 @@ If you open ``messages.json `` you would see that the Json file has the followin
 This structure is a little bit complicated for our work, so we need to simplify it with a custom file of ours. 
 In order to do this, please download the script [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py), and insert it in the folder where you created your ``messages.json`` file. 
 
-If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command on Python 3 (you need to have pandas install) : 
+If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command on Python 3 (you need to have pandas install, so do a pip3 install pandas if this is not the case) : 
 
     python parser.py "message.json"
 
