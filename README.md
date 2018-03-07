@@ -65,7 +65,7 @@ Those densities of message varies when you select some filters. For example if y
   </tr>
 </table>
 
-You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm.
+You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm and barely spoke at night.
 
 ## Credits
 
