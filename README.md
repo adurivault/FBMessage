@@ -51,7 +51,7 @@ in the morning, on some conversations who speaks the most, or send the longest m
   </tr>
 </table>
 
-On the left and on the bottom you will find two tools in order to select the hours and the date you want to select. For example if you want to select only the messages between April 2015 and August 2017 and received/send between 2am and 6pm you can use this tool.
+On the left and on the bottom you will find two tools in order to select the hours and the date you want. For example if you want to select only the messages between April 2015 and August 2017 and received/send between 2am and 6pm you can use this tool.
 The blue area on the left represents the density of message depending on the time of the day, whereas the blue area on the bottom represents the densoty of message dependging on the date.
 Those densities of message varies when you select some filters. For example if you select a conversation, you may see something like this :
 
