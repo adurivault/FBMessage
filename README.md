@@ -29,7 +29,20 @@ play with the demo data but this will not be very interesting, as everything is 
   </tr>
 </table>
 
-But if you click on "Use you own file" you can update the JSON file that you have just created ''flat_messages_json''
+But if you click on "Use you own file" you can load the JSON file that you have just created ``flat_messages_json``.
+Do not worry, nothing is uploaded online. The computations are made locally, on you computer.
+
+Be patient, it can take a little time, depending on how much you use facebook for talking to people.
+Once everything is loaded, you can discover which day you speak the most, what are you top contacts on the evening, or 
+in the morning, on some conversations who speaks the most, or send the longest messages, etc.
 
 ## What will it look like ? 
-[TODO]
+[TOD0]
+
+
+## Credits
+
+- [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
+
+-[Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library
+to transform the html messages on a JSON file. Then based on the JSON file we have created our own parser.
