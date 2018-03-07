@@ -51,7 +51,7 @@ in the morning, on some conversations who speaks the most, or send the longest m
   </tr>
 </table>
 
-On the left and on the bottom you will find two tools in order to select the 
+On the left and on the bottom you will find two tools in order to select the hours and the date you want to select. For example if you want 
 
 
 ## Credits
