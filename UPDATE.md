@@ -3,6 +3,7 @@
 ## Upload your own file
 
 Added a button so that the user can upload their file directly though the web interface.
+Updated the demo file to make it even more anonymous
 
 ## Scrolling filters
 
