@@ -1,6 +1,6 @@
 # FBMessage : Facebook Messages Vizualisation
 
-Authors : [Mathilde Reynaud](https://github.com/MathReynaud)| [Augustin Durivault](https://github.com/adurivault) 
+Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault) 
 
 The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on when, to whom, etc... you send (or receive) messages. If you have always been curious about your Facebook messages
 history, maybe you will find some answers here.
@@ -21,6 +21,8 @@ If you go [here](https://mathreynaud.github.io) you will see that there is alrea
 the demonstration and if you want to get familiar with the tool, or if you do not have any facebook account, you can
 play with the demo data but this will not be very interesting, as everything is anonymous.
 
+What it is represented is very simple : one point corresponds to one message received or send, and the color of the point depends on if the message has been receveid or sent. The top of the graph represents the begining of the day (12am) and the bottom of the graph represents the end of the day (12pm).
+
 <table border="0">
   <tr>
     <td>
@@ -36,8 +38,20 @@ Be patient, it can take a little time, depending on how much you use facebook fo
 Once everything is loaded, you can discover which day you speak the most, what are you top contacts on the evening, or 
 in the morning, on some conversations who speaks the most, or send the longest messages, etc.
 
-## What will it look like ? 
-[TOD0]
+## Brush and Zoom
+
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/2-presentation.png" style="width: 100px;">
+    </td>
+    <td>
+      <img src="img/3-presentation.png" style="width: 100px;">
+    </td>
+  </tr>
+</table>
+
+On the left and on the bottom you will find two tools in order to select the 
 
 
 ## Credits
