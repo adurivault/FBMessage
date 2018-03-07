@@ -1,4 +1,4 @@
-# Update after the presentation
+# Updates after the presentation
 
 ## Upload your own file
 
