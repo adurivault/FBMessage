@@ -21,7 +21,7 @@ If you go [here](https://mathreynaud.github.io) you will see that there is alrea
 the demonstration and if you want to get familiar with the tool, or if you do not have any facebook account, you can
 play with the demo data but this will not be very interesting, as everything is anonymous.
 
-What it is represented is very simple : one point corresponds to one message received or send, and the color of the point depends on if the message has been receveid or sent. The top of the graph represents the begining of the day (12am) and the bottom of the graph represents the end of the day (12pm).
+What it is represented is very simple : one point corresponds to one message received or send, and the color of the point depends on if the message has been receveid or sent. The top of the graph represents the begining of the day (12pm) and the bottom of the graph represents the end of the day (12pm).
 
 <table border="0">
   <tr>
@@ -51,8 +51,19 @@ in the morning, on some conversations who speaks the most, or send the longest m
   </tr>
 </table>
 
-On the left and on the bottom you will find two tools in order to select the hours and the date you want to select. For example if you want 
+On the left and on the bottom you will find two tools in order to select the hours and the date you want to select. For example if you want to select only the messages between April 2015 and August 2017 and received/send between 2am and 6pm you can use this tool.
+The blue area on the left represents the density of message depending on the time of the day, whereas the blue area on the bottom represents the densoty of message dependging on the date.
+Those densities of message varies when you select some filters. For example if you select a conversation, you may see something like this :
 
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/4-presentation.png" style="width: 100px;">
+    </td>
+  </tr>
+</table>
+
+You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm.
 
 ## Credits
 
