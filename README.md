@@ -29,7 +29,7 @@ play with the demo data but this will not be very interesting, as everything is 
   </tr>
 </table>
 
-But if you click 
+But if you click on "Use you own file" you can update the JSON file that you have just created ''flat_messages_json''
 
 ## What will it look like ? 
 [TODO]
