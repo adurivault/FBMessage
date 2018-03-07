@@ -29,7 +29,7 @@ play with the demo data but this will not be very interesting, as everything is 
   </tr>
 </table>
 
-But if you click on "Use you own file" you can load the JSON file that you have just created ``flat_messages_json``.
+But if you click on "Use you own file" you can load the JSON file that you have just created ``flat_messages.json``.
 Do not worry, nothing is uploaded online. The computations are made locally, on you computer.
 
 Be patient, it can take a little time, depending on how much you use facebook for talking to people.
