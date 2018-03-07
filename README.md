@@ -1,5 +1,7 @@
 # FBMessage : Facebook Messages Vizualisation
 
+Authors : [Mathilde Reynaud](https://github.com/MathReynaud)| [Augustin Durivault](https://github.com/adurivault) 
+
 The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on when, to whom, etc... you send (or receive) messages. 
 
 ## How does it work ? 
