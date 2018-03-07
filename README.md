@@ -27,7 +27,6 @@ play with the demo data but this will not be very interesting, as everything is 
       <img src="img/1-presentation.png" style="width: 100px;">
     </td>
   </tr>
-  <tr>General Design</tr>
 </table>
 
 But if you click 
