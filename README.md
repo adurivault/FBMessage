@@ -58,5 +58,4 @@ On the left and on the bottom you will find two tools in order to select the
 
 - [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
 
--[Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library
-to transform the html messages on a JSON file. Then based on the JSON file we have created our own parser.
+- [Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library to transform the html messages on a JSON file. Then based on the JSON file we have created our own parser.
