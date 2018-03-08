@@ -101,7 +101,7 @@ If you clicked everywhere on the filters and you want to reset everything, just 
 <table border="0">
   <tr>
     <td>
-      <img src="img/6-presentation.png" height= 40>
+      <img src="img/6-presentation.png" height= "40">
     </td>
   </tr>
 </table>
