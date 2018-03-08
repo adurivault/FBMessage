@@ -79,7 +79,7 @@ If you wonder what is that strange message at 3am on a Monday, here is your answ
 <table border="0">
   <tr>
     <td>
-      <img src="img/5-presentation.png" style="width: 100px;">
+      <img src="img/5-presentation.png" height= "150">
     </td>
   </tr>
 </table>
@@ -101,7 +101,7 @@ If you clicked everywhere on the filters and you want to reset everything, just 
 <table border="0">
   <tr>
     <td>
-      <img src="img/6-presentation.png" height= "40">
+      <img src="img/6-presentation.png" height= "150">
     </td>
   </tr>
 </table>
