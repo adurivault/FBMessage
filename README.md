@@ -97,10 +97,11 @@ They are all connected so if you click on one filter, than the others one should
 For example, if you click on one particular conversation, on top 10 contacts you will find who speak the most for this conversation.
 And of course all of this filters are linked to the brush & zoom. So if you are between July 2016 and August 2016, you will discover who were your 10 contacts for the summer 2016, and that you possibly sent few messages on the morning.
 
+If you clicked everywhere on the filters and you want to reset everything, just click on "Reset All Filters" on the top right.
 <table border="0">
   <tr>
     <td>
-      <img src="img/6-presentation.png" style="width: 100px;">
+      <img src="img/6-presentation.png" style="height: 40px;">
     </td>
   </tr>
 </table>
