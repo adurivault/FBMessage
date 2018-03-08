@@ -12,7 +12,7 @@ Just follow the instructions from the <a href="/DATA.md"> DATA.md</a> file and t
 
 ## Presentation video
 
-There is a presentation [video] of this project, and if you are a little bit lost on how to use the tool, or on how to get your data
+There is a presentation [video](https://youtu.be/n8EqF_wfCAE) of this project, and if you are a little bit lost on how to use the tool, or on how to get your data
 you will theoretically find an answer here. 
 
 ### General design
