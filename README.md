@@ -67,6 +67,23 @@ Those densities of message varies when you select some filters. For example if y
 
 You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm and barely spoke at night.
 
+## Message Displayer 
+
+If you pass over some messages you can see that the message displayer will be updated. You can see :
+- The date of the message
+- The sender
+- The message
+
+If you wonder what is that strange message a 3am on a Monday, here is your answer !
+
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/5-presentation.png" style="width: 100px;">
+    </td>
+  </tr>
+</table>
+
 ## Credits
 
 - [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
