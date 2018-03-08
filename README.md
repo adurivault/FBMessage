@@ -79,7 +79,7 @@ If you wonder what is that strange message a 3am on a Monday, here is your answe
 <table border="0">
   <tr>
     <td>
-      <img src="img/5-presentation.png" style="width: 100px;">
+      <img src="img/5-presentation.png" style="width: 50px;">
     </td>
   </tr>
 </table>
