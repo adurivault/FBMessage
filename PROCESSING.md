@@ -19,7 +19,7 @@ No need to add arguments, this should create a ``flat_messages.json`` file. Once
 
 ### If you are on Mac
 
-- Got to [this website] (https://www.python.org/downloads/) and install the latest version of Python. 
+- Got to [this website](https://www.python.org/downloads/) and install the latest version of Python. 
 - In the finder, go to the Facebook History Archive, and unzip it
 - Go to the root folder of the Facebook Archive 
 - Parallel to this, open a terminal window
