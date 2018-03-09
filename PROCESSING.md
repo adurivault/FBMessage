@@ -10,7 +10,7 @@ Download our parser module from pip:
 
 With the command line interface, go to the root directory of the Facebook archive (where there are ``html``, ``messages``, ``photos``, and ``videos`` folders), and just run:
 
-    fbm-parser
+    fbm-parse
     
 No need to add arguments, this should create a ``flat_messages.json`` file. Once you have it, you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
 
