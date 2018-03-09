@@ -35,4 +35,4 @@ No need to add arguments, this should create a ``flat_messages.json`` file. Once
 
     fbm-parse
     
-  You should now see a new file called ``flat_messages.json``. If so, then you are all set, you can go you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
+  You should now see a new file called ``flat_messages.json``. If so, then you are all set, you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
