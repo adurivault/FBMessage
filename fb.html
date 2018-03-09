@@ -1,5 +1,13 @@
 <!DOCTYPE html>
-<head
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115468223-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-115468223-1');
+</script>
 <html lang="en">
   <meta charset="utf-8">
   <title>FBMessage Explorer</title>
@@ -83,6 +91,19 @@
       font-weight: bold;
     }
 
+    .md_header {
+      color: #A0A0A0;
+      font: 11px sans-serif;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .md_text {
+      color: #FFFFFF;
+      font: 9px sans-serif;
+      margin: 0;
+    }
+
     .git_link {
       fill: #D8D8D8;
       font:15px sans-serif;
@@ -131,7 +152,7 @@
     }
 
     #filters::-webkit-scrollbar {
-        width: 1em;
+        width: 0.5em;
     }
 
     #filters::-webkit-scrollbar-track {
@@ -139,6 +160,20 @@
     }
 
     #filters::-webkit-scrollbar-thumb {
+      background-color: darkgrey;
+      outline: 1px solid slategrey;
+    }
+
+
+    #message_displayer::-webkit-scrollbar {
+        width: 0.5em;
+    }
+
+    #message_displayer::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    }
+
+    #message_displayer::-webkit-scrollbar-thumb {
       background-color: darkgrey;
       outline: 1px solid slategrey;
     }
@@ -278,7 +313,20 @@
     </div>
     <div id="place_holder" style="display: inline-block;"></div>
     <div id="density_date" style="display: inline-block;"></div>
-    <div id="message_displayer" style="display: inline-block;"></div>
+    <div id="message_displayer" style="display: inline-block; overflow-y: scroll;overflow-x: hidden;">
+      <div id=md_conversation>
+        <h3 class="md_header">Conversation</h3>
+      </div>
+      <div id=md_sender>
+        <h3 class="md_header">Sender</h3>
+      </div>
+      <div id=md_datetime>
+        <h3 class="md_header">Date time</h3>
+      </div>
+      <div id=md_message>
+        <h3 class="md_header">Message</h3>
+      </div>
+    </div>
   </div>
 
   <!-- The Modal -->
@@ -308,7 +356,7 @@
     No, not at all. The file that you select will not be uploaded : the computations are made locally, on your computer.
     <h2> How do I use the tool ?</h2>
 
-    If you are a little bit lost, you can go see our Youtube <a href = "https://youtu.be/n8EqF_wfCAE">video</a> where 
+    If you are a little bit lost, you can go see our Youtube <a href = "https://youtu.be/n8EqF_wfCAE">video</a> where
     everything is explained in details.
 
     <h2> Want to learn more about it ?</h2>
@@ -426,8 +474,8 @@
     var height = window.innerHeight;
 
     // Set heights
-    var first_row_height = (height*0.73) + "px";
-    var second_row_height = (height*0.17) + "px";
+    var first_row_height = (height*0.70) + "px";
+    var second_row_height = (height*0.20) + "px";
 
     div_density_time_2.style.height = first_row_height;
     div_main_2.style.height = first_row_height;
@@ -533,11 +581,6 @@
         .style("position", "absolute")
         .style("left", 0 + "px")
         .style("top", (margin1.top + h1) + "px");
-
-    var message_displayer = div_message_displayer
-        .append("svg")
-        .attr("height", h5 + margin5.top + margin5.bottom)
-        .attr("width", w5 + margin5.left + margin5.right);
 
     var div_weekday = div_filters.append("div"),
         title_weekday = div_weekday.append("h1"),
@@ -693,148 +736,13 @@
       .text("Top 10 senders")
   }
 
-/*
-  // Define Legend and border
-  {
-    title.append("text")
-        .attr("class", "title")
-        .attr("text-anchor","start")
-        .attr('transform', 'translate(' + margin6.left + ',' + (margin6.top) + ')')
-        .text("FBMessage Explorer")
-
-    title.append("a")
-        .attr("xlink:href", "https://github.com/adurivault/FBMessage")
-        .append("text")
-        .attr("class", "sub_title")
-        .attr("text-anchor","start")
-        .attr('transform', 'translate(' + (margin6.left + 400) + ',' + (margin6.top) + ')')
-        .text("Fork me on Github")
-
-    title.append("a")
-        .attr("xlink:href", "https://github.com/adurivault/FBMessage")
-        .append("text")
-        .attr("class", "sub_title")
-        .attr("text-anchor","start")
-        .attr('transform', 'translate(' + (margin6.left + 600) + ',' + (margin6.top) + ')')
-        .text("About")
-
-    title.append("text")
-        .attr("class", "sub_title_2")
-        .attr("text-anchor","end")
-        .attr('transform', 'translate(' + (w6 - 150) + ',' + (margin6.top) + ')')
-        .text("Made by")
-
-    title.append("a")
-        .attr("xlink:href", "https://github.com/MathReynaud")
-        .append("text")
-        .attr("class", "git_link")
-        .attr("text-anchor","end")
-        .attr("dy", "0em")
-        .attr('transform', 'translate(' + (w6) + ',' + (margin6.top) + ')')
-        .text("MathReynaud")
-
-    title.append("a")
-        .attr("xlink:href", "https://github.com/adurivault")
-        .append("text")
-        .attr("class", "git_link")
-        .attr("text-anchor","end")
-        .attr("dy", "1em")
-        .attr('transform', 'translate(' + (w6) + ',' + (margin6.top) + ')')
-        .text("adurivault")
-/*
-    var borderPath_filters = filters.append("rect")
-     .attr("x", 0)
-     .attr("y", 0)
-     .attr("height", h3 + margin3.top + margin3.bottom)
-     .attr("width", w3 + margin3.right +margin3.left)
-     .style("stroke", "#C8C8C8")
-     .style("fill", "none")
-     .style("stroke-width", "2px")
-
-}
-*/
-
   // Define message_displayer
-{
-  var borderPath_tooltip = message_displayer.append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("height", h5 + margin5.top + margin5.bottom)
-    .attr("width", w5 + margin5.right +margin5.left)
-    .style("stroke", "#C8C8C8")
-    .style("fill", "none")
-    .style("stroke-width", "2px")
-
-  message_displayer.append("text")
-    .attr("class", "legend_message")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "1em")
-    .attr("text-anchor","start")
-    .text("Message")
-
-  first_part_text = message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "2em")
-    .attr("text-anchor","start")
-    .text("")
-
-  second_part_text = message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "3em")
-    .attr("text-anchor","start")
-    .text("")
-
-  third_part_text = message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "4em")
-    .attr("text-anchor","start")
-    .text("")
-
-  message_displayer.append("text")
-    .attr("class", "legend_message")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "5em")
-    .attr("text-anchor","start")
-    .text("Sender")
-
-  sender_message = message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "6em")
-    .attr("text-anchor","start")
-    .text("")
-
-  message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "7em")
-    .attr("text-anchor","start")
-    .text("")
-
-  message_displayer.append("text")
-    .attr("class", "legend_message")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "8em")
-    .attr("text-anchor","start")
-    .text("Date")
-
-  date_message = message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "9em")
-    .attr("text-anchor","start")
-    .text("")
-
-  message_displayer.append("text")
-    .attr("class", "legend_message_2")
-    .attr('transform', 'translate(' + margin5.left + ',' + margin5.top + ')')
-    .attr("dy", "10em")
-    .attr("text-anchor","start")
-    .text("")
-    }
+  {
+      var md_sender = d3.select('#md_sender')
+      var md_conversation = d3.select('#md_conversation')
+      var md_datetime = d3.select('#md_datetime')
+      var md_message = d3.select('#md_message')
+  }
 
   // Define colors
   {
@@ -852,6 +760,9 @@ function read(files){
 }
 
 function assign_file(){
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Custom'})
   json = JSON.parse(reader.result);
   user_name = json.user;
   resetFilters();
@@ -861,6 +772,9 @@ function assign_file(){
 d3.json("demo_flat_messages.json", load_demo)
 
 function load_demo(json_file){
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Demo'})
   json = json_file;
   user_name = json.user;
   main();
@@ -905,6 +819,9 @@ function initialize_crossfilter(){
 }
 
 function resetFilters(){
+  gtag('event', 'reset', {
+      'event_category': 'Reset',
+      'event_Label': 'All'})
   dim_sent.filter();
   dim_date.filter();
   dim_time.filter();
@@ -1010,26 +927,20 @@ function add_message_displayer(){
     dim_time_tt.filter();
 
     if (message_tooltip.length > 0 ){
-      first_part_text.text("")
-      second_part_text.text("")
-      third_part_text.text("")
       var full_date = String(message_tooltip[0].date);
       var full_time = String(message_tooltip[0].time);
-      if (message_tooltip[0].message.length > 35) {
-        first_part_text.text(message_tooltip[0].message.substring(0,35))
-        second_part_text.text(message_tooltip[0].message.substring(35,70))
-        if (message_tooltip[0].message.length > 103){
-            third_part_text.text(message_tooltip[0].message.substring(70,103) + "[...]")
-        }
-        else {
-            third_part_text.text(message_tooltip[0].message.substring(70,103))
-        }
-      }
-      else {
-        first_part_text.text(message_tooltip[0].message)
-      }
-      sender_message.text(message_tooltip[0].sender)
-      date_message.text(full_date.substring(0,16) + full_time.substring(17,33))
+
+      md_sender.select("p").remove()
+      md_sender.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].sender);
+
+      md_conversation.select("p").remove()
+      md_conversation.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0]["threads.participants"]);
+
+      md_message.select("p").remove()
+      md_message.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].message);
+
+      md_datetime.select("p").remove()
+      md_datetime.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(full_date.substring(0,16) + full_time.substring(17,33))
     }
 
   })
@@ -1184,6 +1095,9 @@ function draw_histogram_rs(){
      .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
      .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
      .on("click", function(d){
+         gtag('event', 'Histogram', {
+             'event_category': 'Filter',
+             'event_label': 'Received/Sent'})
          //Update the clicked rectangles
          if (clicked_rs.has(d.key))
             {clicked_rs.delete(d.key)}
@@ -1281,6 +1195,9 @@ function draw_histogram_weekday(){
      .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
      .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
      .on("click", function(d){
+         gtag('event', 'Histogram', {
+             'event_category': 'Filter',
+             'event_label': 'WeekDay'})
          //Update the clicked rectangles
          if (clicked_weekday.has(d.key))
             {clicked_weekday.delete(d.key)}
@@ -1387,6 +1304,9 @@ function draw_histogram_person(){
           d3.select(this).style("stroke-opacity", 0.0);
       })
       .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Conversation'})
           //Update the clicked rectangles
           if (clicked_person.has(d.key))
              {clicked_person.delete(d.key)}
@@ -1486,6 +1406,9 @@ function draw_histogram_sender(){
           d3.select(this).style("stroke-opacity", 0.0);
       })
       .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Sender'})
           //Update the clicked rectangles
           if (clicked_sender.has(d.key))
              {clicked_sender.delete(d.key)}
@@ -1573,6 +1496,9 @@ function draw_histogram_length(){
      .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
      .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
       .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Length'})
           //Update the clicked rectangles
           if (clicked_length.has(d.key))
              {clicked_length.delete(d.key)}
@@ -1655,6 +1581,9 @@ function zoomed(){
 }
 
 function brushed_date() {
+  gtag('event', 'Brush', {
+      'event_category': 'Brush',
+      'event_label': 'Date'})
   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
   var s = d3.event.selection || x2.range();
   x1.domain(s.map(x2.invert, x2));
@@ -1677,6 +1606,9 @@ function brushed_date() {
 }
 
 function brushed_time() {
+  gtag('event', 'Brush', {
+      'event_category': 'Brush',
+      'event_label': 'Time'})
   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
   var s = d3.event.selection || y4.range();
   y1.domain(s.map(y4.invert, y4));
