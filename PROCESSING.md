@@ -1,6 +1,6 @@
 Once you downloaded all your Facebook History archive, you now need to extract just the relevant data, under the right format. Here is how you should proceed:
 
-If you are familiar with the command line tool, and Python, then this should be easy just read the quick explanation below. If not, then it might be a little harder, but nothing too difficult: we explained everything in detailed in **If you are not familiar with Python or the command line tool**
+If you are familiar with the command line tool, and Python, then this should be easy just read the quick explanation below. If not, then it might be a little harder, but nothing too difficult: we explained everything in details in the section **"if you are not familiar with Python or the command line tool"**.
 
 ## If you are familiar with Python and the command line tool
 
@@ -15,7 +15,7 @@ With the command line interface, go to the root directory of the Facebook archiv
 No need to add arguments, this should create a ``flat_messages.json`` file. Once you have it, you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
 
 
-## If you are familiar with Python and the command line tool
+## If you are not familiar with Python or the command line tool
 
 ### If you are on Mac
 
