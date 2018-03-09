@@ -1,67 +1,38 @@
-## Transform your Archive Facebook into a Json file
+Once you downloaded all your Facebook History archive, you now need to extract just the relevant data, under the right format. Here is how you should proceed:
 
-The Facebook Chat Archive Parser is a command line tool (and library for advanced users) for easily transforming your ``messages.htm`` file into something actually useful.
+If you are familiar with the command line tool, and Python, then this should be easy just read the quick explanation below. If not, then it might be a little harder, but nothing too difficult: we explained everything in detailed in **If you are not familiar with Python or the command line tool**
 
-You can install the Facebook Chat Archive Parser via ``pip`` under at least
-Python 3:
+## If you are familiar with Python and the command line tool
 
-    pip install fbchat-archive-parser
+Download our parser module from pip:
 
-If you already have an older version installed, you can upgrade it to the latest with the following command:
+    pip3 install fbmexplorer
 
-    pip install --upgrade fbchat-archive-parser
+With the command line interface, go to the root directory of the Facebook archive (where there are ``html``, ``messages``, ``photos``, and ``videos`` folder, and just run:
 
-Under the ``html/`` folder simply run the command fbcap in your terminal with your ``messages.htm`` file as the argument.
+    fbm-parser
+    
+No need to add arguments, this should create a ``flat_messages.json`` file. Once you have it, you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
 
-``messages.htm`` just acts as a manifest for the contents of a directory called ``messages/``. Both are required to use this tool.
 
-You can now transform ``messages.htm`` into a pretty Json file with the simple commande line :
+## If you are familiar with Python and the command line tool
 
-    fbcap ./messages.htm -f pretty-json > messages.json 
+### If you are on Mac
 
-It will transorme ``messages.htm`` into a pretty Json and then store it in a new Json file call ``messages.json ``
+- Got to [this website] (https://www.python.org/downloads/) and install the latest version of Python. 
+- In the finder, go to the Facebook History Archive, and unzip it
+- Go to the root folder of the Facebook Archive 
+- Parallel to this, open a terminal window
+- Type "cd" in the terminal window (as in Change Directory) but don't press enter yet
+- Drag and drop the name of the Facebook Archive folder from the navigation bar to the terminal window. You should now see the path of the Facebook folder written in the terminal window
+- Press enter in the terminal window.
+- Install our Python library by typing the following command line in the terminal window and press enter:
 
-You can do some others thing with fcap, like storing it in a CSV file, or text File, computing some statistics about your data, etc, but here we are only interested about the Json functionnality.
+    pip3 install fbmexplorer
+    
+  You should see a lot of obscure lines displayed. Wait for it to be over.
+- Create the json file with our facebook library by typing the following command in the terminal window, and press enter:
 
-## Transform the original Json file
-
-If you open ``messages.json `` you would see that the Json file has the following structure:
-
-    {
-        "threads": [
-            {
-                "participants": ["participant_0", "...", "participant_n"],
-                "messages": [
-                    {
-                        "date": "ISO 8601 formatted date",
-                        "sender": "sender name",
-                        "message": "message text"
-                    },
-                    "..."
-                ]
-            },
-            "..."
-        ]
-    }
-
-This structure is a little bit complicated for our work, so we need to simplify it with a custom file of ours. 
-In order to do this, please download the script [parser.py](https://github.com/adurivault/FBMessage/blob/master/parser.py), and insert it in the folder where you created your ``messages.json`` file. 
-
-If you have a Mac or Linux, then python is already installed. Through your terminal, just type in the command on Python 3. You need to have pandas install, so do a pip3 install pandas if this is not the case and then : 
-
-    python parser.py "message.json"
-
-If you have a PC, then maybe you need to install Python first. 
-
-This will create a new JSON file ``flat_messages.json`` that will have the following structure :
-
-                    {
-                        "date": "ISO 8601 formatted date",
-                        "sender": "sender name",
-                        "message": "message text"
-                        "participants": ["participant_0", "...", "participant_n"],
-                    },
-
-NB : It will also create a smaller JSON file ``short_flat_messages.json`` which is the same one as above, except only the 2000 first messages are kept. You can use it in case you need to run some quick test for example. 
-
-You are all set now !
+    fbm-parse
+    
+  You should now see a new file called ``flat_messages.json``. If so, then you are all set, you can go you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
