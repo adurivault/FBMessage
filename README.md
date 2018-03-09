@@ -1,4 +1,4 @@
-# FBMessage : Facebook Messages Vizualisation
+# FBMessage Explorer: Facebook Messages Vizualisation
 
 Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault) 
 
@@ -10,7 +10,7 @@ history, maybe you will find some answers here.
 ## How does it work ? 
 
 ### Create your datafile from your Facebook History
-Just follow the instructions from the <a href="/DATA.md"> DATA.md</a> file and the <a href="/PROCESSING.md"> PROCESSING.md</a>, everything is explained. Once you got your data ready, you can go on the [website](https://mathreynaud.github.io). 
+First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://mathreynaud.github.io). 
 
 ## Presentation video
 
@@ -19,11 +19,9 @@ you will theoretically find an answer here.
 
 ### General design
 
-If you go [here](https://mathreynaud.github.io) you will see that there is already some data on the interface. It is just there for
-the demonstration and if you want to get familiar with the tool, or if you do not have any facebook account, you can
-play with the demo data but this will not be very interesting, as everything is anonymous.
+When you go on the [website](https://mathreynaud.github.io), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the daita is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
 
-What it is represented is very simple : one point corresponds to one message received or send, and the color of the point depends on if the message has been receveid or sent. The top of the graph represents the begining of the day (12pm) and the bottom of the graph represents the end of the day (12pm).
+What is represented here is quite simple : one point corresponds to one message sent or received, and the color of the point depends on whether or not the message was receveid or sent. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
 
 <table border="0">
   <tr>
@@ -33,12 +31,12 @@ What it is represented is very simple : one point corresponds to one message rec
   </tr>
 </table>
 
-But if you click on "Use you own file" you can load the JSON file that you have just created ``flat_messages.json``.
-Do not worry, nothing is uploaded online. The computations are made locally, on you computer.
+Once you have downloaded your Facebook History and that you did the necessary processing to get the ``flat_messages.json`` file, click on "Use you own file" and load the JSON file that you have just created ``flat_messages.json``.
 
-Be patient, it can take a little time, depending on how much you use facebook for talking to people.
-Once everything is loaded, you can discover which day you speak the most, what are you top contacts on the evening, or 
-in the morning, on some conversations who speaks the most, or send the longest messages, etc.
+Do not worry, **we do not have any access to your data**. The file is loaded into your browser, but not uploaded to internet, and all computations are performed locally, on you computer. We are aware, however, that this can be very private data, so is you want to be extra cautious, you can shut down your internet connexion once the website is completely loaded, and then select your own data with "Use your own data". Every thing will work properly, and this way you can be confident that we do have access to anything.
+
+Please be patient, loading the data can take a little while, depending on how much you use Facebook Messenger (up to a minute).
+Once everything is loaded, you can start exploring: on what day you use Facebook Messenger the most, who are you top contacts in the evening, or in the morning, who sends the longest messages, etc.
 
 ## Brush and Zoom
 
@@ -53,11 +51,9 @@ in the morning, on some conversations who speaks the most, or send the longest m
   </tr>
 </table>
 
-On the left and on the bottom you will find two tools in order to select the hours and the date you want. For example if you want to select only the messages between April 2015 and August 2017 and received/send between 2am and 6pm you can use this tool.
-
-The blue area on the left represents the density of message depending on the time of the day, whereas the blue area on the bottom represents the density of message dependging on the date.
-
-Those densities of message varies when you select some filters. For example if you select a conversation, you may see something like this :
+On the left-hand side of the screen, and at the bottom you can find sliders that allow you to select the hours and the date you want. Use it to zoom and select only the messages between April 2015 and August 2017 and received/sent between 2am and 6pm for example.
+The blue area on the left represents the density of messages depending on the time of the day, whereas the blue area on the bottom represents the density of message depending on the date.
+Those densities of messages vary when you select filters. For example if you select a conversation, you may see something like this:
 
 <table border="0">
   <tr>
@@ -69,9 +65,32 @@ Those densities of message varies when you select some filters. For example if y
 
 You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm and barely spoke at night.
 
+## Filters 
+
+On the right-hand side, you can find some histograms :
+- Day of the week
+- Sent/Received
+- Top 10 conversations
+- Top 10 senders
+- Length of messages 
+
+If you click on any bar of these barchats, it filters all the data and only keeps the one selected. You can apply multiple filters, and explore some interesting stuff this way.
+For instance, if you click on one particular conversation, then the top 10 senders histogram will display who speaks the most **for this conversation**. This is interesting for group conversations.
+All of the histograms are also linked to the brush & zoom, which means that if you are between **July 2016 and August 2016**, you will discover who were your 10 contacts for the **summer 2016**, and that maybe you were more active in the evenung, and less in the morning.
+
+If you clicked everywhere on the filters and you want to reset everything, just click on **"Reset All Filters"** on the top right.
+
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/6-presentation.png" height= "500">
+    </td>
+  </tr>
+</table>
+
 ## Message Displayer 
 
-If you pass over some messages you can see that the message displayer will be updated. You can see :
+In the bottom right-hand corner, you can see the **Message Displayer**. When you mouse over the dots on the central pane, the message under the mouse is displayed here, and you can see basic infomation:
 - The date of the message
 - The sender
 - The message
@@ -86,31 +105,8 @@ If you wonder what is that strange message at 3am on a Monday, here is your answ
   </tr>
 </table>
 
-## Filters 
-
-On the right, you will find a bunch of filters :
-- Filter based on the day of the week
-- Send/Received
-- Top 10 conversations (which is different from contacts, you can have the same person in a lot of different conversations)
-- Top 10 contacts
-- Lenght of messages 
-
-They are all connected so if you click on one filter, than the others one should be affected.
-For example, if you click on one particular conversation, on top 10 contacts you will find who speak the most **for this conversation**.
-And of course all of this filters are linked to the brush & zoom. So if you are between **July 2016 and August 2016**, you will discover who were your 10 contacts for the **summer 2016**, and that you possibly sent few messages on the morning.
-
-If you clicked everywhere on the filters and you want to reset everything, just click on **"Reset All Filters"** on the top right.
-
-<table border="0">
-  <tr>
-    <td>
-      <img src="img/6-presentation.png" height= "500">
-    </td>
-  </tr>
-</table>
-
 ## Credits
 
 - [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
 
-- [Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library to transform the html messages on a JSON file. Then based on the JSON file we have created our own parser.
+- [Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library to transform the html messages to a JSON file. Then based on the JSON file we have created our own parser.
