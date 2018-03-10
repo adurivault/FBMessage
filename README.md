@@ -10,7 +10,7 @@ history, maybe you will find some answers here.
 ## How does it work ? 
 
 ### Create your datafile from your Facebook History
-First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://mathreynaud.github.io). 
+First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/). 
 
 ## Presentation video
 
