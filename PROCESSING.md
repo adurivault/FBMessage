@@ -54,12 +54,12 @@ No need to add arguments, this should create a ``flat_messages.json`` file. Once
 
 - Install our Python library by typing the following command line in the terminal window and pressing enter:
 
-    pip3 install fbmexplorer
+        pip3 install fbmexplorer
     
   You should see a lot of obscure lines displayed. Wait for it to be over.
 - Create the json file with our facebook library by typing the following command in the terminal window, and press enter:
 
-    python3 -m fbmexplorer
+        python3 -m fbmexplorer
     
  If this does not work, please try :
  
