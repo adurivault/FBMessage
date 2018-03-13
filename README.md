@@ -19,7 +19,7 @@ you will theoretically find an answer here.
 
 ### General design
 
-When you go on the [website](https://mathreynaud.github.io), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the daita is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
+When you go on the [website](https://adurivault.github.io/FBMessage/), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the daita is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
 
 What is represented here is quite simple : one point corresponds to one message sent or received, and the color of the point depends on whether or not the message was receveid or sent. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
 
