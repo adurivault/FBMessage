@@ -63,7 +63,7 @@ No need to add arguments, this should create a ``flat_messages.json`` file. Once
     
     If this does not work, please try :
  
-        python -m fbmexplorer
+        py -3.6 -m fbmexplorer
  
   You should now see a new file called ``flat_messages.json`` appear in the root folder of the Facebook Archive. If so, then you are all set, you can go to the <a href="/README.md"> README.md</a> file and start using the tool.
 
