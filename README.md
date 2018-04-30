@@ -1,3 +1,5 @@
+**UPDATE April 30th 2018:** Facebook recently revamped the "download your data" feature, probably in compliance with GDPR laws by the European Union, which will be enforced starting in May 2018. The Python library that we built for processing the data does not work anymore, and we will try to update it shortly. 
+
 # FBMessage Explorer: Facebook Messages Vizualisation
 
 Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault) 
