@@ -1,0 +1,278 @@
+
+
+body {
+  background-color: #303030;
+}
+  
+
+
+.axis--x line{stroke: #A0A0A0;}
+.axis--x path{stroke: #A0A0A0;}
+.axis--x text{fill: #A0A0A0;}
+
+.axis--y line{stroke: #A0A0A0;}
+.axis--y path{stroke: #A0A0A0;}
+.axis--y text{fill: #A0A0A0;}
+
+.y_hist_weekday line{stroke: #A0A0A0;}
+.y_hist_weekday path{stroke: #A0A0A0;}
+.y_hist_weekday text{fill: #A0A0A0;}
+
+.y_hist_rs line{stroke: #A0A0A0;}
+.y_hist_rs path{stroke: #A0A0A0;}
+.y_hist_rs text{fill: #A0A0A0;}
+
+.area {
+    fill: #2c7bb6;
+    clip-path: url(#clip);
+  }
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 180px;
+  height: 20px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.title_graph {
+  color: #A0A0A0;
+  font: 18px sans-serif;
+  font-weight: bold;
+}
+
+.legend_hist_num {
+  fill: #00a6ca;
+  font: 12px sans-serif;
+}
+
+.legend_hist_text {
+  fill: #A0A0A0;
+  font: 10px sans-serif;
+  font-weight: bold;
+}
+
+.title {
+  color: #A0A0A0;
+  font: 30px sans-serif;
+  font-weight: bold;
+}
+
+.sub_title {
+  fill: #D8D8D8;
+  font:20px sans-serif;
+  font-weight: bold;
+}
+
+.sub_title_2 {
+  fill: #A0A0A0;
+  font: 20px sans-serif;
+  font-weight: bold;
+}
+
+.md_header {
+  color: #A0A0A0;
+  font: 11px sans-serif;
+  font-weight: bold;
+  margin: 0;
+}
+
+.md_text {
+  color: #FFFFFF;
+  font: 9px sans-serif;
+  margin: 0;
+}
+
+.git_link {
+  fill: #D8D8D8;
+  font:15px sans-serif;
+  font-weight: bold;
+}
+
+.legend_message {
+  fill: #A0A0A0;
+  font: 13px sans-serif;
+  font-weight: bold;
+}
+
+.legend_message_2 {
+  fill: #D0D0D0;
+  font: 13px sans-serif;
+}
+
+.bar_weekday rect {
+  stroke: #2c7bb6;
+  stroke-width: 2px;
+  stroke-opacity: 0.0;
+}
+
+.bar_rs rect {
+  stroke: #2c7bb6;
+  stroke-width: 2px;
+  stroke-opacity: 0.0;
+}
+
+.bar_person rect {
+  stroke: #2c7bb6;
+  stroke-width: 2px;
+  stroke-opacity: 0.0;
+}
+
+.bar_length rect {
+  stroke: #2c7bb6;
+  stroke-width: 2px;
+  stroke-opacity: 0.0;
+}
+
+.sender rect {
+  stroke: #2c7bb6;
+  stroke-width: 2px;
+  stroke-opacity: 0.0;
+}
+
+#filters::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+#filters::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+#filters::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+
+#message_displayer::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+#message_displayer::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+#message_displayer::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    font:15px sans-serif;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+    background-color: #111;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+
+.custom-file-upload {
+    border-radius: 5px;
+    border : none;
+    fill: #A0A0A0;
+    background-color: #A0A0A0;
+    font:14px sans-serif;
+    font-weight: bold;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+input[type="file"] {
+    display: none;
+}
+
+.custom-about {
+  border-radius: 5px;
+  border : none;
+  fill: #A0A0A0;
+  background-color: #A0A0A0;
+  font:14px sans-serif;
+  font-weight: bold;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    font: 16px sans-serif;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 45%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.reset-button {
+  border-radius: 5px;
+  border: none;
+  fill: #A0A0A0;
+  background-color: #A0A0A0;
+  font:14px sans-serif;
+  font-weight: bold;
+  padding: 6px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+}

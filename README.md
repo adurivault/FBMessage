@@ -1,29 +1,29 @@
-**UPDATE April 30th 2018:** Facebook recently revamped the "download your data" feature, probably in compliance with GDPR laws by the European Union, which will be enforced starting in May 2018. The Python library that we built for processing the data does not work anymore, and we will try to update it shortly. 
+**UPDATE April 30th 2018:** Facebook recently revamped the "download your data" feature, probably in compliance with GDPR laws by the European Union, which will be enforced starting in May 2018. The Python library that we built for processing the data does not work anymore, and we will try to update it shortly.
 
-# FBMessage Explorer: Facebook Messages Vizualisation
+# FBMessage Explorer: Facebook Messages Visualization
 
-Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault) 
+Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault)
 
 [Website](https://adurivault.github.io/FBMessage/)
 
 The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on when, to whom, etc... you send (or receive) messages. If you have always been curious about your Facebook messages
 history, maybe you will find some answers here.
 
-## How does it work ? 
+## How does it work ?
 
 ### Create your datafile from your Facebook History
-First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/). 
+First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/).
 
 ## Presentation video
 
 There is a presentation [video](https://youtu.be/n8EqF_wfCAE) of this project, and if you are a little bit lost on how to use the tool, or on how to get your data
-you will theoretically find an answer here. 
+you will theoretically find an answer here.
 
 ### General design
 
-When you go on the [website](https://adurivault.github.io/FBMessage/), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the daita is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
+When you go on the [website](https://adurivault.github.io/FBMessage/), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the data is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
 
-What is represented here is quite simple : one point corresponds to one message sent or received, and the color of the point depends on whether or not the message was receveid or sent. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
+What is represented here is quite simple : one point corresponds to one message sent or received, and the color of the point depends on whether or not the message was received or sent. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
 
 <table border="0">
   <tr>
@@ -67,18 +67,18 @@ Those densities of messages vary when you select filters. For example if you sel
 
 You can notice that this conversation was most active between 2015 and mid-2016 and that people spoke the most at 12pm and barely spoke at night.
 
-## Filters 
+## Filters
 
 On the right-hand side, you can find some histograms :
 - Day of the week
 - Sent/Received
 - Top 10 conversations
 - Top 10 senders
-- Length of messages 
+- Length of messages
 
-If you click on any bar of these barchats, it filters all the data and only keeps the one selected. You can apply multiple filters, and explore some interesting stuff this way.
+If you click on any bar of these bar charts, it filters all the data and only keeps the one selected. You can apply multiple filters, and explore some interesting stuff this way.
 For instance, if you click on one particular conversation, then the top 10 senders histogram will display who speaks the most **for this conversation**. This is interesting for group conversations.
-All of the histograms are also linked to the brush & zoom, which means that if you are between **July 2016 and August 2016**, you will discover who were your 10 contacts for the **summer 2016**, and that maybe you were more active in the evenung, and less in the morning.
+All of the histograms are also linked to the brush & zoom, which means that if you are between **July 2016 and August 2016**, you will discover who were your 10 contacts for the **summer 2016**, and that maybe you were more active in the evening, and less in the morning.
 
 If you clicked everywhere on the filters and you want to reset everything, just click on **"Reset All Filters"** on the top right.
 
@@ -90,9 +90,9 @@ If you clicked everywhere on the filters and you want to reset everything, just 
   </tr>
 </table>
 
-## Message Displayer 
+## Message Displayer
 
-In the bottom right-hand corner, you can see the **Message Displayer**. When you mouse over the dots on the central pane, the message under the mouse is displayed here, and you can see basic infomation:
+In the bottom right-hand corner, you can see the **Message Displayer**. When you mouse over the dots on the central pane, the message under the mouse is displayed here, and you can see basic information:
 - The date of the message
 - The sender
 - The message

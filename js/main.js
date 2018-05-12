@@ -1,0 +1,1321 @@
+
+  // var inputs = document.querySelectorAll( '.inputfile' );
+  // Array.prototype.forEach.call( inputs, function( input )
+  // {
+  // 	var label	 = input.nextElementSibling,
+  // 		labelVal = label.innerHTML;
+  //
+  // 	input.addEventListener( 'change', function( e )
+  // 	{
+  // 		var fileName = '';
+  // 		if ( this.files && this.files.length > 1 )
+  // 			fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+  // 		else
+  // 			fileName = e.target.value.split( '\\' ).pop();
+  //
+  // 		if (fileName)
+  // 			label.querySelector( 'span' ).innerHTML = fileName;
+  // 		else
+  // 			label.innerHTML = labelVal;
+  // 	});
+  // });
+
+// Define stuff
+{
+  var length_ticks;
+  var reader;
+  var json;
+  var messages, dim_sender, dim_date, dim_time, dim_weekday, dim_sent;
+  var clicked_rs = new Set(),
+      clicked_weekday = new Set(),
+      clicked_person = new Set(),
+      clicked_length = new Set(),
+      clicked_sender = new Set();
+
+  // Define div, svg, etc..
+  {
+    //D3 elements
+      var div_title = d3.select('#title')
+      var div_density_time = d3.select('#density_time')
+      var div_main = d3.select('#main')
+      var div_filters = d3.select('#filters')
+      var div_density_date = d3.select('#density_date')
+      var div_message_displayer = d3.select('#message_displayer')
+      var div_place_holder = d3.select('#place_holder')
+
+    //JS Elements
+      var div_title_2 = document.getElementById("title")
+      var div_filters_2 = document.getElementById("filters")
+      var div_main_2 = document.getElementById("main")
+      var div_density_date_2 = document.getElementById("density_date")
+      var div_density_time_2 = document.getElementById("density_time")
+      var div_message_displayer_2 = document.getElementById("message_displayer")
+      var div_place_holder_2 = document.getElementById("place_holder")
+  }
+
+  //Define margins, heights and widths
+  {
+    //main
+    var margin1 = {
+      top: 10,
+      right: 20,
+      bottom: 20,
+      left: 40,
+    };
+    //Density date
+    var margin2 = {
+      top: 10,
+      right: 20,
+      bottom: 30,
+      left: 40,
+    };
+    // Filters
+    var margin3 = {
+      top: 60,
+      right: 60,
+      bottom: 50,
+      left: 40,
+    };
+    //Density time
+    var margin4 = {
+      top: 10,
+      right: 10,
+      bottom: 20,
+      left: 40,
+    };
+    //Message Displayer
+    var margin5 = {
+      top: 10,
+      right: 60,
+      bottom: 10,
+      left: 20,
+    };
+    //Title
+    var margin6 = {
+      top: 40,
+      right: 60,
+      bottom: 10,
+      left: 40,
+    };
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    // Set heights
+    var first_row_height = (height*0.70) + "px";
+    var second_row_height = (height*0.20) + "px";
+
+    div_density_time_2.style.height = first_row_height;
+    div_main_2.style.height = first_row_height;
+    div_filters_2.style.height = first_row_height;
+    div_place_holder_2.style.height = second_row_height;
+    div_density_date_2.style.height = second_row_height;
+    div_message_displayer_2.style.height = second_row_height;
+
+    // Set widths
+    var first_col_width = "11%";
+    var second_col_width = "69%";
+    var third_col_width = "19%";
+
+    div_density_time_2.style.width = first_col_width;
+    div_main_2.style.width = second_col_width;
+    div_filters_2.style.width = third_col_width;
+    div_place_holder_2.style.width = first_col_width;
+    div_density_date_2.style.width = second_col_width;
+    div_message_displayer_2.style.width = third_col_width;
+
+    var w1 = div_main_2.clientWidth - margin1.left - margin1.right;
+    var h1 = div_main_2.clientHeight - margin1.top - margin1.bottom;
+    var w2 = div_density_date_2.clientWidth - margin2.left - margin2.right;
+    var h2 = div_density_date_2.clientHeight - margin2.top - margin2.bottom;
+    var w3 = div_filters_2.clientWidth - margin3.left - margin3.right;
+    var h3 = div_filters_2.clientHeight - margin3.top - margin3.bottom;
+    var w4 = div_density_time_2.clientWidth - margin4.left - margin4.right;
+    var h4 = div_density_time_2.clientHeight - margin4.top - margin4.bottom;
+    var h5 = div_message_displayer_2.clientHeight - margin5.top - margin5.bottom;
+    var w5 = div_message_displayer_2.clientWidth - margin5.right - margin5.left;
+
+    margin3.inter = h3/10
+
+    var h_bar = 12;
+  }
+
+  // Defin the About pop up
+  {
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+  }
+
+  // Define div, svg, etc..
+  {
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var body = d3.select("body");
+
+    var density_date = div_density_date
+        .append("svg")
+        .attr("height", (h2 + margin2.top + margin2.bottom))
+        .attr("width", (w2 + margin2.left + margin2.right));
+
+    var density_time = div_density_time
+        .append("svg")
+        .attr("height", (h4 + margin4.top + margin4.bottom))
+        .attr("width", (w4 + margin4.left + margin4.right));
+
+    var axis_time_focus = div_main
+        .append("svg")
+        .attr("width", margin1.left)
+        .attr("height", h1 + margin1.bottom + margin1.top);
+
+    var canvas = div_main
+        .append("canvas")
+        .attr("width", w1)
+        .attr("height", h1)
+        .style("padding-top", margin1.top + "px")
+        .style("vertical-align", "top")
+
+    var canvas_el = document.querySelector("canvas");
+    var context_canvas = canvas_el.getContext("2d");
+
+    var axis_date_focus = div_main
+        .append("svg")
+        .attr("width", (w1 + margin1.left + margin1.right))
+        .attr("height", margin1.bottom)
+        .style("position", "absolute")
+        .style("left", 0 + "px")
+        .style("top", (margin1.top + h1) + "px");
+
+    var div_weekday = div_filters.append("div"),
+        title_weekday = div_weekday.append("h1"),
+        hist_weekday = div_weekday.append("svg");
+
+    var div_rs = div_filters.append("div"),
+        title_rs = div_rs.append("h1"),
+        hist_rs = div_rs.append("svg");
+
+    var div_person = div_filters.append("div"),
+        title_person = div_person.append("h1"),
+        hist_person = div_person.append("svg");
+
+    var div_sender = div_filters.append("div"),
+        title_sender = div_sender.append("h1"),
+        hist_sender = div_sender.append("svg");
+
+    var div_length = div_filters.append("div"),
+        title_length = div_length.append("h1"),
+        hist_length = div_length.append("svg");
+
+  }
+
+  //Define parsers
+  {
+    var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
+    var parseUTCDate = d3.timeParse("%Y-%m-%d");
+    var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
+    var parseUTCDate_time = d3.timeParse("%Y-%m-%d-%H-%M");
+  }
+
+  // Define constants
+  {
+    var min_time = new Date(2000, 0, 1);
+    min_time.setSeconds(1)
+    var max_time = new Date(2000, 0, 1);
+    max_time.setHours(23, 59, 59)
+  }
+
+  // Define scales and axes
+  {
+    //Main canvas
+    var x1 = d3.scaleTime()
+              .range([0, w1]);
+
+    var y1 = d3.scaleTime()
+              .range([0,h1]);
+
+    var xAxis1 = d3.axisBottom()
+              .scale(x1);
+
+    var yAxis1 = d3.axisLeft()
+              .scale(y1);
+
+    // Density date
+    var x2 = d3.scaleTime()
+              .range([0, w2]);
+
+    var y2 = d3.scaleLinear()
+              .range([h2,0]);
+
+    var xAxis2 = d3.axisBottom()
+                .scale(x2);
+
+    // Histogram Messages per day
+    var x3_weekday = d3.scaleLinear()
+                .range([0, w3]);
+
+    var num_to_day = d3.scaleOrdinal()
+                .domain([0,6])
+                .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+
+    // Histrogram Received/Sent
+    var x3_rs = d3.scaleLinear()
+                .range([0, w3]);
+
+    var num_to_rs = d3.scaleOrdinal()
+                .domain([0,1])
+                .range(["Recvd", "Sent"]);
+
+    // Histogram Persons / Conversations
+    var x3_person = d3.scaleLinear()
+                .range([0, w3]);
+
+    // Histogram Sender
+    var x3_sender = d3.scaleLinear()
+                .range([0, w3]);
+
+    // Histogram Sender
+    var x3_length = d3.scaleLinear()
+                .range([0, w3]);
+
+    // Density time
+    var x4 = d3.scaleLinear()
+                .range([0, w4]);
+
+    var y4 = d3.scaleTime()
+              .range([0, h4])
+              .domain([min_time, max_time]);
+
+    var yAxis4 = d3.axisLeft()
+              .scale(y4);
+
+  }
+
+  // Define brush and zoom
+  {
+    var brush_date = d3.brushX()
+        .extent([[0, margin2.top], [w2, margin2.top + h2]])
+        .on("brush end", brushed_date);
+
+    var brush_time = d3.brushY()
+        .extent([[margin4.left, 0], [margin4.left + w4, h4]])
+        .on("brush end", brushed_time);
+
+    var zoom = d3.zoom()
+      .scaleExtent([1, Infinity])
+      .translateExtent([[0, margin2.top], [w2, margin2.top + h2]])
+      .extent([[0, margin2.top], [w2, margin2.top + h2]])
+      .on("zoom", zoomed);
+  }
+
+  //Define Histogram titles
+  {
+    title_weekday
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
+      .text("Week day")
+
+    title_rs
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' + 0 + ','+ 0 + ')')
+      .text("Sent/Received")
+
+    title_person
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Top 10 conversations")
+
+    title_length
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Number of characters")
+
+    title_sender
+      .attr("class", "title_graph")
+      .attr("text-anchor","start")
+      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
+      .text("Top 10 senders")
+  }
+
+  // Define message_displayer
+  {
+      var md_sender = d3.select('#md_sender')
+      var md_conversation = d3.select('#md_conversation')
+      var md_datetime = d3.select('#md_datetime')
+      var md_message = d3.select('#md_message')
+  }
+
+  // Define colors
+  {
+    var color_selected = "#2c7bb6";
+    var color_unselected = "#A0A0A0";
+    var color_received = "#00ccbc";
+    var color_sent =  "#2c7bb6";
+  }
+}
+
+function read(files){
+  reader = new FileReader();
+  reader.onloadend = assign_file;
+  reader.readAsText(files[0]);
+}
+
+function assign_file(){
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Custom'})
+  json = JSON.parse(reader.result);
+  user_name = json.user;
+  resetFilters();
+  main();
+}
+
+d3.json("data/demo_flat_messages.json", load_demo)
+
+function load_demo(json_file){
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Demo'})
+  json = json_file;
+  user_name = json.user;
+  main();
+}
+
+function main(){
+  parse_date();
+  initialize_length_ticks();
+  initialize_crossfilter();
+  add_message_displayer();
+  initialize_scatterplot();
+  draw_density_date();
+  draw_density_time();
+  draw_histogram_weekday();
+  draw_histogram_rs();
+  draw_histogram_person();
+  draw_histogram_sender();
+  draw_histogram_length();
+  initialize_brush();
+}
+
+function initialize_crossfilter(){
+  messages = crossfilter(json.data)
+
+  dim_sent = messages.dimension(function(d) {return d.sent;})
+  dim_date = messages.dimension(function(d) {return d.date;})
+  dim_time = messages.dimension(function(d) {return d.time;})
+  dim_date_tt = messages.dimension(function(d) {return d.date;}) //For tooltip
+  dim_time_tt = messages.dimension(function(d) {return d.time;}) //For tooltip
+  dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
+  dim_sender = messages.dimension(function(d) {return d.sender;})
+  dim_length = messages.dimension(find_length_tick);
+  dim_weekday = messages.dimension(function(d) {return d.date.getDay();})
+
+  group_sent = dim_sent.group()
+  group_date = dim_date.group()
+  group_time = dim_time.group()
+  group_person = dim_person.group()
+  group_sender = dim_sender.group()
+  group_length = dim_length.group()
+  group_weekday = dim_weekday.group()
+}
+
+function resetFilters(){
+  gtag('event', 'reset', {
+      'event_category': 'Reset',
+      'event_Label': 'All'})
+  dim_sent.filter();
+  dim_date.filter();
+  dim_time.filter();
+  dim_person.filter();
+  dim_sender.filter();
+  dim_length.filter();
+  dim_weekday.filter();
+
+
+  clicked_rs = new Set();
+  clicked_weekday = new Set();
+  clicked_person = new Set();
+  clicked_length = new Set();
+  clicked_sender = new Set();
+
+  draw_histogram_weekday ();
+  draw_histogram_person();
+  draw_histogram_sender();
+  draw_histogram_length();
+  draw_histogram_rs();
+  update_density_date();
+  update_density_time();
+  create_scatterplot();
+  initialize_brush();
+
+}
+
+function initialize_length_ticks(){
+  length_ticks = [0,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]
+  length_ticks_str = ["0","1","2","5","10","20","50","100","200","500","1k","2k","5k","10k"]
+}
+
+function tick_to_bin(tick){
+  for (i=1; i<14; i++){
+    if (tick < length_ticks[i]) {
+      return  length_ticks_str[i-1] + "-" + length_ticks_str[i];
+    }
+  }
+  return length_ticks_str[13] + "- ∞"
+}
+
+function find_length_tick(d){
+  for (i=1; i<14; i++){
+    if (d.length < length_ticks[i]) {return length_ticks[i-1];}
+  }
+  return 10000;
+}
+
+function initialize_scatterplot(){
+  //initialize domains
+  axis_time_focus.selectAll(".axis--y").remove();
+  axis_date_focus.selectAll(".axis--x").remove();
+
+  var mindate_total = d3.min(json.data, function(d){return d.date}),
+      maxdate_total = d3.max(json.data, function(d){return d.date});
+
+  x1.domain([mindate_total, maxdate_total]);
+  x2.domain([mindate_total, maxdate_total]);
+
+  create_scatterplot();
+
+  axis_date_focus.append('g')
+    .attr('transform', 'translate(' + margin1.left + ',' + 0 + ')')
+    .attr('class', 'x axis--x')
+    .call(xAxis1);
+
+  axis_time_focus.append('g')
+    .attr('transform', 'translate(' + (margin1.left - 1) + ',' + margin1.top + ')')
+    .attr('class', 'y axis--y')
+    .call(yAxis1);
+}
+
+function initialize_brush(){
+  density_date.selectAll(".brush").remove()
+  density_time.selectAll(".brush").remove()
+
+  density_date.append("g")
+        .attr("class", "brush")
+        .call(brush_date)
+        .call(brush_date.move, x2.range())
+        .attr('transform', 'translate(' + margin2.left + ',' + 0 + ')');
+
+  density_time.append("g")
+        .attr("class", "brush")
+        .call(brush_time)
+        .call(brush_time.move, y4.range())
+        .attr('transform', 'translate(' + 0 + ',' + margin4.top + ')');
+}
+
+function add_message_displayer(){
+  canvas.on("mousemove", function() {
+
+    var find_date_min = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left-2);
+    var find_date_max = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left+2);
+    var find_time_min = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top-2);
+    var find_time_max = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top+2);
+
+    dim_date_tt.filterRange([find_date_min, find_date_max]);
+    dim_time_tt.filterRange([find_time_min, find_time_max]);
+    var message_tooltip = messages.allFiltered()
+
+    dim_date_tt.filter();
+    dim_time_tt.filter();
+
+    if (message_tooltip.length > 0 ){
+      var full_date = String(message_tooltip[0].date);
+      var full_time = String(message_tooltip[0].time);
+
+      md_sender.select("p").remove()
+      md_sender.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].sender);
+
+      md_conversation.select("p").remove()
+      md_conversation.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0]["threads.participants"]);
+
+      md_message.select("p").remove()
+      md_message.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].message);
+
+      md_datetime.select("p").remove()
+      md_datetime.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(full_date.substring(0,16) + full_time.substring(17,33))
+    }
+
+  })
+}
+
+function parse_date(){
+  json.data.forEach(function(d){
+     date = d.date;
+     date = parseUTCDateHour(date.substring(0, date.length - 3) + date.substring(date.length - 2, date.length));
+     d.time = getTime(date);
+     d.date = getDate(date);
+  })
+};
+
+function draw_density_date(){
+  density_date.selectAll(".area").remove();
+  density_date.selectAll(".axis--x").remove();
+
+  var nested_data_date = group_date.all()
+  nested_data_date = d3.nest()
+                          .key(function(d){ return d.key.getWeek() + '-' + d.key.getMonth() + '-' + d.key.getFullYear();})
+                          .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.value);})})
+                          .entries(nested_data_date)
+
+  nested_data_date = nested_data_date.sort(sortByDateAscending);
+
+  var max_message = d3.max(nested_data_date, function(d){return d.value});
+
+  y2.domain([0, max_message]);
+
+  var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .x(function(d) { return x2(parseUTCDate2(d.key));})
+    .y0(h2)
+    .y1(function(d) { return y2(d.value); });
+
+  density_date.append("path")
+      .datum(nested_data_date)
+      .attr("class", "area")
+      .attr("d", area)
+      .attr('transform', 'translate(' + margin2.left + ',' + (margin2.top) + ')')
+
+  density_date.append('g')
+    .attr('transform', 'translate(' + margin2.left + ',' + (h2 + margin2.top) + ')')
+    .attr('class', 'x axis--x')
+    .call(xAxis2);
+}
+
+function update_density_date(){
+  nested_data_date = group_date.all()
+  nested_data_date = d3.nest()
+                          .key(function(d){ return d.key.getWeek() + '-' + d.key.getMonth() + '-' + d.key.getFullYear();})
+                          .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.value);})})
+                          .entries(nested_data_date)
+
+  nested_data_date = nested_data_date.sort(sortByDateAscending);
+
+  var max_message = d3.max(nested_data_date, function(d){return d.value});
+
+  y2.domain([0, max_message]);
+
+  var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .x(function(d) {return x2(parseUTCDate2(d.key));})
+    .y0(h2)
+    .y1(function(d) { return y2(d.value); });
+
+  density_date.selectAll("path")
+    .datum(nested_data_date)
+
+  density_date.selectAll(".area")
+    .transition()
+    .attr("d", area)
+}
+
+function draw_density_time(){
+  density_time.selectAll().remove()
+  nested_data_time = group_time.all();
+  var max_message = d3.max(nested_data_time, function(d){return d.value});
+
+  x4.domain([0, max_message]);
+
+  var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .y(function(d) { return y4(d.key);})
+    .x0(0)
+    .x1(function(d) { return x4(d.value); });
+
+  density_time.append("path")
+      .datum(nested_data_time)
+      .attr("class", "area")
+      .attr("d", area)
+      .attr('transform', 'translate(' + margin4.left + ',' + (margin4.top) + ')');
+
+  density_time.append('g')
+    .attr('transform', 'translate(' + margin4.left + ',' + (margin4.top) + ')')
+    .attr('class', function(d) {return 'y axis--y'})
+    .call(yAxis4);
+}
+
+function update_density_time(){
+  nested_data_time = group_time.all();
+  var max_message = d3.max(nested_data_time, function(d){return d.value});
+
+  x4.domain([0, max_message]);
+
+  var area = d3.area()
+    .curve(d3.curveBasisOpen)
+    .y(function(d) { return y4(d.key);})
+    .x0(0)
+    .x1(function(d) { return x4(d.value); });
+
+  density_time.selectAll("path")
+    .datum(nested_data_time)
+
+  density_time.selectAll(".area")
+    .transition()
+    .attr("d", area)
+}
+
+function draw_histogram_rs(){
+ //Remove old histogram
+  hist_rs.selectAll('.bar_rs')
+     .remove();
+  hist_rs.selectAll('.y_hist_rs')
+     .remove();
+
+ //Create nested dataset
+  nested_data_rs = group_sent.all()
+
+  // Define domain horizontal axis
+  var nb_max_message_per_bar = d3.max(nested_data_rs, function(d) {return d.value;})
+  x3_rs.domain([0, nb_max_message_per_bar])
+
+  var bar_rs = hist_rs.selectAll(".bar_rs")
+   .data(nested_data_rs)
+   .enter().append("g")
+     .attr("class", "bar_rs")
+     .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
+
+  bar_rs.append("rect")
+      .style("fill", function(d){
+          if (clicked_rs.size == 0) {return color_selected;}
+          if(clicked_rs.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_rs(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
+     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
+     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
+     .on("click", function(d){
+         gtag('event', 'Histogram', {
+             'event_category': 'Filter',
+             'event_label': 'Received/Sent'})
+         //Update the clicked rectangles
+         if (clicked_rs.has(d.key))
+            {clicked_rs.delete(d.key)}
+         else
+            {clicked_rs.add(d.key);}
+
+        if (clicked_rs.size == 0) {
+          //Colors all bar as selected
+          hist_rs.selectAll(".bar_rs")
+            .selectAll("rect")
+            .style("fill", color_selected);
+          //Remove filter
+          dim_sent.filter()
+        } else {
+          //Color all bars according to selected or not
+          hist_rs.selectAll(".bar_rs")
+            .selectAll("rect")
+            .style("fill", function(d){
+                if(clicked_rs.has(d.key)){
+                  return color_selected;
+                } else {
+                  return color_unselected;
+                };}
+            )
+            //Apply filters
+            dim_sent.filter(function(a){return clicked_rs.has(a)})
+         }
+
+      draw_histogram_weekday ();
+      draw_histogram_person();
+      draw_histogram_sender();
+      draw_histogram_length();
+      update_density_date();
+      update_density_time();
+      create_scatterplot();
+     });
+
+ // Add legends and stuff
+ bar_rs.append("text")
+    .attr("class", "legend_hist_num")
+    .attr("dy", "0.35em")
+    .attr("y", h_bar/2 + "px")
+    .attr("x", function(d) { return x3_rs(d.value) +2; })
+    .attr("text-anchor", "left")
+    .text(function(d) { return d.value; })
+    .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+ bar_rs.append("text")
+    .attr("class", "legend_hist_text")
+    .attr("dy", "0.35em")
+    .attr("y", h_bar/2 + "px")
+    .text(function(d){return num_to_rs(d.key)});
+
+ // Adjust svg size
+ bbox = hist_rs.nodes()[0].getBBox();
+ hist_rs
+   .attr("width", bbox.x + bbox.width  + "px")
+   .attr("height",bbox.y + bbox.height + "px")
+
+}
+
+function draw_histogram_weekday(){
+   //Remove old histogram
+  hist_weekday.selectAll('.bar_weekday')
+     .remove();
+  hist_weekday.selectAll('.y_hist_weekday')
+     .remove();
+
+ //Create nested dataset
+  nested_data_weekday = group_weekday.all()
+
+  // Define domain horizontal axis
+  var nb_max_message_per_bar = d3.max(nested_data_weekday, function(d) {return d.value;})
+  x3_weekday.domain([0, nb_max_message_per_bar])
+
+  // Add one group for each bar. Each group contains the bar, and the legends
+  var bar_weekday = hist_weekday.selectAll(".bar_weekday")
+   .data(nested_data_weekday)
+   .enter().append("g")
+     .attr("class", "bar_weekday")
+     .attr("transform", function(d, i) {return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
+
+  // Add rectangles to the groups
+  bar_weekday.append("rect")
+      .style("fill", function(d){
+          if (clicked_weekday.size == 0) {return color_selected;}
+          if(clicked_weekday.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_weekday(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
+     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
+     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
+     .on("click", function(d){
+         gtag('event', 'Histogram', {
+             'event_category': 'Filter',
+             'event_label': 'WeekDay'})
+         //Update the clicked rectangles
+         if (clicked_weekday.has(d.key))
+            {clicked_weekday.delete(d.key)}
+         else
+            {clicked_weekday.add(d.key);}
+
+        if (clicked_weekday.size == 0) {
+          //Colors all bar as selected
+          hist_weekday.selectAll(".bar_weekday")
+            .selectAll("rect")
+            .style("fill", color_selected);
+          //Remove filter
+          dim_weekday.filter(null)
+        } else {
+          //Color all bars according to selected or not
+          hist_weekday.selectAll(".bar_weekday")
+            .selectAll("rect")
+            .style("fill", function(d){
+                if(clicked_weekday.has(d.key)){
+                  return color_selected;
+                } else {
+                  return color_unselected;
+                };}
+            )
+            //Apply filters
+            dim_weekday.filter(function(a){return clicked_weekday.has(a)})
+         }
+
+      draw_histogram_rs();
+      draw_histogram_person();
+      draw_histogram_sender();
+      draw_histogram_length();
+      update_density_date();
+      update_density_time();
+      create_scatterplot();
+     });
+
+  // Add legends and stuff
+  bar_weekday.append("text")
+     .attr("class", "legend_hist_num")
+     .attr("dy", "0.35em")
+     .attr("y", h_bar/2 + "px")
+     .attr("x", function(d) { return (x3_weekday(d.value) + 2); })
+     .attr("text-anchor", "left")
+     .text(function(d) { return d.value; })
+     .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  bar_weekday.append("text")
+     .attr("class", "legend_hist_text")
+     .attr("dy", "0.35em")
+     .attr("y", h_bar/2 + "px")
+     .text(function(d){return num_to_day(d.key)});
+
+ // Adjust svg size
+ bbox = hist_weekday.nodes()[0].getBBox();
+ hist_weekday
+   .attr("width", bbox.x + bbox.width  + "px")
+   .attr("height",bbox.y + bbox.height + "px")
+}
+
+function draw_histogram_person(){
+ //Remove old histogram
+  hist_person.selectAll('.bar_person')
+     .remove();
+  hist_person.selectAll('.y_hist_person')
+     .remove();
+
+  //Create nested dataset
+  var nested_data_person_short = group_person.top(10)
+  var max_num = nested_data_person_short["0"]["value"]
+  //nested_data_person_short = nested_data_person.slice(0,10)
+
+  x3_person.domain([0, max_num]);
+
+  var bar_person = hist_person.selectAll(".bar_person")
+   .data(nested_data_person_short)
+   .enter().append("g")
+     .attr("class", "bar_person")
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
+
+  bar_person.append("rect")
+      .style("fill", function(d){
+          if (clicked_person.size == 0) {return color_selected;}
+          if(clicked_person.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_person(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
+     .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div	.html(d.key.substring(0, 30))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            d3.select(this).style("stroke-opacity", 1);
+      })
+      .on("mouseout", function(d) {
+          div.transition().duration(500).style("opacity", 0);
+          d3.select(this).style("stroke-opacity", 0.0);
+      })
+      .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Conversation'})
+          //Update the clicked rectangles
+          if (clicked_person.has(d.key))
+             {clicked_person.delete(d.key)}
+          else
+             {clicked_person.add(d.key);}
+
+          if (clicked_person.size == 0) {
+            //Colors all bar as selected
+            hist_person.selectAll(".bar_person")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            dim_person.filter()
+          } else {
+            //Color all bars according to selected or not
+            hist_person.selectAll(".bar_person")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(clicked_person.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+              //Apply filters
+              dim_person.filter(function(a){return clicked_person.has(a)})
+          }
+
+          draw_histogram_weekday();
+          draw_histogram_rs();
+          draw_histogram_sender();
+          draw_histogram_length();
+          update_density_date();
+          update_density_time();
+          create_scatterplot();
+       });
+
+   bar_person.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_person(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  // Adjust svg size
+  bbox = hist_person.nodes()[0].getBBox();
+  hist_person
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
+}
+
+
+function draw_histogram_sender(){
+ //Remove old histogram
+  hist_sender.selectAll('.bar_sender')
+     .remove();
+  hist_sender.selectAll('.y_hist_sender')
+     .remove();
+
+  //Create nested dataset
+  var nested_data_sender_short = group_sender.top(10)
+  var max_num = nested_data_sender_short["0"]["value"]
+
+  x3_sender.domain([0, max_num]);
+
+  var bar_sender = hist_sender.selectAll(".bar_sender")
+   .data(nested_data_sender_short)
+   .enter().append("g")
+     .attr("class", "bar_sender")
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
+
+  bar_sender.append("rect")
+      .style("fill", function(d){
+          if (clicked_sender.size == 0) {return color_selected;}
+          if(clicked_sender.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_sender(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
+     .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div	.html(d.key.substring(0, 30))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            d3.select(this).style("stroke-opacity", 1);
+      })
+      .on("mouseout", function(d) {
+          div.transition().duration(500).style("opacity", 0);
+          d3.select(this).style("stroke-opacity", 0.0);
+      })
+      .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Sender'})
+          //Update the clicked rectangles
+          if (clicked_sender.has(d.key))
+             {clicked_sender.delete(d.key)}
+          else
+             {clicked_sender.add(d.key);}
+
+          if (clicked_sender.size == 0) {
+            //Colors all bar as selected
+            hist_sender.selectAll(".bar_sender")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            dim_sender.filter()
+          } else {
+            //Color all bars according to selected or not
+            hist_sender.selectAll(".bar_sender")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(clicked_sender.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+              //Apply filters
+              dim_sender.filter(function(a){return clicked_sender.has(a)})
+          }
+
+          draw_histogram_weekday();
+          draw_histogram_rs();
+          draw_histogram_person();
+          draw_histogram_length();
+          update_density_date();
+          update_density_time();
+          create_scatterplot();
+       });
+
+   bar_sender.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_sender(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  // Adjust svg size
+  bbox = hist_sender.nodes()[0].getBBox();
+  hist_sender
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
+}
+
+function draw_histogram_length(){
+ //Remove old histogram
+  hist_length.selectAll('.bar_length')
+     .remove();
+  hist_length.selectAll('.y_hist_length')
+     .remove();
+
+  //Create nested dataset
+  var nested_data_length = group_length.all()
+
+  // Define domain horizontal axis
+  var nb_max_message_per_bar = d3.max(nested_data_length, function(d) {return d.value;})
+  x3_length.domain([0, nb_max_message_per_bar])
+
+  var bar_length = hist_length.selectAll(".bar_length")
+   .data(nested_data_length)
+   .enter().append("g")
+     .attr("class", "bar_length")
+     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
+
+  bar_length.append("rect")
+      .style("fill", function(d){
+          if (clicked_length.size == 0) {return color_selected;}
+          if(clicked_length.has(d.key)){
+            return color_selected;
+          } else {
+            return color_unselected;
+          };})
+     .attr("height", h_bar)
+     .attr("width", function(d) {return x3_length(d.value); })
+     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
+     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
+     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
+      .on("click", function(d){
+          gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': 'Length'})
+          //Update the clicked rectangles
+          if (clicked_length.has(d.key))
+             {clicked_length.delete(d.key)}
+          else
+             {clicked_length.add(d.key);}
+
+          if (clicked_length.size == 0) {
+            //Colors all bar as selected
+            hist_length.selectAll(".bar_length")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            dim_length.filter()
+          } else {
+            //Color all bars according to selected or not
+            hist_length.selectAll(".bar_length")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(clicked_length.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+              //Apply filters
+              dim_length.filter(function(a){return clicked_length.has(a)})
+          }
+
+          draw_histogram_weekday();
+          draw_histogram_rs();
+          draw_histogram_person();
+          draw_histogram_sender();
+          update_density_date();
+          update_density_time();
+          create_scatterplot();
+       });
+
+   bar_length.append("text")
+      .attr("class", "legend_hist_num")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .attr("x", function(d) { return (x3_length(d.value) + 2); })
+      .attr("text-anchor", "left")
+      .text(function(d) { return d.value; })
+      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+  bar_length.append("text")
+      .attr("class", "legend_hist_text")
+      .attr("dy", "0.35em")
+      .attr("y", h_bar/2 + "px")
+      .text(function(d){return tick_to_bin(d.key)});
+
+  // Adjust svg size
+  bbox = hist_length.nodes()[0].getBBox();
+  hist_length
+    .attr("width", bbox.x + bbox.width  + "px")
+    .attr("height",bbox.y + bbox.height + "px")
+}
+
+function zoomed(){
+   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
+   var t = d3.event.transform;
+   x1.domain(t.rescaleX(x2).domain());
+   dim_date.filter([x1.domain()[0], x1.domain()[1]])
+   dim_time.filter([y1.domain()[0], y1.domain()[1]])
+   update_density_date();
+   update_density_time();
+   draw_histogram_weekday();
+   draw_histogram_rs();
+   draw_histogram_person();
+   draw_histogram_sender();
+   draw_histogram_length();
+   create_scatterplot();
+
+   axis_date_focus.select(".axis--x").call(xAxis1);
+   axis_time_focus.select(".axis--y").call(yAxis1);
+
+   density_date.select(".brush")
+      .call(brush_date.move, x1.range().map(t.invertX, t));
+}
+
+function brushed_date() {
+  gtag('event', 'Brush', {
+      'event_category': 'Brush',
+      'event_label': 'Date'})
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
+  var s = d3.event.selection || x2.range();
+  x1.domain(s.map(x2.invert, x2));
+  dim_date.filter([x1.domain()[0], x1.domain()[1]]);
+  update_density_time();
+  draw_histogram_weekday();
+  draw_histogram_rs();
+  draw_histogram_person();
+  draw_histogram_sender();
+  draw_histogram_length();
+  create_scatterplot();
+
+  axis_date_focus.select(".axis--x").call(xAxis1);
+
+  density_date.select(".zoom")
+   .call(zoom.transform, d3.zoomIdentity
+                            .scale(width / (s[1] - s[0]))
+                            .translate(-s[0], 0)
+        );
+}
+
+function brushed_time() {
+  gtag('event', 'Brush', {
+      'event_category': 'Brush',
+      'event_label': 'Time'})
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
+  var s = d3.event.selection || y4.range();
+  y1.domain(s.map(y4.invert, y4));
+  dim_time.filter([y1.domain()[0], y1.domain()[1]]);
+  update_density_date();
+  draw_histogram_weekday();
+  draw_histogram_rs();
+  draw_histogram_person();
+  draw_histogram_sender();
+  draw_histogram_length();
+  create_scatterplot();
+
+  axis_time_focus.select(".axis--y").call(yAxis1);
+
+  density_date.select(".zoom")
+   .call(zoom.transform, d3.zoomIdentity
+                            .scale(width / (s[1] - s[0]))
+                            .translate(-s[0], 0)
+        );
+}
+
+function create_scatterplot(){
+  context_canvas.clearRect(0, 0, canvas_el.width, canvas_el.height);
+  messages.allFiltered().forEach(function(d){
+    //Plot one dot
+    context_canvas.beginPath();
+    if (d.sent){
+      context_canvas.fillStyle = color_sent;
+    }
+    else {
+      context_canvas.fillStyle = color_received;
+    }
+    context_canvas.globalAlpha = 0.1;
+    context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
+    context_canvas.fill()
+    context_canvas.closePath();
+  })
+}
+
+getDate = function(date){
+  string = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+  return parseUTCDate(string);
+}
+
+getTime = function(date){
+  var day = new Date(2000, 0, 1);
+  day.setHours(date.getHours());
+  day.setMinutes(date.getMinutes());
+  return day;
+};
+
+Date.prototype.getWeek = function() {
+   var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+   // Thursday in current week decides the year.
+   date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+   // January 4 is always in week 1.
+   var week1 = new Date(date.getFullYear(), 0, 4);
+   // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+   return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                         - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+function sortByDateAscending(a, b) {
+   // Dates will be cast to numbers automagically:
+   return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
+}
+
+function sortByDateAscending_time(a, b) {
+   // Dates will be cast to numbers automagically:
+   return (parseUTCDate_time(a.key) - parseUTCDate_time(b.key));
+}
+
+function sortByAscending(a, b) {
+   // Dates will be cast to numbers automagically:
+   return (a-b);
+}
+
+function precisionRound(number, precision) {
+   var factor = Math.pow(10, precision);
+   return Math.round(number * factor) / factor;
+}
