@@ -3,7 +3,7 @@
 body {
   background-color: #303030;
 }
-  
+
 
 
 .axis--x line{stroke: #A0A0A0;}
@@ -223,6 +223,7 @@ input[type="file"] {
   font:14px sans-serif;
   font-weight: bold;
   padding: 6px 12px;
+  margin-right: 10px;
   cursor: pointer;
 }
 

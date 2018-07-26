@@ -1,36 +1,13 @@
-
-  // var inputs = document.querySelectorAll( '.inputfile' );
-  // Array.prototype.forEach.call( inputs, function( input )
-  // {
-  // 	var label	 = input.nextElementSibling,
-  // 		labelVal = label.innerHTML;
-  //
-  // 	input.addEventListener( 'change', function( e )
-  // 	{
-  // 		var fileName = '';
-  // 		if ( this.files && this.files.length > 1 )
-  // 			fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
-  // 		else
-  // 			fileName = e.target.value.split( '\\' ).pop();
-  //
-  // 		if (fileName)
-  // 			label.querySelector( 'span' ).innerHTML = fileName;
-  // 		else
-  // 			label.innerHTML = labelVal;
-  // 	});
-  // });
-
 // Define stuff
 {
   var length_ticks;
   var reader;
   var json;
   var messages, dim_sender, dim_date, dim_time, dim_weekday, dim_sent;
-  var clicked_rs = new Set(),
-      clicked_weekday = new Set(),
-      clicked_person = new Set(),
-      clicked_length = new Set(),
-      clicked_sender = new Set();
+  var messages_array = [];
+  var count_init = 0;
+  var count_end = 0;
+  var user_name = undefined
 
   // Define div, svg, etc..
   {
@@ -140,31 +117,55 @@
     var h_bar = 12;
   }
 
-  // Defin the About pop up
+  // Defin the pop-ups
   {
     // Get the modal
-    var modal = document.getElementById('myModal');
+    var exploreModal = document.getElementById('ExploreModal');
+    var explanationModal = document.getElementById('ExplanationModal');
+    var processingModal = document.getElementById('ProcessingModal');
 
     // Get the button that opens the modal
-    var btn = document.getElementById("myBtn");
+    var exploreBtn = document.getElementById("ExploreBtn");
+    var explanationBtn = document.getElementById("ExplanationBtn");
 
     // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
+    var span1 = document.getElementsByClassName("close")[0];
+    var span2 = document.getElementsByClassName("close")[1];
+    var span3 = document.getElementsByClassName("close")[2];
+    explanationModal.style.display = "block";
 
     // When the user clicks the button, open the modal
-    btn.onclick = function() {
-        modal.style.display = "block";
+    exploreBtn.onclick = function() {
+        exploreModal.style.display = "block";
+    }
+
+    explanationBtn.onclick = function() {
+        explanationModal.style.display = "block";
     }
 
     // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
+    span1.onclick = function() {
+        exploreModal.style.display = "none";
+        explanationModal.style.display = "none";
+        processingModal.style.display = "none";
+    }
+    span2.onclick = function() {
+        exploreModal.style.display = "none";
+        explanationModal.style.display = "none";
+        processingModal.style.display = "none";
+    }
+    span3.onclick = function() {
+        exploreModal.style.display = "none";
+        explanationModal.style.display = "none";
+        processingModal.style.display = "none";
     }
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == exploreModal || event.target == explanationModal) {
+            exploreModal.style.display = "none";
+            explanationModal.style.display = "none";
+            processingModal.style.display = "none";
         }
     }
   }
@@ -209,27 +210,6 @@
         .style("position", "absolute")
         .style("left", 0 + "px")
         .style("top", (margin1.top + h1) + "px");
-
-    var div_weekday = div_filters.append("div"),
-        title_weekday = div_weekday.append("h1"),
-        hist_weekday = div_weekday.append("svg");
-
-    var div_rs = div_filters.append("div"),
-        title_rs = div_rs.append("h1"),
-        hist_rs = div_rs.append("svg");
-
-    var div_person = div_filters.append("div"),
-        title_person = div_person.append("h1"),
-        hist_person = div_person.append("svg");
-
-    var div_sender = div_filters.append("div"),
-        title_sender = div_sender.append("h1"),
-        hist_sender = div_sender.append("svg");
-
-    var div_length = div_filters.append("div"),
-        title_length = div_length.append("h1"),
-        hist_length = div_length.append("svg");
-
   }
 
   //Define parsers
@@ -273,33 +253,13 @@
     var xAxis2 = d3.axisBottom()
                 .scale(x2);
 
-    // Histogram Messages per day
-    var x3_weekday = d3.scaleLinear()
-                .range([0, w3]);
-
     var num_to_day = d3.scaleOrdinal()
                 .domain([0,6])
                 .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
 
-    // Histrogram Received/Sent
-    var x3_rs = d3.scaleLinear()
-                .range([0, w3]);
-
     var num_to_rs = d3.scaleOrdinal()
                 .domain([0,1])
                 .range(["Recvd", "Sent"]);
-
-    // Histogram Persons / Conversations
-    var x3_person = d3.scaleLinear()
-                .range([0, w3]);
-
-    // Histogram Sender
-    var x3_sender = d3.scaleLinear()
-                .range([0, w3]);
-
-    // Histogram Sender
-    var x3_length = d3.scaleLinear()
-                .range([0, w3]);
 
     // Density time
     var x4 = d3.scaleLinear()
@@ -331,43 +291,10 @@
       .on("zoom", zoomed);
   }
 
-  //Define Histogram titles
-  {
-    title_weekday
-      .attr("class", "title_graph")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' + 0 + ',' + 0 + ')')
-      .text("Week day")
-
-    title_rs
-      .attr("class", "title_graph")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' + 0 + ','+ 0 + ')')
-      .text("Sent/Received")
-
-    title_person
-      .attr("class", "title_graph")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
-      .text("Top 10 conversations")
-
-    title_length
-      .attr("class", "title_graph")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
-      .text("Number of characters")
-
-    title_sender
-      .attr("class", "title_graph")
-      .attr("text-anchor","start")
-      .attr('transform', 'translate(' +0 + ',' + 0 + ')')
-      .text("Top 10 senders")
-  }
-
   // Define message_displayer
   {
       var md_sender = d3.select('#md_sender')
-      var md_conversation = d3.select('#md_conversation')
+      var md_thread = d3.select('#md_thread')
       var md_datetime = d3.select('#md_datetime')
       var md_message = d3.select('#md_message')
   }
@@ -376,110 +303,381 @@
   {
     var color_selected = "#2c7bb6";
     var color_unselected = "#A0A0A0";
-    var color_received = "#00ccbc";
-    var color_sent =  "#2c7bb6";
+    // var color_received = "#00ccbc";
+    var color_base =  "#2c7bb6";
+  }
+}
+
+var histograms = [
+  {
+    "name": "Received / Sent",
+    "n_bars": "all",
+    "get_data": (function(d) {return d.sent;}),
+    "get_legend": num_to_rs,
+    "get_tooltip": (function(s){return ""})
+  },
+  {
+    "name": "Week Day",
+    "n_bars": "all",
+    "get_data": (function(d) {return d.date.getDay();}),
+    "get_legend": num_to_day,
+    "get_tooltip": (function(s){return ""})
+  },
+  {
+    "name": "Top 10 Threads",
+    "n_bars": 10,
+    "get_data": (function(d) {return d.thread;}),
+    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_tooltip": (function(s){return s.substring(0,40)})
+  },
+  {
+    "name": "Number of Participants",
+    "n_bars": "all",
+    "get_data": (function(d) {return data_nb_part(d.nb_participants);}),
+    "get_legend": (function(s){return String(s)}),
+    "get_tooltip": (function(s){return String(s)})
+  },
+  {
+    "name": "Top 10 Senders",
+    "n_bars": 10,
+    "get_data": (function(d) {return d.sender_name;}),
+    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_tooltip": (function(s){return s.substring(0,40)})
+  },
+  {
+    "name": "Media",
+    "n_bars": "all",
+    "get_data": (function(d) {return d.media;}),
+    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_tooltip": (function(s){return s.substring(0,40)})
+  },
+  {
+    "name": "Type of message",
+    "n_bars": "all",
+    "get_data": (function(d) {return d.type;}),
+    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_tooltip": (function(s){return s.substring(0,40)})
+  },
+  {
+    "name": "Number of characters",
+    "n_bars": "all",
+    "get_data": find_length_tick,
+    "get_legend": tick_to_bin,
+    "get_tooltip": (function(s){return ""})
+  },
+]
+
+class Histogram {
+
+  constructor(record) {
+    this.name = record.name;
+    this.n_bars = record.n_bars;
+    this.div = div_filters.append("div");
+    this.title = this.div.append("h1");
+    this.svg = this.div.append("svg");
+    this.clicked = new Set();
+    this.x = d3.scaleLinear().range([0, w3]);
+    this.y = record.y;
+    this.dimension = messages.dimension(record.get_data)
+    this.group = this.dimension.group()
+    this.get_legend = record.get_legend
+    this.get_tooltip = record.get_tooltip
+
+    this.title.attr("class", "title_graph").attr("text-anchor", "start").text(this.name);
+    this.display()
+  }
+
+  get nested_data() {
+    if (this.n_bars=="all"){ return this.group.all()}
+    else {return this.group.top(this.n_bars)}
+  }
+
+  clear() {
+   this.svg.selectAll('.bar')
+      .remove();
+   this.svg.selectAll('.y')
+      .remove();
+  }
+
+  update_clicked(d) {
+    if (this.clicked.has(d.key))
+       {this.clicked.delete(d.key)}
+    else
+       {this.clicked.add(d.key);}
+  }
+
+  draw_bars() {
+    this.bars = this.svg.selectAll(".bar")
+     .data(this.nested_data)
+     .enter().append("g")
+       .attr("class", "bar")
+       .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
+
+    this.x.domain([0, d3.max(this.nested_data, function(d) {return d.value;})])
+    var this_temp = this
+    this.bars.append("rect")
+        .style("fill", function(d){
+            if (this_temp.clicked.size == 0) {return color_selected;}
+            if(this_temp.clicked.has(d.key)){
+              return color_selected;
+            } else {
+              return color_unselected;
+            };})
+       .attr("height", h_bar)
+       .attr("width", function(d) {return this_temp.x(d.value); })
+       .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
+       .on("mouseover", function(d) {
+              div.transition()
+                  .duration(200)
+                  .style("opacity", .9);
+              div.html(this_temp.get_tooltip(d.key))
+                 .style("left", (d3.event.pageX) + "px")
+                 .style("top", (d3.event.pageY - 28) + "px");
+
+              d3.select(this).style("stroke-opacity", 1);
+        })
+       .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
+       .on("click", function(d){
+          if (this_temp.clicked.has(d.key))
+             {this_temp.clicked.delete(d.key)}
+          else
+             {this_temp.clicked.add(d.key);}
+
+          if (this_temp.clicked.size == 0) {
+            //Color all bar as selected
+            this_temp.svg.selectAll(".bar")
+              .selectAll("rect")
+              .style("fill", color_selected);
+            //Remove filter
+            this_temp.dimension.filter()
+          } else {
+            //Color all bars according to selected or not
+            this_temp.svg.selectAll(".bar")
+              .selectAll("rect")
+              .style("fill", function(d){
+                  if(this_temp.clicked.has(d.key)){
+                    return color_selected;
+                  } else {
+                    return color_unselected;
+                  };}
+              )
+             //Apply filters
+             this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
+          }
+          this_temp.redraw_all();
+       })
+  }
+
+  draw_stuff(){
+     // Add legends and stuff
+     var this_temp = this
+     this.bars.append("text")
+        .attr("class", "legend_hist_num")
+        .attr("dy", "0.35em")
+        .attr("y", h_bar/2 + "px")
+        .attr("x", function(d) {return this_temp.x(d.value) +2; })
+        .attr("text-anchor", "left")
+        .text(function(d) { return d.value; })
+        .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+
+     this.bars.append("text")
+        .attr("class", "legend_hist_text")
+        .attr("dy", "0.35em")
+        .attr("y", h_bar/2 + "px")
+        .text(function(d){return this_temp.get_legend(d.key)});
+  }
+
+  update_colors_and_filters(d){
+    if (this.clicked.size == 0) {
+      //Color all bar as selected
+      this.svg.selectAll(".bar")
+        .selectAll("rect")
+        .style("fill", color_selected);
+      //Remove filter
+      dimension.filter()
+    } else {
+      //Color all bars according to selected or not
+      this.svg.selectAll(".bar")
+        .selectAll("rect")
+        .style("fill", function(d){
+            if(this.clicked.has(d.key)){
+              return color_selected;
+            } else {
+              return color_unselected;
+            };}
+        )
+       //Apply filters
+       dimension.filter(function(a){return this.clicked.has(a)})
+     }
+  }
+
+  adjust_svg_size(){
+    var bbox = this.svg.nodes()[0].getBBox();
+    this.svg
+      .attr("width", bbox.x + bbox.width  + "px")
+      .attr("height",bbox.y + bbox.height + "px")
+  }
+
+  redraw_all() {
+    for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
+    update_density_date();
+    update_density_time();
+    create_scatterplot();
+  }
+
+  update(d){
+    this.update_clicked(d);
+    this.update_colors_and_filters(d);
+    this.redraw_all();
+  }
+
+  display() {
+    this.clear();
+    this.draw_bars();
+    this.draw_stuff();
+    this.adjust_svg_size();
   }
 }
 
 function read(files){
-  reader = new FileReader();
-  reader.onloadend = assign_file;
-  reader.readAsText(files[0]);
-}
+  explanationModal.style.display = "none"
+  exploreModal.style.display = "none"
+  processingModal.style.display = "block"
+  messages_array = []
+  for (var i = 0; i < files.length; i++) {
+    (function(file, i) {
+      if (file.webkitRelativePath.endsWith("message.json")){
+        count_init += 1
+        var reader = new FileReader()
+        reader.onloadend = function(){
+            thread = JSON.parse(reader.result)
 
-function assign_file(){
-  gtag('event', 'Load', {
-      'event_category': 'Load',
-      'event_label': 'Custom'})
-  json = JSON.parse(reader.result);
-  user_name = json.user;
-  resetFilters();
-  main();
-}
+          thread_info = {
+            'is_still_participant': thread['is_still_participant'],
+            'thread_type': thread['thread_type'],
+            'thread': decodeURIComponent(escape(thread['title'])),
+          }
+          try {
+            thread_info['nb_participants'] = thread['participants'].length
+          } catch {
+            thread_info['nb_participants'] = 0
+          }
 
-d3.json("data/demo_flat_messages.json", load_demo)
+          thread_messages = thread['messages']
+          for (var i=0; i<thread_messages.length; i++){
+            message = thread_messages[i]
+            message_info = {
+              'sender_name': decodeURIComponent(escape(message['sender_name'])),
+              'timestamp': message['timestamp'],
+              'type': message['type'],
+            }
 
-function load_demo(json_file){
-  gtag('event', 'Load', {
-      'event_category': 'Load',
-      'event_label': 'Demo'})
-  json = json_file;
-  user_name = json.user;
-  main();
+            if(message['photos'] != undefined){
+              message_info['media'] = "Photo"
+            }
+            else if (message['videos'] != undefined){
+              message_info['media'] = "Video"
+            }
+            else if(message['files'] != undefined){
+              message_info['media'] = "File"
+            }
+            else {
+              message_info['media'] = "None"
+            }
+
+            try {
+              message_info['message'] = decodeURIComponent(escape(message['content']))
+            } catch {
+              message_info['message'] = ""
+            }
+            try {
+              message_info['length'] = decodeURIComponent(escape(message['content'])).length
+            } catch {
+              message_info['length'] = 0
+            }
+            messages_array.push(Object.assign({}, message_info, thread_info));
+          }
+          count_end += 1
+          if (count_init == count_end){
+            main()
+          }
+        }
+        reader.readAsText(file)
+      }
+    })(files[i], i);
+  }
 }
 
 function main(){
+  reset();
   parse_date();
+  add_sent();
   initialize_length_ticks();
   initialize_crossfilter();
+  for(j=0; j<histograms.length; j++){
+    try{histograms[j].instance.div.remove()} catch{}
+    histograms[j].instance = new Histogram(histograms[j])
+  }
   add_message_displayer();
   initialize_scatterplot();
   draw_density_date();
   draw_density_time();
-  draw_histogram_weekday();
-  draw_histogram_rs();
-  draw_histogram_person();
-  draw_histogram_sender();
-  draw_histogram_length();
   initialize_brush();
+  processingModal.style.display = "none"
+}
+
+function add_sent(){
+  user_name = get_username()
+  messages_array.forEach(function(d){
+    d.sent = d.sender_name == user_name
+  })
+}
+
+function get_username(){
+  nb_threads_per_user = d3.nest()
+        .key(function(d){return d.sender_name})
+        .key(function(d) { return d.thread; })
+        .rollup(function(leaves) { return leaves.length; })
+        .entries(messages_array)
+
+  nb_threads_per_user = nb_threads_per_user.sort(function(x, y){
+         return d3.descending(x.values.length, y.values.length);
+      })
+
+  return nb_threads_per_user[0].key
 }
 
 function initialize_crossfilter(){
-  messages = crossfilter(json.data)
-
-  dim_sent = messages.dimension(function(d) {return d.sent;})
+  messages = crossfilter(messages_array)
   dim_date = messages.dimension(function(d) {return d.date;})
   dim_time = messages.dimension(function(d) {return d.time;})
   dim_date_tt = messages.dimension(function(d) {return d.date;}) //For tooltip
   dim_time_tt = messages.dimension(function(d) {return d.time;}) //For tooltip
-  dim_person = messages.dimension(function(d) {return String(d["threads.participants"]);})
-  dim_sender = messages.dimension(function(d) {return d.sender;})
-  dim_length = messages.dimension(find_length_tick);
-  dim_weekday = messages.dimension(function(d) {return d.date.getDay();})
-
-  group_sent = dim_sent.group()
   group_date = dim_date.group()
   group_time = dim_time.group()
-  group_person = dim_person.group()
-  group_sender = dim_sender.group()
-  group_length = dim_length.group()
-  group_weekday = dim_weekday.group()
 }
 
-function resetFilters(){
+function reset(){
+  try {
   gtag('event', 'reset', {
       'event_category': 'Reset',
       'event_Label': 'All'})
-  dim_sent.filter();
-  dim_date.filter();
-  dim_time.filter();
-  dim_person.filter();
-  dim_sender.filter();
-  dim_length.filter();
-  dim_weekday.filter();
-
-
-  clicked_rs = new Set();
-  clicked_weekday = new Set();
-  clicked_person = new Set();
-  clicked_length = new Set();
-  clicked_sender = new Set();
-
-  draw_histogram_weekday ();
-  draw_histogram_person();
-  draw_histogram_sender();
-  draw_histogram_length();
-  draw_histogram_rs();
   update_density_date();
   update_density_time();
   create_scatterplot();
   initialize_brush();
-
+  } catch {}
 }
 
 function initialize_length_ticks(){
   length_ticks = [0,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]
   length_ticks_str = ["0","1","2","5","10","20","50","100","200","500","1k","2k","5k","10k"]
+}
+
+function data_nb_part(n){
+  if (n < 9) {return String(n)}
+  else {return "9 +"}
+
 }
 
 function tick_to_bin(tick){
@@ -503,8 +701,8 @@ function initialize_scatterplot(){
   axis_time_focus.selectAll(".axis--y").remove();
   axis_date_focus.selectAll(".axis--x").remove();
 
-  var mindate_total = d3.min(json.data, function(d){return d.date}),
-      maxdate_total = d3.max(json.data, function(d){return d.date});
+  var mindate_total = d3.min(messages_array, function(d){return d.date}),
+      maxdate_total = d3.max(messages_array, function(d){return d.date});
 
   x1.domain([mindate_total, maxdate_total]);
   x2.domain([mindate_total, maxdate_total]);
@@ -559,10 +757,10 @@ function add_message_displayer(){
       var full_time = String(message_tooltip[0].time);
 
       md_sender.select("p").remove()
-      md_sender.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].sender);
+      md_sender.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].sender_name);
 
-      md_conversation.select("p").remove()
-      md_conversation.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0]["threads.participants"]);
+      md_thread.select("p").remove()
+      md_thread.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].thread);
 
       md_message.select("p").remove()
       md_message.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].message);
@@ -575,9 +773,8 @@ function add_message_displayer(){
 }
 
 function parse_date(){
-  json.data.forEach(function(d){
-     date = d.date;
-     date = parseUTCDateHour(date.substring(0, date.length - 3) + date.substring(date.length - 2, date.length));
+  messages_array.forEach(function(d){
+     date = new Date(d.timestamp * 1000);
      d.time = getTime(date);
      d.date = getDate(date);
   })
@@ -689,503 +886,6 @@ function update_density_time(){
     .attr("d", area)
 }
 
-function draw_histogram_rs(){
- //Remove old histogram
-  hist_rs.selectAll('.bar_rs')
-     .remove();
-  hist_rs.selectAll('.y_hist_rs')
-     .remove();
-
- //Create nested dataset
-  nested_data_rs = group_sent.all()
-
-  // Define domain horizontal axis
-  var nb_max_message_per_bar = d3.max(nested_data_rs, function(d) {return d.value;})
-  x3_rs.domain([0, nb_max_message_per_bar])
-
-  var bar_rs = hist_rs.selectAll(".bar_rs")
-   .data(nested_data_rs)
-   .enter().append("g")
-     .attr("class", "bar_rs")
-     .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
-
-  bar_rs.append("rect")
-      .style("fill", function(d){
-          if (clicked_rs.size == 0) {return color_selected;}
-          if(clicked_rs.has(d.key)){
-            return color_selected;
-          } else {
-            return color_unselected;
-          };})
-     .attr("height", h_bar)
-     .attr("width", function(d) {return x3_rs(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
-     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
-     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
-     .on("click", function(d){
-         gtag('event', 'Histogram', {
-             'event_category': 'Filter',
-             'event_label': 'Received/Sent'})
-         //Update the clicked rectangles
-         if (clicked_rs.has(d.key))
-            {clicked_rs.delete(d.key)}
-         else
-            {clicked_rs.add(d.key);}
-
-        if (clicked_rs.size == 0) {
-          //Colors all bar as selected
-          hist_rs.selectAll(".bar_rs")
-            .selectAll("rect")
-            .style("fill", color_selected);
-          //Remove filter
-          dim_sent.filter()
-        } else {
-          //Color all bars according to selected or not
-          hist_rs.selectAll(".bar_rs")
-            .selectAll("rect")
-            .style("fill", function(d){
-                if(clicked_rs.has(d.key)){
-                  return color_selected;
-                } else {
-                  return color_unselected;
-                };}
-            )
-            //Apply filters
-            dim_sent.filter(function(a){return clicked_rs.has(a)})
-         }
-
-      draw_histogram_weekday ();
-      draw_histogram_person();
-      draw_histogram_sender();
-      draw_histogram_length();
-      update_density_date();
-      update_density_time();
-      create_scatterplot();
-     });
-
- // Add legends and stuff
- bar_rs.append("text")
-    .attr("class", "legend_hist_num")
-    .attr("dy", "0.35em")
-    .attr("y", h_bar/2 + "px")
-    .attr("x", function(d) { return x3_rs(d.value) +2; })
-    .attr("text-anchor", "left")
-    .text(function(d) { return d.value; })
-    .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
-
- bar_rs.append("text")
-    .attr("class", "legend_hist_text")
-    .attr("dy", "0.35em")
-    .attr("y", h_bar/2 + "px")
-    .text(function(d){return num_to_rs(d.key)});
-
- // Adjust svg size
- bbox = hist_rs.nodes()[0].getBBox();
- hist_rs
-   .attr("width", bbox.x + bbox.width  + "px")
-   .attr("height",bbox.y + bbox.height + "px")
-
-}
-
-function draw_histogram_weekday(){
-   //Remove old histogram
-  hist_weekday.selectAll('.bar_weekday')
-     .remove();
-  hist_weekday.selectAll('.y_hist_weekday')
-     .remove();
-
- //Create nested dataset
-  nested_data_weekday = group_weekday.all()
-
-  // Define domain horizontal axis
-  var nb_max_message_per_bar = d3.max(nested_data_weekday, function(d) {return d.value;})
-  x3_weekday.domain([0, nb_max_message_per_bar])
-
-  // Add one group for each bar. Each group contains the bar, and the legends
-  var bar_weekday = hist_weekday.selectAll(".bar_weekday")
-   .data(nested_data_weekday)
-   .enter().append("g")
-     .attr("class", "bar_weekday")
-     .attr("transform", function(d, i) {return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
-
-  // Add rectangles to the groups
-  bar_weekday.append("rect")
-      .style("fill", function(d){
-          if (clicked_weekday.size == 0) {return color_selected;}
-          if(clicked_weekday.has(d.key)){
-            return color_selected;
-          } else {
-            return color_unselected;
-          };})
-     .attr("height", h_bar)
-     .attr("width", function(d) {return x3_weekday(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
-     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
-     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
-     .on("click", function(d){
-         gtag('event', 'Histogram', {
-             'event_category': 'Filter',
-             'event_label': 'WeekDay'})
-         //Update the clicked rectangles
-         if (clicked_weekday.has(d.key))
-            {clicked_weekday.delete(d.key)}
-         else
-            {clicked_weekday.add(d.key);}
-
-        if (clicked_weekday.size == 0) {
-          //Colors all bar as selected
-          hist_weekday.selectAll(".bar_weekday")
-            .selectAll("rect")
-            .style("fill", color_selected);
-          //Remove filter
-          dim_weekday.filter(null)
-        } else {
-          //Color all bars according to selected or not
-          hist_weekday.selectAll(".bar_weekday")
-            .selectAll("rect")
-            .style("fill", function(d){
-                if(clicked_weekday.has(d.key)){
-                  return color_selected;
-                } else {
-                  return color_unselected;
-                };}
-            )
-            //Apply filters
-            dim_weekday.filter(function(a){return clicked_weekday.has(a)})
-         }
-
-      draw_histogram_rs();
-      draw_histogram_person();
-      draw_histogram_sender();
-      draw_histogram_length();
-      update_density_date();
-      update_density_time();
-      create_scatterplot();
-     });
-
-  // Add legends and stuff
-  bar_weekday.append("text")
-     .attr("class", "legend_hist_num")
-     .attr("dy", "0.35em")
-     .attr("y", h_bar/2 + "px")
-     .attr("x", function(d) { return (x3_weekday(d.value) + 2); })
-     .attr("text-anchor", "left")
-     .text(function(d) { return d.value; })
-     .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
-
-  bar_weekday.append("text")
-     .attr("class", "legend_hist_text")
-     .attr("dy", "0.35em")
-     .attr("y", h_bar/2 + "px")
-     .text(function(d){return num_to_day(d.key)});
-
- // Adjust svg size
- bbox = hist_weekday.nodes()[0].getBBox();
- hist_weekday
-   .attr("width", bbox.x + bbox.width  + "px")
-   .attr("height",bbox.y + bbox.height + "px")
-}
-
-function draw_histogram_person(){
- //Remove old histogram
-  hist_person.selectAll('.bar_person')
-     .remove();
-  hist_person.selectAll('.y_hist_person')
-     .remove();
-
-  //Create nested dataset
-  var nested_data_person_short = group_person.top(10)
-  var max_num = nested_data_person_short["0"]["value"]
-  //nested_data_person_short = nested_data_person.slice(0,10)
-
-  x3_person.domain([0, max_num]);
-
-  var bar_person = hist_person.selectAll(".bar_person")
-   .data(nested_data_person_short)
-   .enter().append("g")
-     .attr("class", "bar_person")
-     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
-
-  bar_person.append("rect")
-      .style("fill", function(d){
-          if (clicked_person.size == 0) {return color_selected;}
-          if(clicked_person.has(d.key)){
-            return color_selected;
-          } else {
-            return color_unselected;
-          };})
-     .attr("height", h_bar)
-     .attr("width", function(d) {return x3_person(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
-     .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-            div	.html(d.key.substring(0, 30))
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-
-            d3.select(this).style("stroke-opacity", 1);
-      })
-      .on("mouseout", function(d) {
-          div.transition().duration(500).style("opacity", 0);
-          d3.select(this).style("stroke-opacity", 0.0);
-      })
-      .on("click", function(d){
-          gtag('event', 'Histogram', {
-              'event_category': 'Filter',
-              'event_label': 'Conversation'})
-          //Update the clicked rectangles
-          if (clicked_person.has(d.key))
-             {clicked_person.delete(d.key)}
-          else
-             {clicked_person.add(d.key);}
-
-          if (clicked_person.size == 0) {
-            //Colors all bar as selected
-            hist_person.selectAll(".bar_person")
-              .selectAll("rect")
-              .style("fill", color_selected);
-            //Remove filter
-            dim_person.filter()
-          } else {
-            //Color all bars according to selected or not
-            hist_person.selectAll(".bar_person")
-              .selectAll("rect")
-              .style("fill", function(d){
-                  if(clicked_person.has(d.key)){
-                    return color_selected;
-                  } else {
-                    return color_unselected;
-                  };}
-              )
-              //Apply filters
-              dim_person.filter(function(a){return clicked_person.has(a)})
-          }
-
-          draw_histogram_weekday();
-          draw_histogram_rs();
-          draw_histogram_sender();
-          draw_histogram_length();
-          update_density_date();
-          update_density_time();
-          create_scatterplot();
-       });
-
-   bar_person.append("text")
-      .attr("class", "legend_hist_num")
-      .attr("dy", "0.35em")
-      .attr("y", h_bar/2 + "px")
-      .attr("x", function(d) { return (x3_person(d.value) + 2); })
-      .attr("text-anchor", "left")
-      .text(function(d) { return d.value; })
-      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
-
-  // Adjust svg size
-  bbox = hist_person.nodes()[0].getBBox();
-  hist_person
-    .attr("width", bbox.x + bbox.width  + "px")
-    .attr("height",bbox.y + bbox.height + "px")
-}
-
-
-function draw_histogram_sender(){
- //Remove old histogram
-  hist_sender.selectAll('.bar_sender')
-     .remove();
-  hist_sender.selectAll('.y_hist_sender')
-     .remove();
-
-  //Create nested dataset
-  var nested_data_sender_short = group_sender.top(10)
-  var max_num = nested_data_sender_short["0"]["value"]
-
-  x3_sender.domain([0, max_num]);
-
-  var bar_sender = hist_sender.selectAll(".bar_sender")
-   .data(nested_data_sender_short)
-   .enter().append("g")
-     .attr("class", "bar_sender")
-     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
-
-  bar_sender.append("rect")
-      .style("fill", function(d){
-          if (clicked_sender.size == 0) {return color_selected;}
-          if(clicked_sender.has(d.key)){
-            return color_selected;
-          } else {
-            return color_unselected;
-          };})
-     .attr("height", h_bar)
-     .attr("width", function(d) {return x3_sender(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
-     .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .9);
-            div	.html(d.key.substring(0, 30))
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-
-            d3.select(this).style("stroke-opacity", 1);
-      })
-      .on("mouseout", function(d) {
-          div.transition().duration(500).style("opacity", 0);
-          d3.select(this).style("stroke-opacity", 0.0);
-      })
-      .on("click", function(d){
-          gtag('event', 'Histogram', {
-              'event_category': 'Filter',
-              'event_label': 'Sender'})
-          //Update the clicked rectangles
-          if (clicked_sender.has(d.key))
-             {clicked_sender.delete(d.key)}
-          else
-             {clicked_sender.add(d.key);}
-
-          if (clicked_sender.size == 0) {
-            //Colors all bar as selected
-            hist_sender.selectAll(".bar_sender")
-              .selectAll("rect")
-              .style("fill", color_selected);
-            //Remove filter
-            dim_sender.filter()
-          } else {
-            //Color all bars according to selected or not
-            hist_sender.selectAll(".bar_sender")
-              .selectAll("rect")
-              .style("fill", function(d){
-                  if(clicked_sender.has(d.key)){
-                    return color_selected;
-                  } else {
-                    return color_unselected;
-                  };}
-              )
-              //Apply filters
-              dim_sender.filter(function(a){return clicked_sender.has(a)})
-          }
-
-          draw_histogram_weekday();
-          draw_histogram_rs();
-          draw_histogram_person();
-          draw_histogram_length();
-          update_density_date();
-          update_density_time();
-          create_scatterplot();
-       });
-
-   bar_sender.append("text")
-      .attr("class", "legend_hist_num")
-      .attr("dy", "0.35em")
-      .attr("y", h_bar/2 + "px")
-      .attr("x", function(d) { return (x3_sender(d.value) + 2); })
-      .attr("text-anchor", "left")
-      .text(function(d) { return d.value; })
-      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
-
-  // Adjust svg size
-  bbox = hist_sender.nodes()[0].getBBox();
-  hist_sender
-    .attr("width", bbox.x + bbox.width  + "px")
-    .attr("height",bbox.y + bbox.height + "px")
-}
-
-function draw_histogram_length(){
- //Remove old histogram
-  hist_length.selectAll('.bar_length')
-     .remove();
-  hist_length.selectAll('.y_hist_length')
-     .remove();
-
-  //Create nested dataset
-  var nested_data_length = group_length.all()
-
-  // Define domain horizontal axis
-  var nb_max_message_per_bar = d3.max(nested_data_length, function(d) {return d.value;})
-  x3_length.domain([0, nb_max_message_per_bar])
-
-  var bar_length = hist_length.selectAll(".bar_length")
-   .data(nested_data_length)
-   .enter().append("g")
-     .attr("class", "bar_length")
-     .attr("transform", function(d,i) { return "translate(" + 0 + "," + i*(h_bar + 2) + ")"; });
-
-  bar_length.append("rect")
-      .style("fill", function(d){
-          if (clicked_length.size == 0) {return color_selected;}
-          if(clicked_length.has(d.key)){
-            return color_selected;
-          } else {
-            return color_unselected;
-          };})
-     .attr("height", h_bar)
-     .attr("width", function(d) {return x3_length(d.value); })
-     .attr("transform", "translate(" + margin3.left + "," + (0) + ")")
-     .on("mouseover", function () {d3.select(this).style("stroke-opacity", 1);})
-     .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
-      .on("click", function(d){
-          gtag('event', 'Histogram', {
-              'event_category': 'Filter',
-              'event_label': 'Length'})
-          //Update the clicked rectangles
-          if (clicked_length.has(d.key))
-             {clicked_length.delete(d.key)}
-          else
-             {clicked_length.add(d.key);}
-
-          if (clicked_length.size == 0) {
-            //Colors all bar as selected
-            hist_length.selectAll(".bar_length")
-              .selectAll("rect")
-              .style("fill", color_selected);
-            //Remove filter
-            dim_length.filter()
-          } else {
-            //Color all bars according to selected or not
-            hist_length.selectAll(".bar_length")
-              .selectAll("rect")
-              .style("fill", function(d){
-                  if(clicked_length.has(d.key)){
-                    return color_selected;
-                  } else {
-                    return color_unselected;
-                  };}
-              )
-              //Apply filters
-              dim_length.filter(function(a){return clicked_length.has(a)})
-          }
-
-          draw_histogram_weekday();
-          draw_histogram_rs();
-          draw_histogram_person();
-          draw_histogram_sender();
-          update_density_date();
-          update_density_time();
-          create_scatterplot();
-       });
-
-   bar_length.append("text")
-      .attr("class", "legend_hist_num")
-      .attr("dy", "0.35em")
-      .attr("y", h_bar/2 + "px")
-      .attr("x", function(d) { return (x3_length(d.value) + 2); })
-      .attr("text-anchor", "left")
-      .text(function(d) { return d.value; })
-      .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
-
-  bar_length.append("text")
-      .attr("class", "legend_hist_text")
-      .attr("dy", "0.35em")
-      .attr("y", h_bar/2 + "px")
-      .text(function(d){return tick_to_bin(d.key)});
-
-  // Adjust svg size
-  bbox = hist_length.nodes()[0].getBBox();
-  hist_length
-    .attr("width", bbox.x + bbox.width  + "px")
-    .attr("height",bbox.y + bbox.height + "px")
-}
-
 function zoomed(){
    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
    var t = d3.event.transform;
@@ -1194,11 +894,7 @@ function zoomed(){
    dim_time.filter([y1.domain()[0], y1.domain()[1]])
    update_density_date();
    update_density_time();
-   draw_histogram_weekday();
-   draw_histogram_rs();
-   draw_histogram_person();
-   draw_histogram_sender();
-   draw_histogram_length();
+   for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
    create_scatterplot();
 
    axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1217,11 +913,7 @@ function brushed_date() {
   x1.domain(s.map(x2.invert, x2));
   dim_date.filter([x1.domain()[0], x1.domain()[1]]);
   update_density_time();
-  draw_histogram_weekday();
-  draw_histogram_rs();
-  draw_histogram_person();
-  draw_histogram_sender();
-  draw_histogram_length();
+  for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
   create_scatterplot();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
@@ -1242,11 +934,7 @@ function brushed_time() {
   y1.domain(s.map(y4.invert, y4));
   dim_time.filter([y1.domain()[0], y1.domain()[1]]);
   update_density_date();
-  draw_histogram_weekday();
-  draw_histogram_rs();
-  draw_histogram_person();
-  draw_histogram_sender();
-  draw_histogram_length();
+  for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
   create_scatterplot();
 
   axis_time_focus.select(".axis--y").call(yAxis1);
@@ -1258,17 +946,15 @@ function brushed_time() {
         );
 }
 
+
+
+
 function create_scatterplot(){
   context_canvas.clearRect(0, 0, canvas_el.width, canvas_el.height);
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    if (d.sent){
-      context_canvas.fillStyle = color_sent;
-    }
-    else {
-      context_canvas.fillStyle = color_received;
-    }
+    context_canvas.fillStyle = color_base;
     context_canvas.globalAlpha = 0.1;
     context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
     context_canvas.fill()
@@ -1318,4 +1004,16 @@ function sortByAscending(a, b) {
 function precisionRound(number, precision) {
    var factor = Math.pow(10, precision);
    return Math.round(number * factor) / factor;
+}
+
+d3.json("data/demo_messages.json", load_demo)
+
+function load_demo(json_file){
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Demo'})
+  messages_array = json_file["messages_array"];
+
+  user_name = get_username()
+  main();
 }
