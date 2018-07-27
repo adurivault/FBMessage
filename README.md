@@ -1,27 +1,27 @@
-# FBMessage Explorer: Facebook Messages Visualization
+-**UPDATE July 27th 2018:**  Just updated the tool so that it is compliant with the revamped the "download your data" feature from Facebook. All preprocessing is now done in browser, no need to use the Python parser anymore.
+
+-# FBMessage Explorer: Facebook Messages Visualization
 
 Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault)
 
 [Website](https://adurivault.github.io/FBMessage/)
 
-The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on when, to whom, etc... you send (or receive) messages. If you have always been curious about your Facebook messages
-history, maybe you will find some answers here.
+The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on the number of messages you send and receive, when, to whom, etc.. If you have always been curious about your Facebook messages history, you should find some answers here.
 
 ## How does it work ?
 
 ### Create your datafile from your Facebook History
-First, you should extract your data from Facebook, and create the correct file that you will allow you to use the tool. Just follow the instructions on how to extract your own data from the <a href="/DATA.md"> DATA.md</a> file and on how to do the processing on the <a href="/PROCESSING.md"> PROCESSING.md</a> file, everything is explained. Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/).
+First, you should extract your data from Facebook in JSON format [here](https://www.facebook.com/your_information/). Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/).
 
-## Presentation video
+## Video Presentation
 
-There is a presentation [video](https://youtu.be/n8EqF_wfCAE) of this project, and if you are a little bit lost on how to use the tool, or on how to get your data
-you will theoretically find an answer here.
+There is a presentation [video](https://youtu.be/n8EqF_wfCAE) of this project, and if you are a little bit lost on how to use the tool. The part on retrieving the data, however, is now out of date.
 
 ### General design
 
-When you go on the [website](https://adurivault.github.io/FBMessage/), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like: the data is anonymous and a lot of data is missing. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
+When you go on the [website](https://adurivault.github.io/FBMessage/), you can see that some data is already displayed. The dataset used is a demo dataset that we put here for the sake of the demonstration, so that you can have an overview of what the tool looks like. Go ahead and play with it a little to get familiar with the tool, but as soon as you have it, use your own file and explore your own data.
 
-What is represented here is quite simple : one point corresponds to one message sent or received, and the color of the point depends on whether or not the message was received or sent. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
+What is represented here is quite simple : one point corresponds to one message sent or received. The top of the graph represents the beginning of the day (12:01 a.m.) and the bottom of the graph represents the end of the day (11:59 p.m.).
 
 <table border="0">
   <tr>
@@ -31,7 +31,7 @@ What is represented here is quite simple : one point corresponds to one message 
   </tr>
 </table>
 
-Once you have downloaded your Facebook History and that you did the necessary processing to get the ``flat_messages.json`` file, click on "Use you own file" and load the JSON file that you have just created ``flat_messages.json``.
+Once you have downloaded your Facebook History,  click on "Explore your own data" and load the ``message`` directory of the archive.
 
 Do not worry, **we do not have any access to your data**. The file is loaded into your browser, but not uploaded to internet, and all computations are performed locally, on you computer. We are aware, however, that this can be very private data, so is you want to be extra cautious, you can shut down your internet connexion once the website is completely loaded, and then select your own data with "Use your own data". Every thing will work properly, and this way you can be confident that we do have access to anything.
 
