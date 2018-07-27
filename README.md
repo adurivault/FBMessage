@@ -1,4 +1,4 @@
--**UPDATE July 27th 2018:**  Just updated the tool so that it is compliant with the revamped the "download your data" feature from Facebook. All preprocessing is now done in browser, no need to use the Python parser anymore.
+**UPDATE July 27th 2018:**  Just updated the tool so that it is compliant with the revamped the "download your data" feature from Facebook. All preprocessing is now done in browser, no need to use the Python parser anymore.
 
 # FBMessage Explorer: Facebook Messages Visualization
 
