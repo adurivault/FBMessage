@@ -108,5 +108,3 @@ If you wonder what is that strange message at 3am on a Monday, here is your answ
 ## Credits
 
 - [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
-
-- [Facebook Chat Archive Parser](https://github.com/ownaginatious/fbchat-archive-parser). The fbmexplorer that we created uses this library to transform the html messages to a JSON file. Then based on the JSON file we have created our own parser.
