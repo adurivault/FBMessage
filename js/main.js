@@ -955,7 +955,7 @@ function create_scatterplot(){
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    context_canvas.fillStyle = colorHash(d.sender_name);
+    context_canvas.fillStyle = colorHash.hex(d.sender_name);
     context_canvas.globalAlpha = 0.1;
     context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
     context_canvas.fill()
