@@ -7,7 +7,17 @@
   var messages_array = [];
   var count_init = 0;
   var count_end = 0;
-  var user_name = undefined
+  var user_name = undefined;
+  var color_hist = undefined;
+
+
+  var c_domain = []
+  colorScale = d3.scaleOrdinal()
+  colorScale.range((['#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107',
+  '#ff9800', '#ff5722', '#f44336', '#e91e63', '#795548', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
+  '#03a9f4', '#00bcd4']))
+
+
 
   // Define div, svg, etc..
   {
@@ -301,10 +311,10 @@
 
   // Define colors
   {
-    var color_selected = "#2c7bb6";
+    var color_bars = "#2c7bb6";
     var color_unselected = "#A0A0A0";
     // var color_received = "#00ccbc";
-    var color_base =  "#2c7bb6";
+    var color_base =  "#FFFFFF";
   }
 }
 
@@ -323,6 +333,13 @@ var histograms = [
     "get_legend": num_to_day,
     "get_tooltip": (function(s){return ""})
   },
+  // {
+  //   "name": "Reactions",
+  //   "n_bars": "all",
+  //   "get_data": (function(d) {return d.reactions;}),
+  //   "get_legend": (function(s){return String(s)}),
+  //   "get_tooltip": (function(s){return String(s)})
+  // },
   {
     "name": "Top 10 Threads",
     "n_bars": 10,
@@ -382,6 +399,7 @@ class Histogram {
     this.group = this.dimension.group()
     this.get_legend = record.get_legend
     this.get_tooltip = record.get_tooltip
+    this.get_data = record.get_data
 
     this.title.attr("class", "title_graph").attr("text-anchor", "start").text(this.name);
     this.display()
@@ -407,21 +425,24 @@ class Histogram {
   }
 
   draw_bars() {
+    this_temp = this
     this.bars = this.svg.selectAll(".bar")
      .data(this.nested_data)
      .enter().append("g")
        .attr("class", "bar")
+       .attr("id", function(d){try {return this_temp.get_data(d)} catch {return "other"}})
        .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
 
     this.x.domain([0, d3.max(this.nested_data, function(d) {return d.value;})])
     var this_temp = this
     this.bars.append("rect")
-        .style("fill", function(d){
-            if (this_temp.clicked.size == 0) {return color_selected;}
+        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.key)} else {return color_bars;}})
+        .style("opacity", function(d){
+            if (this_temp.clicked.size == 0) {return 1;}
             if(this_temp.clicked.has(d.key)){
-              return color_selected;
+              return 1;
             } else {
-              return color_unselected;
+              return 0.5;
             };})
        .attr("height", h_bar)
        .attr("width", function(d) {return this_temp.x(d.value); })
@@ -438,6 +459,9 @@ class Histogram {
         })
        .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
        .on("click", function(d){
+         gtag('event', 'Histogram', {
+              'event_category': 'Filter',
+              'event_label': this_temp.title})
           if (this_temp.clicked.has(d.key))
              {this_temp.clicked.delete(d.key)}
           else
@@ -447,7 +471,7 @@ class Histogram {
             //Color all bar as selected
             this_temp.svg.selectAll(".bar")
               .selectAll("rect")
-              .style("fill", color_selected);
+              .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
             //Remove filter
             this_temp.dimension.filter()
           } else {
@@ -456,7 +480,7 @@ class Histogram {
               .selectAll("rect")
               .style("fill", function(d){
                   if(this_temp.clicked.has(d.key)){
-                    return color_selected;
+                    return color_bars;
                   } else {
                     return color_unselected;
                   };}
@@ -478,13 +502,80 @@ class Histogram {
         .attr("x", function(d) {return this_temp.x(d.value) +2; })
         .attr("text-anchor", "left")
         .text(function(d) { return d.value; })
-        .attr("transform", "translate(" + margin3.left + "," + 0 + ")");
+        .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
+        .on("click", function(d){
+                 gtag('event', 'Histogram', {
+                      'event_category': 'Filter',
+                      'event_label': this_temp.title})
+                  if (this_temp.clicked.has(d.value))
+                     {this_temp.clicked.delete(d.value)}
+                  else
+                     {this_temp.clicked.add(d.value);}
+
+                  if (this_temp.clicked.size == 0) {
+                    //Color all bar as selected
+                    this_temp.svg.selectAll(".bar")
+                      .selectAll("rect")
+                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+                      .style("opacity", 1);
+                    //Remove filter
+                    this_temp.dimension.filter()
+                  } else {
+                    //Color all bars according to selected or not
+                    this_temp.svg.selectAll(".bar")
+                      .selectAll("rect")
+                      .style("fill", color_bars)
+                      .style("fill", function(d){
+                          if(this_temp.clicked.has(d.value)){
+                            return color_bars;
+                          } else {
+                            return color_unselected;
+                          };}
+                      )
+                     //Apply filters
+                     this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
+                  }
+                  this_temp.redraw_all();
+               });
 
      this.bars.append("text")
         .attr("class", "legend_hist_text")
         .attr("dy", "0.35em")
         .attr("y", h_bar/2 + "px")
-        .text(function(d){return this_temp.get_legend(d.key)});
+        .text(function(d){return this_temp.get_legend(d.key)})
+        .on("click", function(d){
+                 gtag('event', 'Histogram', {
+                      'event_category': 'Filter',
+                      'event_label': this_temp.title})
+                  if (this_temp.clicked.has(d.key))
+                     {this_temp.clicked.delete(d.key)}
+                  else
+                     {this_temp.clicked.add(d.key);}
+
+                  if (this_temp.clicked.size == 0) {
+                    //Color all bar as selected
+                    this_temp.svg.selectAll(".bar")
+                      .selectAll("rect")
+                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+                      .style("opacity", 1);
+                    //Remove filter
+                    this_temp.dimension.filter()
+                  } else {
+                    //Color all bars according to selected or not
+                    this_temp.svg.selectAll(".bar")
+                      .selectAll("rect")
+                      .style("fill", function(d){
+                          if(this_temp.clicked.has(d.key)){
+                            return color_bars;
+                          } else {
+                            return color_unselected;
+                          };}
+                      )
+                     //Apply filters
+                     this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
+                  }
+                  this_temp.redraw_all();
+               });;
   }
 
   update_colors_and_filters(d){
@@ -492,7 +583,8 @@ class Histogram {
       //Color all bar as selected
       this.svg.selectAll(".bar")
         .selectAll("rect")
-        .style("fill", color_selected);
+        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+        .style("opacity", 1);
       //Remove filter
       dimension.filter()
     } else {
@@ -501,7 +593,7 @@ class Histogram {
         .selectAll("rect")
         .style("fill", function(d){
             if(this.clicked.has(d.key)){
-              return color_selected;
+              return color_bars;
             } else {
               return color_unselected;
             };}
@@ -544,6 +636,9 @@ function read(files){
   exploreModal.style.display = "none"
   processingModal.style.display = "block"
   messages_array = []
+  gtag('event', 'Load', {
+      'event_category': 'Load',
+      'event_label': 'Custom'})
   for (var i = 0; i < files.length; i++) {
     (function(file, i) {
       if (file.webkitRelativePath.endsWith("message.json")){
@@ -590,11 +685,18 @@ function read(files){
             } catch {
               message_info['message'] = ""
             }
+
             try {
               message_info['length'] = decodeURIComponent(escape(message['content'])).length
             } catch {
               message_info['length'] = 0
             }
+
+            // if (message['reactions'].length == undefined) {
+            //     message_info['reactions'] = 0
+            // } else {
+            //     message_info['reactions'] = 0
+            // }
             messages_array.push(Object.assign({}, message_info, thread_info));
           }
           count_end += 1
@@ -614,16 +716,25 @@ function main(){
   add_sent();
   initialize_length_ticks();
   initialize_crossfilter();
-  for(j=0; j<histograms.length; j++){
-    try{histograms[j].instance.div.remove()} catch{}
-    histograms[j].instance = new Histogram(histograms[j])
-  }
+  draw_barcharts();
   add_message_displayer();
   initialize_scatterplot();
   draw_density_date();
   draw_density_time();
   initialize_brush();
   processingModal.style.display = "none"
+}
+
+function draw_barcharts(){
+  color_hist = histograms[2];
+  for(j=0; j<histograms.length; j++){
+    try{histograms[j].instance.div.remove()} catch{} // If first round, cant remomve
+    histograms[j].instance = new Histogram(histograms[j])
+  }
+  c_domain = []
+  bars = color_hist.instance.bars._groups[0]
+  bars.forEach(function(bar){c_domain.push(bar.__data__.key)})
+  colorScale.domain(c_domain)
 }
 
 function add_sent(){
@@ -658,14 +769,16 @@ function initialize_crossfilter(){
 }
 
 function reset(){
+  console.log("reset")
   try {
-  gtag('event', 'reset', {
-      'event_category': 'Reset',
-      'event_Label': 'All'})
-  update_density_date();
-  update_density_time();
-  create_scatterplot();
-  initialize_brush();
+    gtag('event', 'reset', {
+        'event_category': 'Reset',
+        'event_Label': 'All'})
+    initialize_crossfilter();
+    update_density_date();
+    update_density_time();
+    create_scatterplot();
+    initialize_brush();
   } catch {}
 }
 
@@ -946,15 +1059,16 @@ function brushed_time() {
         );
 }
 
-
-
-
 function create_scatterplot(){
   context_canvas.clearRect(0, 0, canvas_el.width, canvas_el.height);
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    context_canvas.fillStyle = color_base;
+    if (colorScale.domain().includes(color_hist.get_data(d))){
+      context_canvas.fillStyle = colorScale(d.thread);
+    } else {
+      context_canvas.fillStyle = color_base;
+    }
     context_canvas.globalAlpha = 0.1;
     context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
     context_canvas.fill()
