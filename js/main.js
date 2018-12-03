@@ -312,8 +312,6 @@
   // Define colors
   {
     var default_color = "#737373";
-    var color_unselected = "#A0A0A0";
-    // var color_received = "#00ccbc";
     var color_base =  "#FFFFFF";
   }
 }
@@ -1051,7 +1049,7 @@ function create_scatterplot(){
     if (colorScale.domain().includes(color_hist.get_data(d))){
       context_canvas.fillStyle = colorScale(d.thread);
     } else {
-      context_canvas.fillStyle = color_base;
+      context_canvas.fillStyle = default_color;
     }
     context_canvas.globalAlpha = 0.1;
     context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
