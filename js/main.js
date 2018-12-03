@@ -311,7 +311,7 @@
 
   // Define colors
   {
-    var color_bars = "#737373";
+    var default_color = "#737373";
     var color_unselected = "#A0A0A0";
     // var color_received = "#00ccbc";
     var color_base =  "#FFFFFF";
@@ -436,9 +436,9 @@ class Histogram {
     this.x.domain([0, d3.max(this.nested_data, function(d) {return d.value;})])
     var this_temp = this
     this.bars.append("rect")
-        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.key)} else {return color_bars;}})
+        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.key)} else {return default_color;}})
         .style("opacity", function(d){
-            if (this_temp.clicked.size == 0) {return 1;}
+            if(this_temp.clicked.size == 0){return 1;}
             if(this_temp.clicked.has(d.key)){
               return 1;
             } else {
@@ -471,7 +471,7 @@ class Histogram {
             //Color all bar as selected
             this_temp.svg.selectAll(".bar")
               .selectAll("rect")
-              .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+              .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return default_color;}})
             //Remove filter
             this_temp.dimension.filter()
           } else {
@@ -480,7 +480,7 @@ class Histogram {
               .selectAll("rect")
               .style("fill", function(d){
                   if(this_temp.clicked.has(d.key)){
-                    return color_bars;
+                    return default_color;
                   } else {
                     return color_unselected;
                   };}
@@ -516,7 +516,7 @@ class Histogram {
                     //Color all bar as selected
                     this_temp.svg.selectAll(".bar")
                       .selectAll("rect")
-                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return default_color;}})
                       .style("opacity", 1);
                     //Remove filter
                     this_temp.dimension.filter()
@@ -524,10 +524,10 @@ class Histogram {
                     //Color all bars according to selected or not
                     this_temp.svg.selectAll(".bar")
                       .selectAll("rect")
-                      .style("fill", color_bars)
+                      .style("fill", default_color)
                       .style("fill", function(d){
                           if(this_temp.clicked.has(d.value)){
-                            return color_bars;
+                            return default_color;
                           } else {
                             return color_unselected;
                           };}
@@ -556,7 +556,7 @@ class Histogram {
                     //Color all bar as selected
                     this_temp.svg.selectAll(".bar")
                       .selectAll("rect")
-                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return default_color;}})
                       .style("opacity", 1);
                     //Remove filter
                     this_temp.dimension.filter()
@@ -566,7 +566,7 @@ class Histogram {
                       .selectAll("rect")
                       .style("fill", function(d){
                           if(this_temp.clicked.has(d.key)){
-                            return color_bars;
+                            return default_color;
                           } else {
                             return color_unselected;
                           };}
@@ -583,7 +583,7 @@ class Histogram {
       //Color all bar as selected
       this.svg.selectAll(".bar")
         .selectAll("rect")
-        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
+        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return default_color;}})
         .style("opacity", 1);
       //Remove filter
       dimension.filter()
@@ -593,7 +593,7 @@ class Histogram {
         .selectAll("rect")
         .style("fill", function(d){
             if(this.clicked.has(d.key)){
-              return color_bars;
+              return default_color;
             } else {
               return color_unselected;
             };}
