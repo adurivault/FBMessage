@@ -468,24 +468,8 @@ class Histogram {
              {this_temp.clicked.add(d.key);}
 
           if (this_temp.clicked.size == 0) {
-            //Color all bar as selected
-            this_temp.svg.selectAll(".bar")
-              .selectAll("rect")
-              .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return default_color;}})
-            //Remove filter
             this_temp.dimension.filter()
           } else {
-            //Color all bars according to selected or not
-            this_temp.svg.selectAll(".bar")
-              .selectAll("rect")
-              .style("fill", function(d){
-                  if(this_temp.clicked.has(d.key)){
-                    return default_color;
-                  } else {
-                    return color_unselected;
-                  };}
-              )
-             //Apply filters
              this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
           }
           this_temp.redraw_all();
