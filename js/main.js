@@ -663,7 +663,7 @@ function read(files){
             message = thread_messages[i]
             message_info = {
               'sender_name': decodeURIComponent(escape(message['sender_name'])),
-              'timestamp': message['timestamp'],
+              'timestamp': message['timestamp'] || (message['timestamp_ms'] / 1000),
               'type': message['type'],
             }
 
