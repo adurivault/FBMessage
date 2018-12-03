@@ -311,7 +311,7 @@
 
   // Define colors
   {
-    var color_bars = "#2c7bb6";
+    var color_bars = "#737373";
     var color_unselected = "#A0A0A0";
     // var color_received = "#00ccbc";
     var color_base =  "#FFFFFF";
