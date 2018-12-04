@@ -13,9 +13,7 @@
 
   var c_domain = []
   colorScale = d3.scaleOrdinal()
-  colorScale.range((['#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107',
-  '#ff9800', '#ff5722', '#f44336', '#e91e63', '#795548', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
-  '#03a9f4', '#00bcd4']))
+  colorScale.range((['#173F5F', '#20639B', '#3CAEA3', '#F6D55C', '#ED553B']))
 
 
 
@@ -312,7 +310,6 @@
   // Define colors
   {
     var default_color = "#737373";
-    var color_base =  "#FFFFFF";
   }
 }
 
@@ -1051,8 +1048,8 @@ function create_scatterplot(){
     } else {
       context_canvas.fillStyle = default_color;
     }
-    context_canvas.globalAlpha = 0.1;
-    context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
+    context_canvas.globalAlpha = 1;
+    context_canvas.arc(x1(d.date), y1(d.time), 1, 0,  2*Math.PI, true);
     context_canvas.fill()
     context_canvas.closePath();
   })

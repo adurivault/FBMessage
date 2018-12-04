@@ -4,8 +4,6 @@ body {
   background-color: #FFFFFF;
 }
 
-
-
 .axis--x line{stroke: #A0A0A0;}
 .axis--x path{stroke: #A0A0A0;}
 .axis--x text{fill: #A0A0A0;}
@@ -23,7 +21,7 @@ body {
 .y_hist_rs text{fill: #A0A0A0;}
 
 .area {
-    fill: #2c7bb6;
+    fill: #737373;
     clip-path: url(#clip);
   }
 
