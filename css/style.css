@@ -141,33 +141,18 @@ div.tooltip {
   stroke-opacity: 0.0;
 }
 
-#filters::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 0.5em;
 }
 
-#filters::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }
 
-#filters::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background-color: darkgrey;
   outline: 1px solid slategrey;
 }
-
-
-#message_displayer::-webkit-scrollbar {
-    width: 0.5em;
-}
-
-#message_displayer::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-}
-
-#message_displayer::-webkit-scrollbar-thumb {
-  background-color: darkgrey;
-  outline: 1px solid slategrey;
-}
-
 
 ul {
     list-style-type: none;
