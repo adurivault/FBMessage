@@ -3,6 +3,16 @@ body {
   margin: 0px;
 }
 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #303030;
+}
+
+li {float: left;}
+
 .axis--x line{stroke: #A0A0A0;}
 .axis--x path{stroke: #A0A0A0;}
 .axis--x text{fill: #A0A0A0;}
@@ -84,17 +94,6 @@ body {
   background-color: darkgrey;
   outline: 1px solid slategrey;
 }
-
-
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #303030;
-}
-
-li {float: left;}
 
 .custom-button {
     border-radius: 5px;

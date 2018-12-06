@@ -127,7 +127,7 @@
     var h_bar = 12;
   }
 
-  // Defin the pop-ups
+  // Define the pop-ups and the different action to open / close them
   {
     // Get the modal
     var exploreModal = document.getElementById('ExploreModal');
@@ -180,7 +180,7 @@
     }
   }
 
-  // Define div, svg, etc..
+  // Define the main elements : div, svg, etc..
   {
     var div = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -224,13 +224,12 @@
 
   //Define parsers
   {
-    var parseUTCDateHour = d3.timeParse("%Y-%m-%dT%H:%M%Z");
     var parseUTCDate = d3.timeParse("%Y-%m-%d");
     var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
     var parseUTCDate_time = d3.timeParse("%Y-%m-%d-%H-%M");
   }
 
-  // Define constants
+  // Define time constants which are used for the vertical scale
   {
     var min_time = new Date(2000, 0, 1);
     min_time.setSeconds(1)
@@ -263,14 +262,6 @@
     var xAxis2 = d3.axisBottom()
                 .scale(x2);
 
-    var num_to_day = d3.scaleOrdinal()
-                .domain([0,6])
-                .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
-
-    var num_to_rs = d3.scaleOrdinal()
-                .domain([0,1])
-                .range(["Recvd", "Sent"]);
-
     // Density time
     var x4 = d3.scaleLinear()
                 .range([0, w4]);
@@ -281,6 +272,15 @@
 
     var yAxis4 = d3.axisLeft()
               .scale(y4);
+
+    // Scale to convert numbers to labels and keep the correct order in barcharts
+    var num_to_day = d3.scaleOrdinal()
+                .domain([0,6])
+                .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+
+    var num_to_rs = d3.scaleOrdinal()
+                .domain([0,1])
+                .range(["Recvd", "Sent"]);
 
   }
 
@@ -293,12 +293,6 @@
     var brush_time = d3.brushY()
         .extent([[margin4.left, 0], [margin4.left + w4, h4]])
         .on("brush end", brushed_time);
-
-    var zoom = d3.zoom()
-      .scaleExtent([1, Infinity])
-      .translateExtent([[0, margin2.top], [w2, margin2.top + h2]])
-      .extent([[0, margin2.top], [w2, margin2.top + h2]])
-      .on("zoom", zoomed);
   }
 
   // Define message_displayer
@@ -313,7 +307,6 @@
   {
     var color_bars = "#2c7bb6";
     var color_unselected = "#A0A0A0";
-    // var color_received = "#00ccbc";
     var color_base =  "#FFFFFF";
   }
 }
@@ -385,21 +378,23 @@ var histograms = [
 ]
 
 class Histogram {
+  // Class that identifies one histogram. Characteristics vary from one to another.
 
   constructor(record) {
-    this.name = record.name;
-    this.n_bars = record.n_bars;
-    this.div = div_filters.append("div");
-    this.title = this.div.append("h1");
-    this.svg = this.div.append("svg");
-    this.clicked = new Set();
-    this.x = d3.scaleLinear().range([0, w3]);
+    // Define all key attributes, and display the barchart
+    this.name = record.name;                            // The name that appears above the histogram.
+    this.n_bars = record.n_bars;                        // The max numbers of bars in the barchart. "all" is possible.
+    this.div = div_filters.append("div");               // The div where the barchart lives.
+    this.title = this.div.append("h1");                 // The title element inside the div.
+    this.svg = this.div.append("svg");                  // The svg element inside the div.
+    this.clicked = new Set();                           // The set of all clicked elements. Defaults to empty.
+    this.x = d3.scaleLinear().range([0, w3]);           // The horizontal scale.
     this.y = record.y;
-    this.dimension = messages.dimension(record.get_data)
-    this.group = this.dimension.group()
-    this.get_legend = record.get_legend
-    this.get_tooltip = record.get_tooltip
-    this.get_data = record.get_data
+    this.dimension = messages.dimension(record.get_data) //The dimension from the crossfilter associated with the barchart.
+    this.group = this.dimension.group()                 // The group     from the crossfilter associated with the barchart.
+    this.get_legend = record.get_legend                 // The function that returns the label
+    this.get_tooltip = record.get_tooltip               // The function that returns the tooltip
+    this.get_data = record.get_data                     // The function that returns the data
 
     this.title.attr("class", "title_barchart").attr("text-anchor", "start").text(this.name);
     this.display()
@@ -459,14 +454,12 @@ class Histogram {
         })
        .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
        .on("click", function(d){
-         gtag('event', 'Histogram', {
-              'event_category': 'Filter',
-              'event_label': this_temp.title})
-          if (this_temp.clicked.has(d.key))
-             {this_temp.clicked.delete(d.key)}
-          else
-             {this_temp.clicked.add(d.key);}
-
+          gtag('event', 'Histogram', {'event_category': 'Filter','event_label': this_temp.title});
+          if (this_temp.clicked.has(d.key)){
+            this_temp.clicked.delete(d.key)
+          } else {
+            this_temp.clicked.add(d.key)
+          }
           if (this_temp.clicked.size == 0) {
             //Color all bar as selected
             this_temp.svg.selectAll(".bar")
@@ -492,8 +485,8 @@ class Histogram {
        })
   }
 
-  draw_stuff(){
-     // Add legends and stuff
+  draw_legends(){
+     // Add legend numbers
      var this_temp = this
      this.bars.append("text")
         .attr("class", "legend_hist_num")
@@ -538,6 +531,7 @@ class Histogram {
                   this_temp.redraw_all();
                });
 
+     // Add legend labels
      this.bars.append("text")
         .attr("class", "legend_hist_text")
         .attr("dy", "0.35em")
@@ -626,7 +620,7 @@ class Histogram {
   display() {
     this.clear();
     this.draw_bars();
-    this.draw_stuff();
+    this.draw_legends();
     this.adjust_svg_size();
   }
 }
@@ -738,6 +732,7 @@ function draw_barcharts(){
 }
 
 function add_sent(){
+  // Identify the username of the user, and label each messaged as sent or not.
   user_name = get_username()
   messages_array.forEach(function(d){
     d.sent = d.sender_name == user_name
@@ -745,6 +740,7 @@ function add_sent(){
 }
 
 function get_username(){
+  // Identify the username of the user based as the user who appears in the most threads
   nb_threads_per_user = d3.nest()
         .key(function(d){return d.sender_name})
         .key(function(d) { return d.thread; })
@@ -783,6 +779,7 @@ function reset(){
 }
 
 function initialize_length_ticks(){
+  // Define the bins' limits for the "number of characters" barchart"
   length_ticks = [0,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]
   length_ticks_str = ["0","1","2","5","10","20","50","100","200","500","1k","2k","5k","10k"]
 }
@@ -790,7 +787,6 @@ function initialize_length_ticks(){
 function data_nb_part(n){
   if (n < 9) {return String(n)}
   else {return "9 +"}
-
 }
 
 function tick_to_bin(tick){
@@ -853,11 +849,13 @@ function initialize_brush(){
 function add_message_displayer(){
   canvas.on("mousemove", function() {
 
+    // Identify the time and date corresponding to the mouse position. Add a +/- 2 pixel tolerance
     var find_date_min = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left-2);
     var find_date_max = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left+2);
     var find_time_min = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top-2);
     var find_time_max = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top-margin1.top+2);
 
+    // Keep only messages that are in the tolerance window
     dim_date_tt.filterRange([find_date_min, find_date_max]);
     dim_time_tt.filterRange([find_time_min, find_time_max]);
     var message_tooltip = messages.allFiltered()
@@ -894,6 +892,7 @@ function parse_date(){
 };
 
 function draw_density_date(){
+  // Draw the horizontal curve for density of messages along date of year
   density_date.selectAll(".area").remove();
   density_date.selectAll(".axis--x").remove();
 
@@ -955,6 +954,7 @@ function update_density_date(){
 }
 
 function draw_density_time(){
+  // Draw the vertical curve for density of messages along time of day
   density_time.selectAll().remove()
   nested_data_time = group_time.all();
   var max_message = d3.max(nested_data_time, function(d){return d.value});
@@ -999,29 +999,10 @@ function update_density_time(){
     .attr("d", area)
 }
 
-function zoomed(){
-   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {return;}; // ignore zoom-by-brush
-   var t = d3.event.transform;
-   x1.domain(t.rescaleX(x2).domain());
-   dim_date.filter([x1.domain()[0], x1.domain()[1]])
-   dim_time.filter([y1.domain()[0], y1.domain()[1]])
-   update_density_date();
-   update_density_time();
-   for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
-   create_scatterplot();
-
-   axis_date_focus.select(".axis--x").call(xAxis1);
-   axis_time_focus.select(".axis--y").call(yAxis1);
-
-   density_date.select(".brush")
-      .call(brush_date.move, x1.range().map(t.invertX, t));
-}
-
 function brushed_date() {
   gtag('event', 'Brush', {
       'event_category': 'Brush',
       'event_label': 'Date'})
-  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
   var s = d3.event.selection || x2.range();
   x1.domain(s.map(x2.invert, x2));
   dim_date.filter([x1.domain()[0], x1.domain()[1]]);
@@ -1031,35 +1012,26 @@ function brushed_date() {
 
   axis_date_focus.select(".axis--x").call(xAxis1);
 
-  density_date.select(".zoom")
-   .call(zoom.transform, d3.zoomIdentity
-                            .scale(width / (s[1] - s[0]))
-                            .translate(-s[0], 0)
-        );
 }
 
 function brushed_time() {
   gtag('event', 'Brush', {
       'event_category': 'Brush',
       'event_label': 'Time'})
-  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){return;}; // ignore brush-by-zoom
   var s = d3.event.selection || y4.range();
   y1.domain(s.map(y4.invert, y4));
   dim_time.filter([y1.domain()[0], y1.domain()[1]]);
   update_density_date();
   for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
   create_scatterplot();
-
   axis_time_focus.select(".axis--y").call(yAxis1);
-
-  density_date.select(".zoom")
-   .call(zoom.transform, d3.zoomIdentity
-                            .scale(width / (s[1] - s[0]))
-                            .translate(-s[0], 0)
-        );
 }
 
 function create_scatterplot(){
+  // Remove all the dots on the scaterplot, and redraw everything :
+  // - based on the filtered datapoints
+  // - based on the correct vertical and horizontal scales
+  // - with the correct colors
   context_canvas.clearRect(0, 0, canvas_el.width, canvas_el.height);
   messages.allFiltered().forEach(function(d){
     //Plot one dot
@@ -1089,6 +1061,7 @@ getTime = function(date){
 };
 
 Date.prototype.getWeek = function() {
+  // Given a date, get the week number
    var date = new Date(this.getTime());
     date.setHours(0, 0, 0, 0);
    // Thursday in current week decides the year.
@@ -1105,21 +1078,7 @@ function sortByDateAscending(a, b) {
    return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
 }
 
-function sortByDateAscending_time(a, b) {
-   // Dates will be cast to numbers automagically:
-   return (parseUTCDate_time(a.key) - parseUTCDate_time(b.key));
-}
-
-function sortByAscending(a, b) {
-   // Dates will be cast to numbers automagically:
-   return (a-b);
-}
-
-function precisionRound(number, precision) {
-   var factor = Math.pow(10, precision);
-   return Math.round(number * factor) / factor;
-}
-
+  // Load the demo data to get an overview of the tool when first opening the website
 d3.json("data/demo_messages.json", load_demo)
 
 function load_demo(json_file){
@@ -1127,7 +1086,6 @@ function load_demo(json_file){
       'event_category': 'Load',
       'event_label': 'Demo'})
   messages_array = json_file["messages_array"];
-
   user_name = get_username()
   main();
 }
