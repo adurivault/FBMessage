@@ -1,10 +1,7 @@
-
-
 body {
   background-color: #303030;
+  margin: 0px;
 }
-
-
 
 .axis--x line{stroke: #A0A0A0;}
 .axis--x path{stroke: #A0A0A0;}
@@ -14,18 +11,10 @@ body {
 .axis--y path{stroke: #A0A0A0;}
 .axis--y text{fill: #A0A0A0;}
 
-.y_hist_weekday line{stroke: #A0A0A0;}
-.y_hist_weekday path{stroke: #A0A0A0;}
-.y_hist_weekday text{fill: #A0A0A0;}
-
-.y_hist_rs line{stroke: #A0A0A0;}
-.y_hist_rs path{stroke: #A0A0A0;}
-.y_hist_rs text{fill: #A0A0A0;}
-
 .area {
     fill: #2c7bb6;
     clip-path: url(#clip);
-  }
+}
 
 .zoom {
   cursor: move;
@@ -33,7 +22,7 @@ body {
   pointer-events: all;
 }
 
-div.tooltip {
+.tooltip {
   position: absolute;
   text-align: center;
   width: 180px;
@@ -46,7 +35,7 @@ div.tooltip {
   pointer-events: none;
 }
 
-.title_graph {
+.title_barchart {
   color: #A0A0A0;
   font: 18px sans-serif;
   font-weight: bold;
@@ -67,18 +56,7 @@ div.tooltip {
   color: #A0A0A0;
   font: 30px sans-serif;
   font-weight: bold;
-}
-
-.sub_title {
-  fill: #D8D8D8;
-  font:20px sans-serif;
-  font-weight: bold;
-}
-
-.sub_title_2 {
-  fill: #A0A0A0;
-  font: 20px sans-serif;
-  font-weight: bold;
+  margin-left: 20px;
 }
 
 .md_header {
@@ -94,53 +72,6 @@ div.tooltip {
   margin: 0;
 }
 
-.git_link {
-  fill: #D8D8D8;
-  font:15px sans-serif;
-  font-weight: bold;
-}
-
-.legend_message {
-  fill: #A0A0A0;
-  font: 13px sans-serif;
-  font-weight: bold;
-}
-
-.legend_message_2 {
-  fill: #D0D0D0;
-  font: 13px sans-serif;
-}
-
-.bar_weekday rect {
-  stroke: #2c7bb6;
-  stroke-width: 2px;
-  stroke-opacity: 0.0;
-}
-
-.bar_rs rect {
-  stroke: #2c7bb6;
-  stroke-width: 2px;
-  stroke-opacity: 0.0;
-}
-
-.bar_person rect {
-  stroke: #2c7bb6;
-  stroke-width: 2px;
-  stroke-opacity: 0.0;
-}
-
-.bar_length rect {
-  stroke: #2c7bb6;
-  stroke-width: 2px;
-  stroke-opacity: 0.0;
-}
-
-.sender rect {
-  stroke: #2c7bb6;
-  stroke-width: 2px;
-  stroke-opacity: 0.0;
-}
-
 ::-webkit-scrollbar {
     width: 0.5em;
 }
@@ -154,62 +85,32 @@ div.tooltip {
   outline: 1px solid slategrey;
 }
 
+
 ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #333;
+    background-color: #303030;
 }
 
-li {
-    float: left;
-}
+li {float: left;}
 
-li a {
-    display: block;
-    font:15px sans-serif;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-}
-
-/* Change the link color to #111 (black) on hover */
-li a:hover {
-    background-color: #111;
-}
-
-.active {
-    background-color: #4CAF50;
-}
-
-.custom-file-upload {
+.custom-button {
     border-radius: 5px;
     border : none;
-    fill: #A0A0A0;
     background-color: #A0A0A0;
     font:14px sans-serif;
     font-weight: bold;
     display: inline-block;
     padding: 6px 12px;
     margin-right: 10px;
+    vertical-align: middle;
     cursor: pointer;
 }
+
 input[type="file"] {
     display: none;
-}
-
-.custom-about {
-  border-radius: 5px;
-  border : none;
-  fill: #A0A0A0;
-  background-color: #A0A0A0;
-  font:14px sans-serif;
-  font-weight: bold;
-  padding: 6px 12px;
-  margin-right: 10px;
-  cursor: pointer;
 }
 
 .modal {
@@ -249,16 +150,4 @@ input[type="file"] {
     color: #000;
     text-decoration: none;
     cursor: pointer;
-}
-
-.reset-button {
-  border-radius: 5px;
-  border: none;
-  fill: #A0A0A0;
-  background-color: #A0A0A0;
-  font:14px sans-serif;
-  font-weight: bold;
-  padding: 6px 12px;
-  margin-right: 10px;
-  cursor: pointer;
 }

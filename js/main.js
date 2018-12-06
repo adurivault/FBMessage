@@ -401,7 +401,7 @@ class Histogram {
     this.get_tooltip = record.get_tooltip
     this.get_data = record.get_data
 
-    this.title.attr("class", "title_graph").attr("text-anchor", "start").text(this.name);
+    this.title.attr("class", "title_barchart").attr("text-anchor", "start").text(this.name);
     this.display()
   }
 

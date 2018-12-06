@@ -16,139 +16,132 @@
     </script>
   </head>
 
+
   <body>
-    <div>
-      <ul>
-        <li class="title">FBMessage Explorer</li>
-        <li class = "nav-item" style="float:right">
-            <button type="button" class="custom-about" id="ExploreBtn">
-                Explore your own data
-            </button>
-        </li>
+    <ul class="navigation-bar">
+      <li class="title">FBMessage Explorer</li>
+      <li class = "nav-item" style="float:right">
+          <button type="button" class="custom-button" id="ExploreBtn">
+              Explore your own data
+          </button>
+      </li>
+      <li class = "nav-item" style="float:right">
+        <button type="button" class="custom-button" id="ExplanationBtn">
+            What is this ?
+        </button>
+      </li>
 
-        <li class = "nav-item" style="float:right">
-            <button type="button" class="custom-about" id="ExplanationBtn">
-                What is this ?
-            </button>
-        </li>
-
-        <li  style="float:right">
+      <li class = "nav-item" style="float:right">
         <input name="resetButton"
-               class="reset-button"
+               class="custom-button"
                type="button"
                value="Reset All Filters"
                onclick="reset()" />
-        </li>
-      </ul>
-      <div id="density_time" style="display: inline-block; "></div>
-      <section id="main" style="display: inline-block; position: relative"></section>
-      <div id="filters" style="display: inline-block; overflow: scroll;">
-      </div>
-      <div id="place_holder" style="display: inline-block;"></div>
-      <div id="density_date" style="display: inline-block;"></div>
-      <!-- <input type="image" src="img/colors.svg" height="20" width="20"/> -->
+      </li>
+    </ul>
+    <div id="density_time" style="display: inline-block; "></div>
+    <section id="main" style="display: inline-block; position: relative"></section>
+    <div id="filters" style="display: inline-block; overflow: scroll;">
+    </div>
+    <div id="place_holder" style="display: inline-block;"></div>
+    <div id="density_date" style="display: inline-block;"></div>
+    <!-- <input type="image" src="img/colors.svg" height="20" width="20"/> -->
 
-      <div id="message_displayer" style="display: inline-block; overflow-y: scroll;overflow-x: hidden;">
-        <div id=md_thread>
-          <h3 class="md_header">Thread</h3>
-        </div>
-        <div id=md_sender>
-          <h3 class="md_header">Sender</h3>
-        </div>
-        <div id=md_datetime>
-          <h3 class="md_header">Date time</h3>
-        </div>
-        <div id=md_message>
-          <h3 class="md_header">Message</h3>
-        </div>
+    <div id="message_displayer" style="display: inline-block; overflow-y: scroll;overflow-x: hidden;">
+      <div id=md_thread>
+        <h3 class="md_header">Thread</h3>
+      </div>
+      <div id=md_sender>
+        <h3 class="md_header">Sender</h3>
+      </div>
+      <div id=md_datetime>
+        <h3 class="md_header">Date time</h3>
+      </div>
+      <div id=md_message>
+        <h3 class="md_header">Message</h3>
       </div>
     </div>
 
+  </body>
 
-    <div id="ExplanationModal" style="overflow: scroll;" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>What is this ?</h2>
-        <p>
-          This is a tool that helps you explore and visualize your own Facebook Messenger History.
-        </p>
-
-        <h2>What am I seeing ?</h2>
-        <p>
-          In the central pane, you can see all your messages. Horizontally you've got the date, and vertically the time of day. Each dot represents a message that you sent or received.<br><br>
-          On the left, and below this central pane, you can see a graph showing the quantity of messages sent depending on the date / the time of day. You can drag the edges of the zones to zoom in on a certain period.<br><br>
-          On the right side of the screen, there are a bunch of histograms. These histograms give you satistics about your messages (number of messsages sent, most active conversation, etc..), but more interessantly, they allow you to filter your analysis. If you click on a bar, you can keep only the messages corresponding to this attribute, and all the other graphs will update automatically. This way, you can analyse for example who sends more messages in a particular conversation. Or what conversations are more active the week-end versus during the week.<br><br>
-          Finally, if you mouse over the dots in the central pane, you can see the content of each message in the bottom right-hand corner of your screen.<br><br>
-       </p>
-
-       <h2>How to proceed ?</h2>
-       <p>
-         The data displayed behind this window is random data. Do some test to understand how it works, but then click on "Explore your own data" to play with your messages.
+  <div id="ExplanationModal" style="overflow: scroll;" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>What is this ?</h2>
+      <p>
+        This is a tool that helps you explore and visualize your own Facebook Messenger History.
       </p>
 
-        <p>
-        Authors :
-                <a href="https://github.com/MathReynaud"> Mathilde Reynaud </a> |
-                <a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
-        </p>
+      <h2>What am I seeing ?</h2>
+      <p>
+        In the central pane, you can see all your messages. Horizontally you've got the date, and vertically the time of day. Each dot represents a message that you sent or received.<br><br>
+        On the left, and below this central pane, you can see a graph showing the quantity of messages sent depending on the date / the time of day. You can drag the edges of the zones to zoom in on a certain period.<br><br>
+        On the right side of the screen, there are a bunch of histograms. These histograms give you satistics about your messages (number of messsages sent, most active conversation, etc..), but more interessantly, they allow you to filter your analysis. If you click on a bar, you can keep only the messages corresponding to this attribute, and all the other graphs will update automatically. This way, you can analyse for example who sends more messages in a particular conversation. Or what conversations are more active the week-end versus during the week.<br><br>
+        Finally, if you mouse over the dots in the central pane, you can see the content of each message in the bottom right-hand corner of your screen.<br><br>
+     </p>
 
-        </p>
-      </div>
+     <h2>How to proceed ?</h2>
+     <p>
+       The data displayed behind this window is random data. Do some test to understand how it works, but then click on "Explore your own data" to play with your messages.
+    </p>
+
+      <p>
+      Authors :
+              <a href="https://github.com/MathReynaud"> Mathilde Reynaud </a> |
+              <a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
+      </p>
+
+      </p>
     </div>
+  </div>
 
-      <div id="ProcessingModal" style="overflow: scroll;" class="modal">
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <h2>Processing data ... </h2>
+  <div id="ProcessingModal" style="overflow: scroll;" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Processing data ... </h2>
+      </p>It can take up to a minute</p>
+    </div>
+  </div>
 
-          </p>
-            It can take up to a minute
-          </p>
+  <div id="ExploreModal" style="overflow: scroll;" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2> Download your Messenger data from Facebook </h2>
+      <p>
+         - Download your Facebook archive from <a href="https://www.facebook.com/your_information/"> this link</a>. <br>
+         - Click "Download Your Information" <br>
+         - Select the format "JSON" <br>
+         - Select at least "Messages" in the list of information to download <br>
+         - Click "Create file" and wait for the notification saying that your file is ready to download (around 10 minutes) <br>
+         - Donwload the zip file, unzip it, and save it somewhere on your computer <br>
+      </p>
+
+      <h2> Show this application where the data is on your computer to this application</h2>
+      <p>
+        - Click on the button below <br>
+        <div style="text-align:center; padding:30px ">
+          <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)" style="float:center"webkitdirectory = true>
+          <label for="file" class="custom-button">Use your own file</label>
         </div>
+       <br>
 
+        - Navigate to the Facebook archive you selected <br>
+        - Select the "message" Folder and confirm <br>
+     </p>
+
+      <h2> We are not the NSA, Facebook, or Cambridge Analytica </h2>
+      <p>
+        You may (if you're using Chrome) get a warning saying that your data will be downloaded. While this can be frightening, this is actually false. The data will loaded <i>into your browser</i>, not on internet. Computations will be done locally without a single piece of data leaving your computer.<br><br>
+        The truth is we don't have any interest in your data, we don't even have servers to store it. We are just two students who want to empower you to do something cool with your data.<br><br>
+        All of the code behind this application is available <a href="https://github.com/adurivault/FBMessage">here </a>. It means that anyone familiar with programming can check that this application does what we say it does, and only what we say it does.<br><br>
+        If you are not familiar with programming, and you still do not trust us (Who can blame you ? This is written by two strangers on internet after all...) you can cut your internet connexion before selecting the files. Once the page is loaded, everything will work fine without internet. This way you can be absolutely sure that the data is not sent to anybody.
+      </p>
+      <p>
+      Authors :
+              <a href="https://github.com/MathReynaud"> Mathilde Reynaud </a> |
+              <a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
+      </p>
     </div>
-
-
-    <div id="ExploreModal" style="overflow: scroll;" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2> Download your Messenger data from Facebook </h2>
-        <p>
-           - Download your Facebook archive from <a href="https://www.facebook.com/your_information/"> this link</a>. <br>
-           - Click "Download Your Information" <br>
-           - Select the format "JSON" <br>
-           - Select at least "Messages" in the list of information to download <br>
-           - Click "Create file" and wait for the notification saying that your file is ready to download (around 10 minutes) <br>
-           - Donwload the zip file, unzip it, and save it somewhere on your computer <br>
-        </p>
-
-        <h2> Show this application where the data is on your computer to this application</h2>
-        <p>
-          - Click on the button below <br>
-          <div style="text-align:center; padding:30px ">
-            <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)" style="float:center"webkitdirectory = true>
-            <label for="file" class="custom-file-upload">Use your own file</label>
-          </div>
-         <br>
-
-          - Navigate to the Facebook archive you selected <br>
-          - Select the "message" Folder and confirm <br>
-       </p>
-
-        <h2> We are not the NSA, Facebook, or Cambridge Analytica </h2>
-        <p>
-          You may (if you're using Chrome) get a warning saying that your data will be downloaded. While this can be frightening, this is actually false. The data will loaded <i>into your browser</i>, not on internet. Computations will be done locally without a single piece of data leaving your computer.<br><br>
-          The truth is we don't have any interest in your data, we don't even have servers to store it. We are just two students who want to empower you to do something cool with your data.<br><br>
-          All of the code behind this application is available <a href="https://github.com/adurivault/FBMessage">here </a>. It means that anyone familiar with programming can check that this application does what we say it does, and only what we say it does.<br><br>
-          If you are not familiar with programming, and you still do not trust us (Who can blame you ? This is written by two strangers on internet after all...) you can cut your internet connexion before selecting the files. Once the page is loaded, everything will work fine without internet. This way you can be absolutely sure that the data is not sent to anybody.
-        </p>
-        <p>
-        Authors :
-                <a href="https://github.com/MathReynaud"> Mathilde Reynaud </a> |
-                <a href="https://github.com/adurivault"> Augustin Durivault </a> </br>
-        </p>
-      </div>
-
-    <script src="js/main.js"></script>
-  </body>
+  </div>
+  <script src="js/main.js"></script>
 </html>
