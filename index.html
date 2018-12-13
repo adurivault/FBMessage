@@ -36,7 +36,7 @@
                class="custom-button"
                type="button"
                value="Reset All Filters"
-               onclick="reset()" />
+               onclick="reset_filters()" />
       </li>
     </ul>
     <div id="density_time" style="display: inline-block; "></div>
@@ -120,7 +120,7 @@
       <p>
         - Click on the button below <br>
         <div style="text-align:center; padding:30px ">
-          <input id="file" type="file" name="file" class="inputfile" onchange="read(this.files)" style="float:center"webkitdirectory = true>
+          <input id="file" type="file" name="file" class="inputfile" onchange="read_files(this.files)" style="float:center"webkitdirectory = true>
           <label for="file" class="custom-button">Use your own file</label>
         </div>
        <br>
@@ -143,5 +143,7 @@
       </p>
     </div>
   </div>
+  <script src="js/pre-processing.js"></script>
+  <script src="js/barchart.js"></script>
   <script src="js/main.js"></script>
 </html>

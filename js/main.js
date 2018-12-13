@@ -8,16 +8,14 @@
   var count_init = 0;
   var count_end = 0;
   var user_name = undefined;
-  var color_hist = undefined;
-
+  var colored_barchart = undefined;
+  var cnt_reset = 0;
 
   var c_domain = []
   colorScale = d3.scaleOrdinal()
   colorScale.range((['#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107',
   '#ff9800', '#ff5722', '#f44336', '#e91e63', '#795548', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
   '#03a9f4', '#00bcd4']))
-
-
 
   // Define div, svg, etc..
   {
@@ -311,16 +309,18 @@
   }
 }
 
-var histograms = [
+var barcharts = [
   {
-    "name": "Received / Sent",
+    "name": "received-sent",
+    "title": "Received / Sent",
     "n_bars": "all",
     "get_data": (function(d) {return d.sent;}),
     "get_legend": num_to_rs,
     "get_tooltip": (function(s){return ""})
   },
   {
-    "name": "Week Day",
+    "name": "week-day",
+    "title": "Week Day",
     "n_bars": "all",
     "get_data": (function(d) {return d.date.getDay();}),
     "get_legend": num_to_day,
@@ -334,42 +334,48 @@ var histograms = [
   //   "get_tooltip": (function(s){return String(s)})
   // },
   {
-    "name": "Top 10 Threads",
+    "name": "thread",
+    "title": "Top 10 Threads",
     "n_bars": 10,
     "get_data": (function(d) {return d.thread;}),
     "get_legend": (function(s){return s.substring(0,6)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
-    "name": "Number of Participants",
+    "name": "nb-participants",
+    "title": "Number of Participants",
     "n_bars": "all",
-    "get_data": (function(d) {return data_nb_part(d.nb_participants);}),
+    "get_data": (function(d){ if (d.nb_participants < 9){return String(d.nb_participants);} else {return "9 +";};}),
     "get_legend": (function(s){return String(s)}),
     "get_tooltip": (function(s){return String(s)})
   },
   {
-    "name": "Top 10 Senders",
+    "name": "sender",
+    "title": "Top 10 Senders",
     "n_bars": 10,
     "get_data": (function(d) {return d.sender_name;}),
     "get_legend": (function(s){return s.substring(0,6)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
-    "name": "Media",
+    "name": "media",
+    "title": "Media",
     "n_bars": "all",
     "get_data": (function(d) {return d.media;}),
     "get_legend": (function(s){return s.substring(0,6)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
-    "name": "Type of message",
+    "name": "type",
+    "title": "Type of message",
     "n_bars": "all",
     "get_data": (function(d) {return d.type;}),
     "get_legend": (function(s){return s.substring(0,6)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
-    "name": "Number of characters",
+    "name": "nb-characters",
+    "title": "Number of characters",
     "n_bars": "all",
     "get_data": find_length_tick,
     "get_legend": tick_to_bin,
@@ -377,358 +383,74 @@ var histograms = [
   },
 ]
 
-class Histogram {
-  // Class that identifies one histogram. Characteristics vary from one to another.
+function initialize_barchart_parameters() {
+  div_filters.selectAll(".barchart-div").remove()
+  for(j=0; j<barcharts.length; j++){
+    bc = barcharts[j]
+    bc.dimension = messages.dimension(bc.get_data)
+    bc.group = bc.dimension.group()
+    bc.clicked = new Set()
+    bc.xScale = d3.scaleLinear().range([0, w3])
 
-  constructor(record) {
-    // Define all key attributes, and display the barchart
-    this.name = record.name;                            // The name that appears above the histogram.
-    this.n_bars = record.n_bars;                        // The max numbers of bars in the barchart. "all" is possible.
-    this.div = div_filters.append("div");               // The div where the barchart lives.
-    this.title = this.div.append("h1");                 // The title element inside the div.
-    this.svg = this.div.append("svg");                  // The svg element inside the div.
-    this.clicked = new Set();                           // The set of all clicked elements. Defaults to empty.
-    this.x = d3.scaleLinear().range([0, w3]);           // The horizontal scale.
-    this.y = record.y;
-    this.dimension = messages.dimension(record.get_data) //The dimension from the crossfilter associated with the barchart.
-    this.group = this.dimension.group()                 // The group     from the crossfilter associated with the barchart.
-    this.get_legend = record.get_legend                 // The function that returns the label
-    this.get_tooltip = record.get_tooltip               // The function that returns the tooltip
-    this.get_data = record.get_data                     // The function that returns the data
-
-    this.title.attr("class", "title_barchart").attr("text-anchor", "start").text(this.name);
-    this.display()
-  }
-
-  get nested_data() {
-    if (this.n_bars=="all"){ return this.group.all()}
-    else {return this.group.top(this.n_bars)}
-  }
-
-  clear() {
-   this.svg.selectAll('.bar')
-      .remove();
-   this.svg.selectAll('.y')
-      .remove();
-  }
-
-  update_clicked(d) {
-    if (this.clicked.has(d.key))
-       {this.clicked.delete(d.key)}
-    else
-       {this.clicked.add(d.key);}
-  }
-
-  draw_bars() {
-    this_temp = this
-    this.bars = this.svg.selectAll(".bar")
-     .data(this.nested_data)
-     .enter().append("g")
-       .attr("class", "bar")
-       .attr("id", function(d){try {return this_temp.get_data(d)} catch {return "other"}})
-       .attr("transform", function(d, i) { return "translate(" + 0 + "," + i*(h_bar+2) + ")"; });
-
-    this.x.domain([0, d3.max(this.nested_data, function(d) {return d.value;})])
-    var this_temp = this
-    this.bars.append("rect")
-        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.key)} else {return color_bars;}})
-        .style("opacity", function(d){
-            if (this_temp.clicked.size == 0) {return 1;}
-            if(this_temp.clicked.has(d.key)){
-              return 1;
-            } else {
-              return 0.5;
-            };})
-       .attr("height", h_bar)
-       .attr("width", function(d) {return this_temp.x(d.value); })
-       .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
-       .on("mouseover", function(d) {
-              div.transition()
-                  .duration(200)
-                  .style("opacity", .9);
-              div.html(this_temp.get_tooltip(d.key))
-                 .style("left", (d3.event.pageX) + "px")
-                 .style("top", (d3.event.pageY - 28) + "px");
-
-              d3.select(this).style("stroke-opacity", 1);
-        })
-       .on("mouseout", function () {d3.select(this).style("stroke-opacity", 0.0);})
-       .on("click", function(d){
-          gtag('event', 'Histogram', {'event_category': 'Filter','event_label': this_temp.title});
-          if (this_temp.clicked.has(d.key)){
-            this_temp.clicked.delete(d.key)
-          } else {
-            this_temp.clicked.add(d.key)
-          }
-          if (this_temp.clicked.size == 0) {
-            //Color all bar as selected
-            this_temp.svg.selectAll(".bar")
-              .selectAll("rect")
-              .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
-            //Remove filter
-            this_temp.dimension.filter()
-          } else {
-            //Color all bars according to selected or not
-            this_temp.svg.selectAll(".bar")
-              .selectAll("rect")
-              .style("fill", function(d){
-                  if(this_temp.clicked.has(d.key)){
-                    return color_bars;
-                  } else {
-                    return color_unselected;
-                  };}
-              )
-             //Apply filters
-             this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
-          }
-          this_temp.redraw_all();
-       })
-  }
-
-  draw_legends(){
-     // Add legend numbers
-     var this_temp = this
-     this.bars.append("text")
-        .attr("class", "legend_hist_num")
-        .attr("dy", "0.35em")
-        .attr("y", h_bar/2 + "px")
-        .attr("x", function(d) {return this_temp.x(d.value) +2; })
-        .attr("text-anchor", "left")
-        .text(function(d) { return d.value; })
-        .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
-        .on("click", function(d){
-                 gtag('event', 'Histogram', {
-                      'event_category': 'Filter',
-                      'event_label': this_temp.title})
-                  if (this_temp.clicked.has(d.value))
-                     {this_temp.clicked.delete(d.value)}
-                  else
-                     {this_temp.clicked.add(d.value);}
-
-                  if (this_temp.clicked.size == 0) {
-                    //Color all bar as selected
-                    this_temp.svg.selectAll(".bar")
-                      .selectAll("rect")
-                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
-                      .style("opacity", 1);
-                    //Remove filter
-                    this_temp.dimension.filter()
-                  } else {
-                    //Color all bars according to selected or not
-                    this_temp.svg.selectAll(".bar")
-                      .selectAll("rect")
-                      .style("fill", color_bars)
-                      .style("fill", function(d){
-                          if(this_temp.clicked.has(d.value)){
-                            return color_bars;
-                          } else {
-                            return color_unselected;
-                          };}
-                      )
-                     //Apply filters
-                     this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
-                  }
-                  this_temp.redraw_all();
-               });
-
-     // Add legend labels
-     this.bars.append("text")
-        .attr("class", "legend_hist_text")
-        .attr("dy", "0.35em")
-        .attr("y", h_bar/2 + "px")
-        .text(function(d){return this_temp.get_legend(d.key)})
-        .on("click", function(d){
-                 gtag('event', 'Histogram', {
-                      'event_category': 'Filter',
-                      'event_label': this_temp.title})
-                  if (this_temp.clicked.has(d.key))
-                     {this_temp.clicked.delete(d.key)}
-                  else
-                     {this_temp.clicked.add(d.key);}
-
-                  if (this_temp.clicked.size == 0) {
-                    //Color all bar as selected
-                    this_temp.svg.selectAll(".bar")
-                      .selectAll("rect")
-                      .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
-                      .style("opacity", 1);
-                    //Remove filter
-                    this_temp.dimension.filter()
-                  } else {
-                    //Color all bars according to selected or not
-                    this_temp.svg.selectAll(".bar")
-                      .selectAll("rect")
-                      .style("fill", function(d){
-                          if(this_temp.clicked.has(d.key)){
-                            return color_bars;
-                          } else {
-                            return color_unselected;
-                          };}
-                      )
-                     //Apply filters
-                     this_temp.dimension.filter(function(a){return this_temp.clicked.has(a)})
-                  }
-                  this_temp.redraw_all();
-               });;
-  }
-
-  update_colors_and_filters(d){
-    if (this.clicked.size == 0) {
-      //Color all bar as selected
-      this.svg.selectAll(".bar")
-        .selectAll("rect")
-        .style("fill", function(d){if(this_temp == color_hist.instance){return colorScale(d.id)} else {return color_bars;}})
-        .style("opacity", 1);
-      //Remove filter
-      dimension.filter()
-    } else {
-      //Color all bars according to selected or not
-      this.svg.selectAll(".bar")
-        .selectAll("rect")
-        .style("fill", function(d){
-            if(this.clicked.has(d.key)){
-              return color_bars;
-            } else {
-              return color_unselected;
-            };}
-        )
-       //Apply filters
-       dimension.filter(function(a){return this.clicked.has(a)})
-     }
-  }
-
-  adjust_svg_size(){
-    var bbox = this.svg.nodes()[0].getBBox();
-    this.svg
-      .attr("width", bbox.x + bbox.width  + "px")
-      .attr("height",bbox.y + bbox.height + "px")
-  }
-
-  redraw_all() {
-    for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
-    update_density_date();
-    update_density_time();
-    create_scatterplot();
-  }
-
-  update(d){
-    this.update_clicked(d);
-    this.update_colors_and_filters(d);
-    this.redraw_all();
-  }
-
-  display() {
-    this.clear();
-    this.draw_bars();
-    this.draw_legends();
-    this.adjust_svg_size();
+    bc.div = div_filters.append("div").attr("class", "barchart-div " + bc.name)
+    bc.title_element = bc.div.append("h1");
+    bc.title_element.attr("class", "title_barchart").attr("text-anchor", "start").text(bc.title);
   }
 }
 
-function read(files){
-  explanationModal.style.display = "none"
-  exploreModal.style.display = "none"
-  processingModal.style.display = "block"
-  messages_array = []
-  gtag('event', 'Load', {
-      'event_category': 'Load',
-      'event_label': 'Custom'})
-  for (var i = 0; i < files.length; i++) {
-    (function(file, i) {
-      if (file.webkitRelativePath.endsWith("message.json")){
-        count_init += 1
-        var reader = new FileReader()
-        reader.onloadend = function(){
-            thread = JSON.parse(reader.result)
-
-          thread_info = {
-            'is_still_participant': thread['is_still_participant'],
-            'thread_type': thread['thread_type'],
-            'thread': decodeURIComponent(escape(thread['title'])),
-          }
-          try {
-            thread_info['nb_participants'] = thread['participants'].length
-          } catch {
-            thread_info['nb_participants'] = 0
-          }
-
-          thread_messages = thread['messages']
-          for (var i=0; i<thread_messages.length; i++){
-            message = thread_messages[i]
-            message_info = {
-              'sender_name': decodeURIComponent(escape(message['sender_name'])),
-              'timestamp': message['timestamp'] || (message['timestamp_ms'] / 1000),
-              'type': message['type'],
-            }
-
-            if(message['photos'] != undefined){
-              message_info['media'] = "Photo"
-            }
-            else if (message['videos'] != undefined){
-              message_info['media'] = "Video"
-            }
-            else if(message['files'] != undefined){
-              message_info['media'] = "File"
-            }
-            else {
-              message_info['media'] = "None"
-            }
-
-            try {
-              message_info['message'] = decodeURIComponent(escape(message['content']))
-            } catch {
-              message_info['message'] = ""
-            }
-
-            try {
-              message_info['length'] = decodeURIComponent(escape(message['content'])).length
-            } catch {
-              message_info['length'] = 0
-            }
-
-            // if (message['reactions'].length == undefined) {
-            //     message_info['reactions'] = 0
-            // } else {
-            //     message_info['reactions'] = 0
-            // }
-            messages_array.push(Object.assign({}, message_info, thread_info));
-          }
-          count_end += 1
-          if (count_init == count_end){
-            main()
-          }
-        }
-        reader.readAsText(file)
-      }
-    })(files[i], i);
-  }
-}
+// Create the function that will create all barcharts.
+chart = barChart({})
 
 function main(){
-  reset();
   parse_date();
   add_sent();
   initialize_length_ticks();
   initialize_crossfilter();
+  initialize_barchart_parameters();
   draw_barcharts();
   add_message_displayer();
   initialize_scatterplot();
+  draw_scatterplot();
   draw_density_date();
   draw_density_time();
   initialize_brush();
   processingModal.style.display = "none"
 }
 
+function update_all(){
+  draw_barcharts()
+  draw_scatterplot()
+  update_density_date()
+  update_density_time()
+}
+
+function define_colored_barchart(bc){
+    if (!bc){
+      colored_barchart = undefined;
+    } else {
+      colored_barchard = bc
+    }
+}
+
+
 function draw_barcharts(){
-  color_hist = histograms[2];
-  for(j=0; j<histograms.length; j++){
-    try{histograms[j].instance.div.remove()} catch{} // If first round, cant remomve
-    histograms[j].instance = new Histogram(histograms[j])
+  colored_barchart = barcharts[2];
+  for(j=0; j<barcharts.length; j++){
+    bc = barcharts[j]
+
+    if (bc.n_bars=="all"){
+      bc.nested_data =  bc.group.all()
+    } else {
+      bc.nested_data = bc.group.top(bc.n_bars)
+    };
+
+    bc.div.select("svg").remove()
+    chart(bc)
   }
   c_domain = []
-  bars = color_hist.instance.bars._groups[0]
-  bars.forEach(function(bar){c_domain.push(bar.__data__.key)})
-  colorScale.domain(c_domain)
+  // bars = colored_barchart.bars._groups[0]
+  // bars.forEach(function(bar){c_domain.push(bar.__data__.key)})
+  // colorScale.domain(c_domain)
 }
 
 function add_sent(){
@@ -740,7 +462,7 @@ function add_sent(){
 }
 
 function get_username(){
-  // Identify the username of the user based as the user who appears in the most threads
+  // Identify the username of the user based on the user who appears in the most threads
   nb_threads_per_user = d3.nest()
         .key(function(d){return d.sender_name})
         .key(function(d) { return d.thread; })
@@ -764,29 +486,57 @@ function initialize_crossfilter(){
   group_time = dim_time.group()
 }
 
+
+// reset the filter for a dimension
+function resetDimensionFilter (dimension) {
+  dimension.filter(null);
+}
+
+// reset filters for all given dimensions,
+// remove all data from index and
+// return empty index
+function resetData(ndx, dimensions) {
+  // Clear all filters from dimensions, because `ndx.remove`
+  // only removes records matching the current filters.
+  dimensions.forEach(resetDimensionFilter);
+
+  // Remove all data from the cross filter
+  ndx.remove();
+}
+
+function reset_filters(){
+  gtag('event', 'reset', {
+      'event_category': 'Reset',
+      'event_Label': 'All'});
+  // Empty the clicked sets
+  barcharts.forEach(function(bc){bc.clicked = new Set()});
+  // Reset the filter for each dimension
+  dimensions = barcharts.map(x=>x.dimension)
+  dimensions.forEach(resetDimensionFilter);
+  // Update all charts to match nw filters
+  update_all();
+  // Reset the brush position
+  initialize_brush();
+}
+
 function reset(){
-  console.log("reset")
-  try {
-    gtag('event', 'reset', {
-        'event_category': 'Reset',
-        'event_Label': 'All'})
-    initialize_crossfilter();
-    update_density_date();
-    update_density_time();
-    create_scatterplot();
-    initialize_brush();
-  } catch {}
+  // if(cnt_reset>0){
+    // try {
+      dimensions_list = barcharts.map(x=>x.dimension)
+      resetData(messages, dimensions_list)
+      initialize_crossfilter();
+      update_all();
+      initialize_brush();
+    // } catch {}
+  // };
+  // cnt_reset += 1
+
 }
 
 function initialize_length_ticks(){
   // Define the bins' limits for the "number of characters" barchart"
   length_ticks = [0,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]
   length_ticks_str = ["0","1","2","5","10","20","50","100","200","500","1k","2k","5k","10k"]
-}
-
-function data_nb_part(n){
-  if (n < 9) {return String(n)}
-  else {return "9 +"}
 }
 
 function tick_to_bin(tick){
@@ -816,7 +566,6 @@ function initialize_scatterplot(){
   x1.domain([mindate_total, maxdate_total]);
   x2.domain([mindate_total, maxdate_total]);
 
-  create_scatterplot();
 
   axis_date_focus.append('g')
     .attr('transform', 'translate(' + margin1.left + ',' + 0 + ')')
@@ -896,7 +645,7 @@ function draw_density_date(){
   density_date.selectAll(".area").remove();
   density_date.selectAll(".axis--x").remove();
 
-  var nested_data_date = group_date.all()
+  nested_data_date = group_date.all()
   nested_data_date = d3.nest()
                           .key(function(d){ return d.key.getWeek() + '-' + d.key.getMonth() + '-' + d.key.getFullYear();})
                           .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.value);})})
@@ -1007,8 +756,8 @@ function brushed_date() {
   x1.domain(s.map(x2.invert, x2));
   dim_date.filter([x1.domain()[0], x1.domain()[1]]);
   update_density_time();
-  for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
-  create_scatterplot();
+  // for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
+  draw_scatterplot();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
 
@@ -1022,13 +771,13 @@ function brushed_time() {
   y1.domain(s.map(y4.invert, y4));
   dim_time.filter([y1.domain()[0], y1.domain()[1]]);
   update_density_date();
-  for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
-  create_scatterplot();
+  // for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
+  draw_scatterplot();
   axis_time_focus.select(".axis--y").call(yAxis1);
 }
 
-function create_scatterplot(){
-  // Remove all the dots on the scaterplot, and redraw everything :
+function draw_scatterplot(){
+  // Remove all the dots on the scatterplot, and redraw everything :
   // - based on the filtered datapoints
   // - based on the correct vertical and horizontal scales
   // - with the correct colors
@@ -1036,7 +785,7 @@ function create_scatterplot(){
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    if (colorScale.domain().includes(color_hist.get_data(d))){
+    if (colorScale.domain().includes(colored_barchart.get_data(d))){
       context_canvas.fillStyle = colorScale(d.thread);
     } else {
       context_canvas.fillStyle = color_base;
@@ -1078,7 +827,7 @@ function sortByDateAscending(a, b) {
    return (parseUTCDate2(a.key) - parseUTCDate2(b.key));
 }
 
-  // Load the demo data to get an overview of the tool when first opening the website
+// Load the demo data to get an overview of the tool when first opening the website
 d3.json("data/demo_messages.json", load_demo)
 
 function load_demo(json_file){

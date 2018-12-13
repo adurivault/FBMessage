@@ -45,6 +45,14 @@ li {float: left;}
   pointer-events: none;
 }
 
+.bar {
+  fill: #2c7bb6
+}
+
+.unclicked{
+  opacity: 0.5
+}
+
 .title_barchart {
   color: #A0A0A0;
   font: 18px sans-serif;
