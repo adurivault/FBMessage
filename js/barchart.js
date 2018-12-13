@@ -69,6 +69,7 @@ function barChart(config_global) {
         .attr("height", h_bar)
         .attr("width", function(d) {return (bc.xScale(d.value))})
         .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
+        .style("fill", function(d){if(bc.is_colored_barchart){return colorScale(d.key)} else {return ""}})
         .classed("unclicked", function(d){return !(bc.clicked.size == 0 || bc.clicked.has(d.key))})
         .on("click", onClick)
         .on("mouseover", onMouseover)

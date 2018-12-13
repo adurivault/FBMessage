@@ -390,6 +390,7 @@ function initialize_barchart_parameters() {
     bc.dimension = messages.dimension(bc.get_data)
     bc.group = bc.dimension.group()
     bc.clicked = new Set()
+    bc.is_colored_barchart = false
     bc.xScale = d3.scaleLinear().range([0, w3])
 
     bc.div = div_filters.append("div").attr("class", "barchart-div " + bc.name)
@@ -425,16 +426,22 @@ function update_all(){
 }
 
 function define_colored_barchart(bc){
-    if (!bc){
-      colored_barchart = undefined;
-    } else {
-      colored_barchard = bc
-    }
+  if (colored_barchart) {colored_barchart.is_colored_barchart = false} // Remove attribute from old one
+  if (!bc){
+    colored_barchart = undefined;
+    c_domain = []
+  } else {
+    colored_barchart = bc
+    colored_barchart.is_colored_barchart = true
+    c_domain = colored_barchart.nested_data.map(x=>x.key)
+  }
+  colorScale.domain(c_domain)
+  draw_barcharts()
+  draw_scatterplot()
 }
 
 
 function draw_barcharts(){
-  colored_barchart = barcharts[2];
   for(j=0; j<barcharts.length; j++){
     bc = barcharts[j]
 
@@ -447,10 +454,6 @@ function draw_barcharts(){
     bc.div.select("svg").remove()
     chart(bc)
   }
-  c_domain = []
-  // bars = colored_barchart.bars._groups[0]
-  // bars.forEach(function(bar){c_domain.push(bar.__data__.key)})
-  // colorScale.domain(c_domain)
 }
 
 function add_sent(){
@@ -785,7 +788,7 @@ function draw_scatterplot(){
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    if (colorScale.domain().includes(colored_barchart.get_data(d))){
+    if (colored_barchart && colorScale.domain().includes(colored_barchart.get_data(d))){
       context_canvas.fillStyle = colorScale(d.thread);
     } else {
       context_canvas.fillStyle = color_base;
