@@ -6,6 +6,14 @@ Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivau
 
 [Website](https://adurivault.github.io/FBMessage/)
 
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/1-presentation.png" style="width: 100px;">
+    </td>
+  </tr>
+</table>
+
 The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on the number of messages you send and receive, when, to whom, etc.. If you have always been curious about your Facebook messages history, you should find some answers here.
 
 ## How does it work ?
