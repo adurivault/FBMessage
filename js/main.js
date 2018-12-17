@@ -8,7 +8,7 @@
   var count_init = 0;
   var count_end = 0;
   var user_name = undefined;
-  var colored_barchart = undefined;
+  var coloredBarchart = undefined;
   var cnt_reset = 0;
 
   var c_domain = []
@@ -224,7 +224,6 @@
   {
     var parseUTCDate = d3.timeParse("%Y-%m-%d");
     var parseUTCDate2 = d3.timeParse("%W-%m-%Y");
-    var parseUTCDate_time = d3.timeParse("%Y-%m-%d-%H-%M");
   }
 
   // Define time constants which are used for the vertical scale
@@ -274,6 +273,10 @@
     // Scale to convert numbers to labels and keep the correct order in barcharts
     var num_to_day = d3.scaleOrdinal()
                 .domain([0,6])
+                .range(["Monday", "Sunday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
+
+    var num_to_day_short = d3.scaleOrdinal()
+                .domain([0,6])
                 .range(["Mon", "Sun", "Tue", "Wed", "Thu", "Fri", "Sat"]);
 
     var num_to_rs = d3.scaleOrdinal()
@@ -303,9 +306,7 @@
 
   // Define colors
   {
-    var color_bars = "#2c7bb6";
-    var color_unselected = "#A0A0A0";
-    var color_base =  "#FFFFFF";
+    var color_base =  "#2c7bb6";
   }
 }
 
@@ -316,15 +317,15 @@ var barcharts = [
     "n_bars": "all",
     "get_data": (function(d) {return d.sent;}),
     "get_legend": num_to_rs,
-    "get_tooltip": (function(s){return ""})
+    "get_tooltip": (function(s){if (s) {return "Sent"} else {return "Received"}})
   },
   {
     "name": "week-day",
     "title": "Week Day",
     "n_bars": "all",
     "get_data": (function(d) {return d.date.getDay();}),
-    "get_legend": num_to_day,
-    "get_tooltip": (function(s){return ""})
+    "get_legend": num_to_day_short,
+    "get_tooltip": num_to_day
   },
   // {
   //   "name": "Reactions",
@@ -379,23 +380,51 @@ var barcharts = [
     "n_bars": "all",
     "get_data": find_length_tick,
     "get_legend": tick_to_bin,
-    "get_tooltip": (function(s){return ""})
+    "get_tooltip": tick_to_bin
   },
 ]
 
 function initialize_barchart_parameters() {
+  // Initialize parameters and build html structure
   div_filters.selectAll(".barchart-div").remove()
   for(j=0; j<barcharts.length; j++){
     bc = barcharts[j]
     bc.dimension = messages.dimension(bc.get_data)
     bc.group = bc.dimension.group()
     bc.clicked = new Set()
-    bc.is_colored_barchart = false
+    bc.isColoredBarchart = false
     bc.xScale = d3.scaleLinear().range([0, w3])
 
     bc.div = div_filters.append("div").attr("class", "barchart-div " + bc.name)
-    bc.title_element = bc.div.append("h1");
+
+    bc.div_header = bc.div.append("div")
+        .style("display", "flex")
+        .style("align-items", "center")
+
+    bc.div_img = bc.div_header.append("div")
+        .attr("width", "15 px")
+        .style("float", "left")
+
+    bc.img = bc.div_img.append("img")
+        .attr("class", "img-color")
+        .attr("src", "img/colors.png")
+        .attr("height", "20 px")
+        .attr("width", "20 px")
+        .attr("onclick", 'define_colored_barchart("' + bc.name + '")')
+        .on("mouseover", function(d){this.height = 22; this.width = 22; })
+        .on("mouseout", function(d){this.height = 20; this.width = 20; })
+
+    bc.title_element = bc.div_header
+        .append("div")
+        .style("float", "left")
+        .style("margin-left", "10px")
+        .style("margin-left", "20 px")
+        .style("background", "20 px")
+        .append("h1");
     bc.title_element.attr("class", "title_barchart").attr("text-anchor", "start").text(bc.title);
+
+
+    bc.div_body = bc.div.append("div")
   }
 }
 
@@ -425,17 +454,23 @@ function update_all(){
   update_density_time()
 }
 
-function define_colored_barchart(bc){
-  if (colored_barchart) {colored_barchart.is_colored_barchart = false} // Remove attribute from old one
-  if (!bc){
-    colored_barchart = undefined;
-    c_domain = []
-  } else {
-    colored_barchart = bc
-    colored_barchart.is_colored_barchart = true
-    c_domain = colored_barchart.nested_data.map(x=>x.key)
+function define_colored_barchart(name){
+  barcharts.forEach(function(bc){
+    if (bc.name == name) {newColoredBarchart = bc} // Identify the barchart corresponding to the name
+  })
+  if (coloredBarchart) {  // If there already was one, remove attribute from old one
+    coloredBarchart.isColoredBarchart = false
+    coloredBarchart.img.attr("src", "img/colors.png")
   }
-  colorScale.domain(c_domain)
+  if (newColoredBarchart == coloredBarchart){ // If clicked on the one active, remove everythin
+    coloredBarchart = undefined;
+    colorScale.domain([])
+  } else { // Else, change the colored barchart
+    coloredBarchart = newColoredBarchart
+    coloredBarchart.isColoredBarchart = true
+    coloredBarchart.img.attr("src", "img/colors_bw.png")
+    colorScale.domain(coloredBarchart.nested_data.map(x=>x.key))
+  }
   draw_barcharts()
   draw_scatterplot()
 }
@@ -451,7 +486,7 @@ function draw_barcharts(){
       bc.nested_data = bc.group.top(bc.n_bars)
     };
 
-    bc.div.select("svg").remove()
+    bc.div_body.select("svg").remove()
     chart(bc)
   }
 }
@@ -482,9 +517,9 @@ function get_username(){
 function initialize_crossfilter(){
   messages = crossfilter(messages_array)
   dim_date = messages.dimension(function(d) {return d.date;})
-  dim_time = messages.dimension(function(d) {return d.time;})
+  dim_time = messages.dimension(function(d) {return d.timeMinutes;})
   dim_date_tt = messages.dimension(function(d) {return d.date;}) //For tooltip
-  dim_time_tt = messages.dimension(function(d) {return d.time;}) //For tooltip
+  dim_time_tt = messages.dimension(function(d) {return d.timeMinutes;}) //For tooltip
   group_date = dim_date.group()
   group_time = dim_time.group()
 }
@@ -617,7 +652,7 @@ function add_message_displayer(){
 
     if (message_tooltip.length > 0 ){
       var full_date = String(message_tooltip[0].date);
-      var full_time = String(message_tooltip[0].time);
+      var full_time = String(message_tooltip[0].timeSeconds);
 
       md_sender.select("p").remove()
       md_sender.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].sender_name);
@@ -638,7 +673,8 @@ function add_message_displayer(){
 function parse_date(){
   messages_array.forEach(function(d){
      date = new Date(d.timestamp * 1000);
-     d.time = getTime(date);
+     d.timeMinutes = getTimeMinutes(date); // Approximative (no seconds) used for the time density
+     d.timeSeconds = getTimeSeconds(date); // Precise (add seconds) used for the scatterplot.
      d.date = getDate(date);
   })
 };
@@ -759,8 +795,8 @@ function brushed_date() {
   x1.domain(s.map(x2.invert, x2));
   dim_date.filter([x1.domain()[0], x1.domain()[1]]);
   update_density_time();
-  // for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
   draw_scatterplot();
+  draw_barcharts();
 
   axis_date_focus.select(".axis--x").call(xAxis1);
 
@@ -774,8 +810,8 @@ function brushed_time() {
   y1.domain(s.map(y4.invert, y4));
   dim_time.filter([y1.domain()[0], y1.domain()[1]]);
   update_density_date();
-  // for (var i = 0; i < histograms.length; i++) {histograms[i].instance.display()};
   draw_scatterplot();
+  draw_barcharts();
   axis_time_focus.select(".axis--y").call(yAxis1);
 }
 
@@ -788,13 +824,13 @@ function draw_scatterplot(){
   messages.allFiltered().forEach(function(d){
     //Plot one dot
     context_canvas.beginPath();
-    if (colored_barchart && colorScale.domain().includes(colored_barchart.get_data(d))){
-      context_canvas.fillStyle = colorScale(d.thread);
+    if (coloredBarchart && colorScale.domain().includes(coloredBarchart.get_data(d))){
+      context_canvas.fillStyle = colorScale(coloredBarchart.get_data(d));
     } else {
       context_canvas.fillStyle = color_base;
     }
     context_canvas.globalAlpha = 0.1;
-    context_canvas.arc(x1(d.date), y1(d.time), 2, 0,  2 * Math.PI, true);
+    context_canvas.arc(x1(d.date), y1(d.timeSeconds), 2, 0,  2 * Math.PI, true);
     context_canvas.fill()
     context_canvas.closePath();
   })
@@ -805,7 +841,15 @@ getDate = function(date){
   return parseUTCDate(string);
 }
 
-getTime = function(date){
+getTimeSeconds = function(date){
+  var day = new Date(2000, 0, 1);
+  day.setHours(date.getHours());
+  day.setMinutes(date.getMinutes());
+  day.setSeconds(date.getSeconds());
+  return day;
+};
+
+getTimeMinutes = function(date){
   var day = new Date(2000, 0, 1);
   day.setHours(date.getHours());
   day.setMinutes(date.getMinutes());

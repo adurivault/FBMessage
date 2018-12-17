@@ -38,6 +38,7 @@ function barChart(config_global) {
       div.html(bc.get_tooltip(d.key))
          .style("left", (d3.event.pageX) + "px")
          .style("top", (d3.event.pageY - 28) + "px");
+      d3.select(this).classed("mouseovered", true);
     }
 
     // On mouseout, hide the tooltip
@@ -45,10 +46,11 @@ function barChart(config_global) {
       div.transition()
          .duration(200)
          .style("opacity", 0);
+      d3.select(this).classed("mouseovered", false);
     }
 
     // Select the svg element, if it exists.
-    var svg = bc.div.selectAll("svg").data([bc.nested_data]);
+    var svg = bc.div_body.selectAll("svg").data([bc.nested_data]);
 
     // Otherwise, create the skeletal chart.
     var svgEnter = svg.enter().append("svg");
@@ -69,7 +71,7 @@ function barChart(config_global) {
         .attr("height", h_bar)
         .attr("width", function(d) {return (bc.xScale(d.value))})
         .attr("transform", "translate(" + margin3.left + "," + 0 + ")")
-        .style("fill", function(d){if(bc.is_colored_barchart){return colorScale(d.key)} else {return ""}})
+        .style("fill", function(d){if(bc.isColoredBarchart){return colorScale(d.key)} else {return ""}})
         .classed("unclicked", function(d){return !(bc.clicked.size == 0 || bc.clicked.has(d.key))})
         .on("click", onClick)
         .on("mouseover", onMouseover)

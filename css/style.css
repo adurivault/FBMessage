@@ -46,7 +46,15 @@ li {float: left;}
 }
 
 .bar {
-  fill: #2c7bb6
+  fill: #2c7bb6;
+}
+
+.bar.mouseovered{
+  stroke: white
+}
+
+.bar-element {
+  cursor: pointer;
 }
 
 .unclicked{
@@ -57,6 +65,10 @@ li {float: left;}
   color: #A0A0A0;
   font: 18px sans-serif;
   font-weight: bold;
+}
+
+.img-color {
+  cursor: pointer;
 }
 
 .legend_hist_num {
