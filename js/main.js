@@ -13,9 +13,8 @@
 
   var c_domain = []
   colorScale = d3.scaleOrdinal()
-  colorScale.range((['#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107',
-  '#ff9800', '#ff5722', '#f44336', '#e91e63', '#795548', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
-  '#03a9f4', '#00bcd4']))
+  colorScale.range((['#009688', '#8bc34a', '#ffeb3b', '#ff9800', '#f44336',
+  '#ff66cc', '#9c27b0', '#673ab7', '#704880', '#795548' ]))
 
   // Define div, svg, etc..
   {
