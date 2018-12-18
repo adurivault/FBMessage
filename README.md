@@ -1,10 +1,14 @@
-**UPDATE July 27th 2018:**  Just updated the tool so that it is compliant with the revamped the "download your data" feature from Facebook. All preprocessing is now done in browser, no need to use the Python parser anymore.
-
 # FBMessage Explorer: Facebook Messages Visualization
 
-Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault)
-
 [Website](https://adurivault.github.io/FBMessage/)
+
+<table border="0">
+  <tr>
+    <td>
+      <img src="img/1-presentation.png" style="width: 100px;">
+    </td>
+  </tr>
+</table>
 
 The goal of this project is to allow you to visualize your own Facebook Messages in your browser, with a nice graphical display that gives insights on the number of messages you send and receive, when, to whom, etc.. If you have always been curious about your Facebook messages history, you should find some answers here.
 
@@ -108,3 +112,6 @@ If you wonder what is that strange message at 3am on a Monday, here is your answ
 ## Credits
 
 - [Interactive Data Visualization course (ECL MOS 5.5) - Romain Vuillemot](https://github.com/LyonDataViz/MOS5.5-Dataviz)
+
+- Authors : [Mathilde Reynaud](https://github.com/MathReynaud) | [Augustin Durivault](https://github.com/adurivault)
+
