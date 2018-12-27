@@ -663,7 +663,7 @@ function add_message_displayer(){
       md_message.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(message_tooltip[0].message);
 
       md_datetime.select("p").remove()
-      md_datetime.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(full_date.substring(0,16) + full_time.substring(17,33))
+      md_datetime.append("p").attr("class", "md_text").append("text").attr("class", "md_text").text(full_date.substring(0,16) + full_time.substring(16,33))
     }
 
   })
