@@ -338,7 +338,7 @@ var barcharts = [
     "title": "Top 10 Threads",
     "n_bars": 10,
     "get_data": (function(d) {return d.thread;}),
-    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_legend": (function(s){return s.substring(0,5)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
@@ -354,7 +354,7 @@ var barcharts = [
     "title": "Top 10 Senders",
     "n_bars": 10,
     "get_data": (function(d) {return d.sender_name;}),
-    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_legend": (function(s){return s.substring(0,5)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
@@ -362,7 +362,7 @@ var barcharts = [
     "title": "Media",
     "n_bars": "all",
     "get_data": (function(d) {return d.media;}),
-    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_legend": (function(s){return s.substring(0,5)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {
@@ -370,7 +370,7 @@ var barcharts = [
     "title": "Type of message",
     "n_bars": "all",
     "get_data": (function(d) {return d.type;}),
-    "get_legend": (function(s){return s.substring(0,6)}),
+    "get_legend": (function(s){return s.substring(0,5)}),
     "get_tooltip": (function(s){return s.substring(0,40)})
   },
   {

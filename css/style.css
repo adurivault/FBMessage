@@ -21,6 +21,16 @@ li {float: left;}
 .axis--y path{stroke: #A0A0A0;}
 .axis--y text{fill: #A0A0A0;}
 
+.barchart-div {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #353535;
+  /* background-blend-mode: overlay ; */
+  border-left-style: solid;
+  border-left-width: 6px;
+  border-left-color: #2c7bb6;
+}
+
 .area {
     fill: #2c7bb6;
     clip-path: url(#clip);
@@ -38,7 +48,8 @@ li {float: left;}
   width: 180px;
   height: 20px;
   padding: 2px;
-  font: 12px sans-serif;
+  font-family: "Nunito";
+  font-size: 12px;
   background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
@@ -63,7 +74,8 @@ li {float: left;}
 
 .title_barchart {
   color: #A0A0A0;
-  font: 18px sans-serif;
+  font-family: "Nunito";
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -73,32 +85,37 @@ li {float: left;}
 
 .legend_hist_num {
   fill: #00a6ca;
-  font: 12px sans-serif;
+  font-family: "Nunito";
+  font-size: 12px;
 }
 
 .legend_hist_text {
   fill: #A0A0A0;
-  font: 10px sans-serif;
+  font-family: "Nunito";
+  font-size: 12px;
   font-weight: bold;
 }
 
 .title {
+  font-family: "Nunito";
   color: #A0A0A0;
-  font: 30px sans-serif;
+  font-size: 30px;
   font-weight: bold;
   margin-left: 20px;
 }
 
 .md_header {
   color: #A0A0A0;
-  font: 11px sans-serif;
+  font-family: "Nunito";
+  font-size: 11px;
   font-weight: bold;
   margin: 0;
 }
 
 .md_text {
   color: #FFFFFF;
-  font: 9px sans-serif;
+  font-family: "Nunito";
+  font-size: 11px;
   margin: 0;
 }
 
@@ -116,10 +133,11 @@ li {float: left;}
 }
 
 .custom-button {
-    border-radius: 5px;
+    border-radius: 4px;
     border : none;
     background-color: #A0A0A0;
-    font:14px sans-serif;
+    font-family: "Nunito";
+    font-size: 16px;
     font-weight: bold;
     display: inline-block;
     padding: 6px 12px;
@@ -133,26 +151,28 @@ input[type="file"] {
 }
 
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none;      /* Hidden by default */
+    position: fixed;    /* Stay in place */
+    z-index: 1;         /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
+    width: 100%;        /* Full width */
+    height: 100%;       /* Full height */
+    overflow: auto;     /* Enable scroll if needed */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
 /* Modal Content */
 .modal-content {
     background-color: #fefefe;
-    font: 16px sans-serif;
+    font-family: "Nunito";
+    font-size: 16px;
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
+    border-left-style: solid;
+    border-left-width: 10px;
+    border-left-color: #2c7bb6;
     width: 45%;
 }
 
