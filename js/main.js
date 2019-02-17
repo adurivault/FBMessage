@@ -407,8 +407,8 @@ function initialize_barchart_parameters() {
     bc.img = bc.div_img.append("img")
         .attr("class", "img-color")
         .attr("src", "img/colors.png")
-        .attr("height", "20 px")
-        .attr("width", "20 px")
+        .attr("height", "20px")
+        .attr("width", "20px")
         .attr("onclick", 'define_colored_barchart("' + bc.name + '")')
         .on("mouseover", function(d){this.height = 22; this.width = 22; })
         .on("mouseout", function(d){this.height = 20; this.width = 20; })
@@ -416,11 +416,14 @@ function initialize_barchart_parameters() {
     bc.title_element = bc.div_header
         .append("div")
         .style("float", "left")
-        .style("margin-left", "10px")
-        .style("margin-left", "20 px")
-        .style("background", "20 px")
+        .style("margin-left", "20px")
         .append("h1");
-    bc.title_element.attr("class", "title_barchart").attr("text-anchor", "start").text(bc.title);
+
+    bc.title_element
+        .attr("class", "title_barchart")
+        .attr("text-anchor", "start")
+        .style("margin", "2px")
+        .text(bc.title);
 
 
     bc.div_body = bc.div.append("div")

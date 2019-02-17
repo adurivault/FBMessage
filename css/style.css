@@ -23,7 +23,7 @@ li {float: left;}
 
 .barchart-div {
   margin-top: 8px;
-  padding: 8px;
+  padding-left: 8px;
   background-color: #353535;
   /* background-blend-mode: overlay ; */
   border-left-style: solid;
