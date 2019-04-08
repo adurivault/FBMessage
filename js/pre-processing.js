@@ -16,7 +16,6 @@ function read_files(files){
         var reader = new FileReader()
         reader.onloadend = function(){
             thread = JSON.parse(reader.result)
-          }
 
           thread_info = {
             'is_still_participant': thread['is_still_participant'],
