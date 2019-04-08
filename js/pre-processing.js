@@ -3,17 +3,20 @@ function read_files(files){
   explanationModal.style.display = "none"
   exploreModal.style.display = "none"
   processingModal.style.display = "block"
+  var re = new RegExp('messages/.*message.*\.json');
   messages_array = []
   gtag('event', 'Load', {
       'event_category': 'Load',
       'event_label': 'Custom'})
   for (var i = 0; i < files.length; i++) {
     (function(file, i) {
-      if (file.webkitRelativePath.endsWith("message.json")){
+      if (re.test(file.webkitRelativePath)){
+      // if (file.webkitRelativePath.endsWith(".json")){
         count_init += 1
         var reader = new FileReader()
         reader.onloadend = function(){
             thread = JSON.parse(reader.result)
+          }
 
           thread_info = {
             'is_still_participant': thread['is_still_participant'],
