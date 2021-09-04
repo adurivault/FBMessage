@@ -1,0 +1,23 @@
+{
+  "name": "fbmessage",
+  "version": "1.0.0",
+  "description": "[Website](https://adurivault.github.io/FBMessage/)",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adurivault/FBMessage.git"
+  },
+  "author": "adurivault",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/adurivault/FBMessage#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "prettier": "^2.3.2"
+  }
+}

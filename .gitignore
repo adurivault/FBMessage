@@ -7,3 +7,5 @@ python/*
 # Irrelevant file formats #
 ###########################
 *.pptx
+
+node_modules/**
