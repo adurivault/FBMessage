@@ -31,25 +31,23 @@ colorScale.range([
 ]);
 
 // Define div, svg, etc..
-{
-  // D3 elements
-  const div_title = d3.select('#title');
-  var div_density_time = d3.select('#density_time');
-  var div_main = d3.select('#main');
-  var div_filters = d3.select('#filters');
-  var div_density_date = d3.select('#density_date');
-  const div_message_displayer = d3.select('#message_displayer');
-  const div_place_holder = d3.select('#place_holder');
+// D3 elements
+const div_title = d3.select('#title');
+const div_density_time = d3.select('#density_time');
+const div_main = d3.select('#main');
+const div_filters = d3.select('#filters');
+const div_density_date = d3.select('#density_date');
+const div_message_displayer = d3.select('#message_displayer');
+const div_place_holder = d3.select('#place_holder');
 
-  // JS Elements
-  const div_title_2 = document.getElementById('title');
-  var div_filters_2 = document.getElementById('filters');
-  var div_main_2 = document.getElementById('main');
-  var div_density_date_2 = document.getElementById('density_date');
-  var div_density_time_2 = document.getElementById('density_time');
-  var div_message_displayer_2 = document.getElementById('message_displayer');
-  var div_place_holder_2 = document.getElementById('place_holder');
-}
+// JS Elements
+const div_title_2 = document.getElementById('title');
+const div_filters_2 = document.getElementById('filters');
+const div_main_2 = document.getElementById('main');
+const div_density_date_2 = document.getElementById('density_date');
+const div_density_time_2 = document.getElementById('density_time');
+const div_message_displayer_2 = document.getElementById('message_displayer');
+const div_place_holder_2 = document.getElementById('place_holder');
 
 // Define margins, heights and widths
 // main
