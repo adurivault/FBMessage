@@ -9,6 +9,8 @@ function read_files(files) {
     event_category: 'Load',
     event_label: 'Custom',
   });
+  let count_end = 0;
+  let count_init = 0;
   for (let i = 0; i < files.length; i++) {
     (function (file, i) {
       if (re.test(file.webkitRelativePath)) {

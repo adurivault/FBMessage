@@ -9,11 +9,8 @@ let dim_time;
 let dim_weekday;
 let dim_sent;
 let messages_array = [];
-const count_init = 0;
-const count_end = 0;
 let user_name;
 let coloredBarchart;
-const cnt_reset = 0;
 
 const c_domain = [];
 colorScale = d3.scaleOrdinal();
@@ -601,16 +598,11 @@ function reset_filters() {
 }
 
 function reset() {
-  // if(cnt_reset>0){
-  // try {
   dimensions_list = barcharts.map((x) => x.dimension);
   resetData(messages, dimensions_list);
   initialize_crossfilter();
   update_all();
   initialize_brush();
-  // } catch {}
-  // };
-  // cnt_reset += 1
 }
 
 function initialize_length_ticks() {
