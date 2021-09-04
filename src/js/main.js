@@ -1,18 +1,18 @@
 // Define stuff
-let length_ticks;
+let lengthTicks;
 let reader;
 let json;
 let messages;
-let dim_sender;
-let dim_date;
-let dim_time;
-let dim_weekday;
-let dim_sent;
-let messages_array = [];
-let user_name;
+let dimSender;
+let dimDate;
+let dimTime;
+let dimWeekday;
+let dimSent;
+let messagesArray = [];
+let userName;
 let coloredBarchart;
 
-const c_domain = [];
+const cDomain = [];
 colorScale = d3.scaleOrdinal();
 colorScale.range([
   '#009688',
@@ -29,22 +29,22 @@ colorScale.range([
 
 // Define div, svg, etc..
 // D3 elements
-const div_title = d3.select('#title');
-const div_density_time = d3.select('#density_time');
-const div_main = d3.select('#main');
-const div_filters = d3.select('#filters');
-const div_density_date = d3.select('#density_date');
-const div_message_displayer = d3.select('#message_displayer');
-const div_place_holder = d3.select('#place_holder');
+const divTitle = d3.select('#title');
+const divDensityTime = d3.select('#density_time');
+const divMain = d3.select('#main');
+const divFilters = d3.select('#filters');
+const divDensityDate = d3.select('#density_date');
+const divMessageDisplayer = d3.select('#message_displayer');
+const divPlaceHolder = d3.select('#place_holder');
 
 // JS Elements
-const div_title_2 = document.getElementById('title');
-const div_filters_2 = document.getElementById('filters');
-const div_main_2 = document.getElementById('main');
-const div_density_date_2 = document.getElementById('density_date');
-const div_density_time_2 = document.getElementById('density_time');
-const div_message_displayer_2 = document.getElementById('message_displayer');
-const div_place_holder_2 = document.getElementById('place_holder');
+const divTitleElement = document.getElementById('title');
+const divFiltersElement = document.getElementById('filters');
+const divMainElement = document.getElementById('main');
+const divDensityDateElement = document.getElementById('density_date');
+const divDensityTimeElement = document.getElementById('density_time');
+const divMessageDisplayerElement = document.getElementById('message_displayer');
+const divPlaceHolderElement = document.getElementById('place_holder');
 
 // Define margins, heights and widths
 // main
@@ -94,42 +94,42 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 
 // Set heights
-const first_row_height = `${height * 0.7}px`;
-const second_row_height = `${height * 0.2}px`;
+const firstRowHeight = `${height * 0.7}px`;
+const secondRowHeight = `${height * 0.2}px`;
 
-div_density_time_2.style.height = first_row_height;
-div_main_2.style.height = first_row_height;
-div_filters_2.style.height = first_row_height;
-div_place_holder_2.style.height = second_row_height;
-div_density_date_2.style.height = second_row_height;
-div_message_displayer_2.style.height = second_row_height;
+divDensityTimeElement.style.height = firstRowHeight;
+divMainElement.style.height = firstRowHeight;
+divFiltersElement.style.height = firstRowHeight;
+divPlaceHolderElement.style.height = secondRowHeight;
+divDensityDateElement.style.height = secondRowHeight;
+divMessageDisplayerElement.style.height = secondRowHeight;
 
 // Set widths
-const first_col_width = '11%';
-const second_col_width = '69%';
-const third_col_width = '19%';
+const firstColWidth = '11%';
+const secondColWidth = '69%';
+const thirdColWidth = '19%';
 
-div_density_time_2.style.width = first_col_width;
-div_main_2.style.width = second_col_width;
-div_filters_2.style.width = third_col_width;
-div_place_holder_2.style.width = first_col_width;
-div_density_date_2.style.width = second_col_width;
-div_message_displayer_2.style.width = third_col_width;
+divDensityTimeElement.style.width = firstColWidth;
+divMainElement.style.width = secondColWidth;
+divFiltersElement.style.width = thirdColWidth;
+divPlaceHolderElement.style.width = firstColWidth;
+divDensityDateElement.style.width = secondColWidth;
+divMessageDisplayerElement.style.width = thirdColWidth;
 
-const w1 = div_main_2.clientWidth - margin1.left - margin1.right;
-const h1 = div_main_2.clientHeight - margin1.top - margin1.bottom;
-const w2 = div_density_date_2.clientWidth - margin2.left - margin2.right;
-const h2 = div_density_date_2.clientHeight - margin2.top - margin2.bottom;
-const w3 = div_filters_2.clientWidth - margin3.left - margin3.right;
-const h3 = div_filters_2.clientHeight - margin3.top - margin3.bottom;
-const w4 = div_density_time_2.clientWidth - margin4.left - margin4.right;
-const h4 = div_density_time_2.clientHeight - margin4.top - margin4.bottom;
-const h5 = div_message_displayer_2.clientHeight - margin5.top - margin5.bottom;
-const w5 = div_message_displayer_2.clientWidth - margin5.right - margin5.left;
+const w1 = divMainElement.clientWidth - margin1.left - margin1.right;
+const h1 = divMainElement.clientHeight - margin1.top - margin1.bottom;
+const w2 = divDensityDateElement.clientWidth - margin2.left - margin2.right;
+const h2 = divDensityDateElement.clientHeight - margin2.top - margin2.bottom;
+const w3 = divFiltersElement.clientWidth - margin3.left - margin3.right;
+const h3 = divFiltersElement.clientHeight - margin3.top - margin3.bottom;
+const w4 = divDensityTimeElement.clientWidth - margin4.left - margin4.right;
+const h4 = divDensityTimeElement.clientHeight - margin4.top - margin4.bottom;
+const h5 = divMessageDisplayerElement.clientHeight - margin5.top - margin5.bottom;
+const w5 = divMessageDisplayerElement.clientWidth - margin5.right - margin5.left;
 
 margin3.inter = h3 / 10;
 
-const h_bar = 12;
+const hBar = 12;
 
 // Define the pop-ups and the different action to open / close them
 // Get the modal
@@ -187,32 +187,32 @@ const div = d3.select('body').append('div').attr('class', 'tooltip').style('opac
 
 const body = d3.select('body');
 
-const density_date = div_density_date
+const densityDate = divDensityDate
   .append('svg')
   .attr('height', h2 + margin2.top + margin2.bottom)
   .attr('width', w2 + margin2.left + margin2.right);
 
-const density_time = div_density_time
+const densityTime = divDensityTime
   .append('svg')
   .attr('height', h4 + margin4.top + margin4.bottom)
   .attr('width', w4 + margin4.left + margin4.right);
 
-const axis_time_focus = div_main
+const axisTimeFocus = divMain
   .append('svg')
   .attr('width', margin1.left)
   .attr('height', h1 + margin1.bottom + margin1.top);
 
-const canvas = div_main
+const canvas = divMain
   .append('canvas')
   .attr('width', w1)
   .attr('height', h1)
   .style('padding-top', `${margin1.top}px`)
   .style('vertical-align', 'top');
 
-const canvas_el = document.querySelector('canvas');
-const context_canvas = canvas_el.getContext('2d');
+const canvasEl = document.querySelector('canvas');
+const contextCanvas = canvasEl.getContext('2d');
 
-const axis_date_focus = div_main
+const axisDateFocus = divMain
   .append('svg')
   .attr('width', w1 + margin1.left + margin1.right)
   .attr('height', margin1.bottom)
@@ -225,10 +225,10 @@ const parseUTCDate = d3.timeParse('%Y-%m-%d');
 const parseUTCDate2 = d3.timeParse('%W-%m-%Y');
 
 // Define time constants which are used for the vertical scale
-const min_time = new Date(2000, 0, 1);
-min_time.setSeconds(1);
-const max_time = new Date(2000, 0, 1);
-max_time.setHours(23, 59, 59);
+const minTime = new Date(2000, 0, 1);
+minTime.setSeconds(1);
+const maxTime = new Date(2000, 0, 1);
+maxTime.setHours(23, 59, 59);
 
 // Define scales and axes
 // Main canvas
@@ -250,56 +250,56 @@ const xAxis2 = d3.axisBottom().scale(x2);
 // Density time
 const x4 = d3.scaleLinear().range([0, w4]);
 
-const y4 = d3.scaleTime().range([0, h4]).domain([min_time, max_time]);
+const y4 = d3.scaleTime().range([0, h4]).domain([minTime, maxTime]);
 
 const yAxis4 = d3.axisLeft().scale(y4);
 
 // Scale to convert numbers to labels and keep the correct order in barcharts
-const num_to_day = d3
+const numToDay = d3
   .scaleOrdinal()
   .domain([0, 6])
   .range(['Monday', 'Sunday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
 
-const num_to_day_short = d3.scaleOrdinal().domain([0, 6]).range(['Mon', 'Sun', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+const numToDayShort = d3.scaleOrdinal().domain([0, 6]).range(['Mon', 'Sun', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
-const num_to_rs = d3.scaleOrdinal().domain([0, 1]).range(['Recvd', 'Sent']);
+const numToRs = d3.scaleOrdinal().domain([0, 1]).range(['Recvd', 'Sent']);
 
 // Define brush and zoom
-const brush_date = d3
+const brushDate = d3
   .brushX()
   .extent([
     [0, margin2.top],
     [w2, margin2.top + h2],
   ])
-  .on('brush end', brushed_date);
+  .on('brush end', brushedDate);
 
-const brush_time = d3
+const brushTime = d3
   .brushY()
   .extent([
     [margin4.left, 0],
     [margin4.left + w4, h4],
   ])
-  .on('brush end', brushed_time);
+  .on('brush end', brushedTime);
 
-// Define message_displayer
-const md_sender = d3.select('#md_sender');
-const md_thread = d3.select('#md_thread');
-const md_datetime = d3.select('#md_datetime');
-const md_message = d3.select('#md_message');
+// Define messageDisplayer
+const mdSender = d3.select('#md_sender');
+const mdThread = d3.select('#md_thread');
+const mdDatetime = d3.select('#md_Datetime');
+const mdMessage = d3.select('#md_message');
 
 // Define colors
-const color_base = '#2c7bb6';
+const colorBase = '#2c7bb6';
 
 const barcharts = [
   {
     name: 'received-sent',
     title: 'Received / Sent',
-    n_bars: 'all',
-    get_data(d) {
+    nBars: 'all',
+    getData(d) {
       return d.sent;
     },
-    get_legend: num_to_rs,
-    get_tooltip(s) {
+    getLegend: numToRs,
+    getTooltip(s) {
       if (s) {
         return 'Sent';
       }
@@ -309,127 +309,127 @@ const barcharts = [
   {
     name: 'week-day',
     title: 'Week Day',
-    n_bars: 'all',
-    get_data(d) {
+    nBars: 'all',
+    getData(d) {
       return d.date.getDay();
     },
-    get_legend: num_to_day_short,
-    get_tooltip: num_to_day,
+    getLegend: numToDayShort,
+    getTooltip: numToDay,
   },
   // {
   //   "name": "Reactions",
-  //   "n_bars": "all",
-  //   "get_data": (function(d) {return d.reactions;}),
-  //   "get_legend": (function(s){return String(s)}),
-  //   "get_tooltip": (function(s){return String(s)})
+  //   "nBars": "all",
+  //   "getData": (function(d) {return d.reactions;}),
+  //   "getLegend": (function(s){return String(s)}),
+  //   "getTooltip": (function(s){return String(s)})
   // },
   {
     name: 'thread',
     title: 'Top 10 Threads',
-    n_bars: 10,
-    get_data(d) {
+    nBars: 10,
+    getData(d) {
       return d.thread;
     },
-    get_legend(s) {
+    getLegend(s) {
       return s.substring(0, 5);
     },
-    get_tooltip(s) {
+    getTooltip(s) {
       return s.substring(0, 40);
     },
   },
   {
     name: 'nb-participants',
     title: 'Number of Participants',
-    n_bars: 'all',
-    get_data(d) {
-      if (d.nb_participants < 9) {
-        return String(d.nb_participants);
+    nBars: 'all',
+    getData(d) {
+      if (d.nbParticipants < 9) {
+        return String(d.nbParticipants);
       }
       return '9 +';
     },
-    get_legend(s) {
+    getLegend(s) {
       return String(s);
     },
-    get_tooltip(s) {
+    getTooltip(s) {
       return String(s);
     },
   },
   {
     name: 'sender',
     title: 'Top 10 Senders',
-    n_bars: 10,
-    get_data(d) {
-      return d.sender_name;
+    nBars: 10,
+    getData(d) {
+      return d.senderName;
     },
-    get_legend(s) {
+    getLegend(s) {
       return s.substring(0, 5);
     },
-    get_tooltip(s) {
+    getTooltip(s) {
       return s.substring(0, 40);
     },
   },
   {
     name: 'media',
     title: 'Media',
-    n_bars: 'all',
-    get_data(d) {
+    nBars: 'all',
+    getData(d) {
       return d.media;
     },
-    get_legend(s) {
+    getLegend(s) {
       return s.substring(0, 5);
     },
-    get_tooltip(s) {
+    getTooltip(s) {
       return s.substring(0, 40);
     },
   },
   {
     name: 'type',
     title: 'Type of message',
-    n_bars: 'all',
-    get_data(d) {
+    nBars: 'all',
+    getData(d) {
       return d.type;
     },
-    get_legend(s) {
+    getLegend(s) {
       return s.substring(0, 5);
     },
-    get_tooltip(s) {
+    getTooltip(s) {
       return s.substring(0, 40);
     },
   },
   {
     name: 'nb-characters',
     title: 'Number of characters',
-    n_bars: 'all',
-    get_data: find_length_tick,
-    get_legend: tick_to_bin,
-    get_tooltip: tick_to_bin,
+    nBars: 'all',
+    getData: findLengthTick,
+    getLegend: tickToBin,
+    getTooltip: tickToBin,
   },
 ];
 
-function initialize_barchart_parameters() {
+function initializeBarchartParameters() {
   // Initialize parameters and build html structure
-  div_filters.selectAll('.barchart-div').remove();
+  divFilters.selectAll('.barchart-div').remove();
   for (j = 0; j < barcharts.length; j++) {
     bc = barcharts[j];
-    bc.dimension = messages.dimension(bc.get_data);
+    bc.dimension = messages.dimension(bc.getData);
     bc.group = bc.dimension.group();
     bc.clicked = new Set();
     bc.isColoredBarchart = false;
     bc.xScale = d3.scaleLinear().range([0, w3]);
 
-    bc.div = div_filters.append('div').attr('class', `barchart-div ${bc.name}`);
+    bc.div = divFilters.append('div').attr('class', `barchart-div ${bc.name}`);
 
-    bc.div_header = bc.div.append('div').style('display', 'flex').style('align-items', 'center');
+    bc.divHeader = bc.div.append('div').style('display', 'flex').style('align-items', 'center');
 
-    bc.div_img = bc.div_header.append('div').attr('width', '15 px').style('float', 'left');
+    bc.divImg = bc.divHeader.append('div').attr('width', '15 px').style('float', 'left');
 
-    bc.img = bc.div_img
+    bc.img = bc.divImg
       .append('img')
       .attr('class', 'img-color')
       .attr('src', '../img/colors.png')
       .attr('height', '20px')
       .attr('width', '20px')
-      .attr('onclick', `define_colored_barchart("${bc.name}")`)
+      .attr('onclick', `defineColoredBarchart("${bc.name}")`)
       .on('mouseover', function (d) {
         this.height = 22;
         this.width = 22;
@@ -439,11 +439,11 @@ function initialize_barchart_parameters() {
         this.width = 20;
       });
 
-    bc.title_element = bc.div_header.append('div').style('float', 'left').style('margin-left', '20px').append('h1');
+    bc.titleElement = bc.divHeader.append('div').style('float', 'left').style('margin-left', '20px').append('h1');
 
-    bc.title_element.attr('class', 'title_barchart').attr('text-anchor', 'start').style('margin', '2px').text(bc.title);
+    bc.titleElement.attr('class', 'title_barchart').attr('text-anchor', 'start').style('margin', '2px').text(bc.title);
 
-    bc.div_body = bc.div.append('div');
+    bc.divBody = bc.div.append('div');
   }
 }
 
@@ -451,29 +451,29 @@ function initialize_barchart_parameters() {
 chart = barChart({});
 
 function main() {
-  parse_date();
-  add_sent();
-  initialize_length_ticks();
-  initialize_crossfilter();
-  initialize_barchart_parameters();
-  draw_barcharts();
-  add_message_displayer();
-  initialize_scatterplot();
-  draw_scatterplot();
-  draw_density_date();
-  draw_density_time();
-  initialize_brush();
+  parseDate();
+  addSent();
+  initializeLengthTicks();
+  initializeCrossfilter();
+  initializeBarchartParameters();
+  drawBarcharts();
+  addMessageDisplayer();
+  initializeScatterplot();
+  drawScatterplot();
+  drawDensityDate();
+  drawDensityTime();
+  initializeBrush();
   processingModal.style.display = 'none';
 }
 
-function update_all() {
-  draw_barcharts();
-  draw_scatterplot();
-  update_density_date();
-  update_density_time();
+function updateAll() {
+  drawBarcharts();
+  drawScatterplot();
+  updateDensityDate();
+  updateDensityTime();
 }
 
-function define_colored_barchart(name) {
+function defineColoredBarchart(name) {
   barcharts.forEach(function (bc) {
     if (bc.name == name) {
       newColoredBarchart = bc;
@@ -492,42 +492,42 @@ function define_colored_barchart(name) {
     // Else, change the colored barchart
     coloredBarchart = newColoredBarchart;
     coloredBarchart.isColoredBarchart = true;
-    coloredBarchart.img.attr('src', '../img/colors_bw.png');
-    colorScale.domain(coloredBarchart.nested_data.map((x) => x.key));
+    coloredBarchart.img.attr('src', '../img/colorsBw.png');
+    colorScale.domain(coloredBarchart.nestedData.map((x) => x.key));
   }
-  draw_barcharts();
-  draw_scatterplot();
+  drawBarcharts();
+  drawScatterplot();
 }
 
-function draw_barcharts() {
+function drawBarcharts() {
   for (j = 0; j < barcharts.length; j++) {
     bc = barcharts[j];
 
-    if (bc.n_bars == 'all') {
-      bc.nested_data = bc.group.all();
+    if (bc.nBars == 'all') {
+      bc.nestedData = bc.group.all();
     } else {
-      bc.nested_data = bc.group.top(bc.n_bars);
+      bc.nestedData = bc.group.top(bc.nBars);
     }
 
-    bc.div_body.select('svg').remove();
+    bc.divBody.select('svg').remove();
     chart(bc);
   }
 }
 
-function add_sent() {
+function addSent() {
   // Identify the username of the user, and label each messaged as sent or not.
-  user_name = get_username();
-  messages_array.forEach(function (d) {
-    d.sent = d.sender_name == user_name;
+  userName = getUsername();
+  messagesArray.forEach(function (d) {
+    d.sent = d.senderName == userName;
   });
 }
 
-function get_username() {
+function getUsername() {
   // Identify the username of the user based on the user who appears in the most threads
-  nb_threads_per_user = d3
+  nbThreadsPerUser = d3
     .nest()
     .key(function (d) {
-      return d.sender_name;
+      return d.senderName;
     })
     .key(function (d) {
       return d.thread;
@@ -535,31 +535,31 @@ function get_username() {
     .rollup(function (leaves) {
       return leaves.length;
     })
-    .entries(messages_array);
+    .entries(messagesArray);
 
-  nb_threads_per_user = nb_threads_per_user.sort(function (x, y) {
+  nbThreadsPerUser = nbThreadsPerUser.sort(function (x, y) {
     return d3.descending(x.values.length, y.values.length);
   });
 
-  return nb_threads_per_user[0].key;
+  return nbThreadsPerUser[0].key;
 }
 
-function initialize_crossfilter() {
-  messages = crossfilter(messages_array);
-  dim_date = messages.dimension(function (d) {
+function initializeCrossfilter() {
+  messages = crossfilter(messagesArray);
+  dimDate = messages.dimension(function (d) {
     return d.date;
   });
-  dim_time = messages.dimension(function (d) {
+  dimTime = messages.dimension(function (d) {
     return d.timeMinutes;
   });
-  dim_date_tt = messages.dimension(function (d) {
+  dimDateTt = messages.dimension(function (d) {
     return d.date;
   }); // For tooltip
-  dim_time_tt = messages.dimension(function (d) {
+  dimTimeTt = messages.dimension(function (d) {
     return d.timeMinutes;
   }); // For tooltip
-  group_date = dim_date.group();
-  group_time = dim_time.group();
+  groupDate = dimDate.group();
+  groupTime = dimTime.group();
 }
 
 // reset the filter for a dimension
@@ -579,10 +579,10 @@ function resetData(ndx, dimensions) {
   ndx.remove();
 }
 
-function reset_filters() {
+function resetFilters() {
   gtag('event', 'reset', {
-    event_category: 'Reset',
-    event_Label: 'All',
+    eventCategory: 'Reset',
+    eventLabel: 'All',
   });
   // Empty the clicked sets
   barcharts.forEach(function (bc) {
@@ -592,147 +592,147 @@ function reset_filters() {
   dimensions = barcharts.map((x) => x.dimension);
   dimensions.forEach(resetDimensionFilter);
   // Update all charts to match nw filters
-  update_all();
+  updateAll();
   // Reset the brush position
-  initialize_brush();
+  initializeBrush();
 }
 
 function reset() {
-  dimensions_list = barcharts.map((x) => x.dimension);
-  resetData(messages, dimensions_list);
-  initialize_crossfilter();
-  update_all();
-  initialize_brush();
+  dimensionsList = barcharts.map((x) => x.dimension);
+  resetData(messages, dimensionsList);
+  initializeCrossfilter();
+  updateAll();
+  initializeBrush();
 }
 
-function initialize_length_ticks() {
+function initializeLengthTicks() {
   // Define the bins' limits for the "number of characters" barchart"
-  length_ticks = [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
-  length_ticks_str = ['0', '1', '2', '5', '10', '20', '50', '100', '200', '500', '1k', '2k', '5k', '10k'];
+  lengthTicks = [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+  lengthTicksStr = ['0', '1', '2', '5', '10', '20', '50', '100', '200', '500', '1k', '2k', '5k', '10k'];
 }
 
-function tick_to_bin(tick) {
+function tickToBin(tick) {
   for (i = 1; i < 14; i++) {
-    if (tick < length_ticks[i]) {
-      return `${length_ticks_str[i - 1]}-${length_ticks_str[i]}`;
+    if (tick < lengthTicks[i]) {
+      return `${lengthTicksStr[i - 1]}-${lengthTicksStr[i]}`;
     }
   }
-  return `${length_ticks_str[13]}- ∞`;
+  return `${lengthTicksStr[13]}- ∞`;
 }
 
-function find_length_tick(d) {
+function findLengthTick(d) {
   for (i = 1; i < 14; i++) {
-    if (d.length < length_ticks[i]) {
-      return length_ticks[i - 1];
+    if (d.length < lengthTicks[i]) {
+      return lengthTicks[i - 1];
     }
   }
   return 10000;
 }
 
-function initialize_scatterplot() {
+function initializeScatterplot() {
   // initialize domains
-  axis_time_focus.selectAll('.axis--y').remove();
-  axis_date_focus.selectAll('.axis--x').remove();
+  axisTimeFocus.selectAll('.axis--y').remove();
+  axisDateFocus.selectAll('.axis--x').remove();
 
-  const mindate_total = d3.min(messages_array, function (d) {
+  const mindateTotal = d3.min(messagesArray, function (d) {
     return d.date;
   });
-  const maxdate_total = d3.max(messages_array, function (d) {
+  const maxdateTotal = d3.max(messagesArray, function (d) {
     return d.date;
   });
 
-  x1.domain([mindate_total, maxdate_total]);
-  x2.domain([mindate_total, maxdate_total]);
+  x1.domain([mindateTotal, maxdateTotal]);
+  x2.domain([mindateTotal, maxdateTotal]);
 
-  axis_date_focus
+  axisDateFocus
     .append('g')
     .attr('transform', `translate(${margin1.left},${0})`)
     .attr('class', 'x axis--x')
     .call(xAxis1);
 
-  axis_time_focus
+  axisTimeFocus
     .append('g')
     .attr('transform', `translate(${margin1.left - 1},${margin1.top})`)
     .attr('class', 'y axis--y')
     .call(yAxis1);
 }
 
-function initialize_brush() {
-  density_date.selectAll('.brush').remove();
-  density_time.selectAll('.brush').remove();
+function initializeBrush() {
+  densityDate.selectAll('.brush').remove();
+  densityTime.selectAll('.brush').remove();
 
-  density_date
+  densityDate
     .append('g')
     .attr('class', 'brush')
-    .call(brush_date)
-    .call(brush_date.move, x2.range())
+    .call(brushDate)
+    .call(brushDate.move, x2.range())
     .attr('transform', `translate(${margin2.left},${0})`);
 
-  density_time
+  densityTime
     .append('g')
     .attr('class', 'brush')
-    .call(brush_time)
-    .call(brush_time.move, y4.range())
+    .call(brushTime)
+    .call(brushTime.move, y4.range())
     .attr('transform', `translate(${0},${margin4.top})`);
 }
 
-function add_message_displayer() {
+function addMessageDisplayer() {
   canvas.on('mousemove', function () {
     // Identify the time and date corresponding to the mouse position. Add a +/- 2 pixel tolerance
-    const find_date_min = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left - 2);
-    const find_date_max = x1.invert(d3.event.clientX - canvas_el.getBoundingClientRect().left + 2);
-    const find_time_min = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top - margin1.top - 2);
-    const find_time_max = y1.invert(d3.event.clientY - canvas_el.getBoundingClientRect().top - margin1.top + 2);
+    const findDateMin = x1.invert(d3.event.clientX - canvasEl.getBoundingClientRect().left - 2);
+    const findDateMax = x1.invert(d3.event.clientX - canvasEl.getBoundingClientRect().left + 2);
+    const findTimeMin = y1.invert(d3.event.clientY - canvasEl.getBoundingClientRect().top - margin1.top - 2);
+    const findTimeMax = y1.invert(d3.event.clientY - canvasEl.getBoundingClientRect().top - margin1.top + 2);
 
     // Keep only messages that are in the tolerance window
-    dim_date_tt.filterRange([find_date_min, find_date_max]);
-    dim_time_tt.filterRange([find_time_min, find_time_max]);
-    const message_tooltip = messages.allFiltered();
+    dimDateTt.filterRange([findDateMin, findDateMax]);
+    dimTimeTt.filterRange([findTimeMin, findTimeMax]);
+    const messageTooltip = messages.allFiltered();
 
-    dim_date_tt.filter();
-    dim_time_tt.filter();
+    dimDateTt.filter();
+    dimTimeTt.filter();
 
-    if (message_tooltip.length > 0) {
-      const full_date = String(message_tooltip[0].date);
-      const full_time = String(message_tooltip[0].timeSeconds);
+    if (messageTooltip.length > 0) {
+      const fullDate = String(messageTooltip[0].date);
+      const fullTime = String(messageTooltip[0].timeSeconds);
 
-      md_sender.select('p').remove();
-      md_sender
+      mdSender.select('p').remove();
+      mdSender
         .append('p')
         .attr('class', 'md_text')
         .append('text')
         .attr('class', 'md_text')
-        .text(message_tooltip[0].sender_name);
+        .text(messageTooltip[0].senderName);
 
-      md_thread.select('p').remove();
-      md_thread
+      mdThread.select('p').remove();
+      mdThread
         .append('p')
         .attr('class', 'md_text')
         .append('text')
         .attr('class', 'md_text')
-        .text(message_tooltip[0].thread);
+        .text(messageTooltip[0].thread);
 
-      md_message.select('p').remove();
-      md_message
+      mdMessage.select('p').remove();
+      mdMessage
         .append('p')
         .attr('class', 'md_text')
         .append('text')
         .attr('class', 'md_text')
-        .text(message_tooltip[0].message);
+        .text(messageTooltip[0].message);
 
-      md_datetime.select('p').remove();
-      md_datetime
+      mdDatetime.select('p').remove();
+      mdDatetime
         .append('p')
         .attr('class', 'md_text')
         .append('text')
         .attr('class', 'md_text')
-        .text(full_date.substring(0, 16) + full_time.substring(16, 33));
+        .text(fullDate.substring(0, 16) + fullTime.substring(16, 33));
     }
   });
 }
 
-function parse_date() {
-  messages_array.forEach(function (d) {
+function parseDate() {
+  messagesArray.forEach(function (d) {
     date = new Date(d.timestamp * 1000);
     d.timeMinutes = getTimeMinutes(date); // Approximative (no seconds) used for the time density
     d.timeSeconds = getTimeSeconds(date); // Precise (add seconds) used for the scatterplot.
@@ -740,13 +740,13 @@ function parse_date() {
   });
 }
 
-function draw_density_date() {
+function drawDensityDate() {
   // Draw the horizontal curve for density of messages along date of year
-  density_date.selectAll('.area').remove();
-  density_date.selectAll('.axis--x').remove();
+  densityDate.selectAll('.area').remove();
+  densityDate.selectAll('.axis--x').remove();
 
-  nested_data_date = group_date.all();
-  nested_data_date = d3
+  nestedDataDate = groupDate.all();
+  nestedDataDate = d3
     .nest()
     .key(function (d) {
       return `${d.key.getWeek()}-${d.key.getMonth()}-${d.key.getFullYear()}`;
@@ -756,15 +756,15 @@ function draw_density_date() {
         return parseFloat(d.value);
       });
     })
-    .entries(nested_data_date);
+    .entries(nestedDataDate);
 
-  nested_data_date = nested_data_date.sort(sortByDateAscending);
+  nestedDataDate = nestedDataDate.sort(sortByDateAscending);
 
-  const max_message = d3.max(nested_data_date, function (d) {
+  const maxMessage = d3.max(nestedDataDate, function (d) {
     return d.value;
   });
 
-  y2.domain([0, max_message]);
+  y2.domain([0, maxMessage]);
 
   const area = d3
     .area()
@@ -777,23 +777,23 @@ function draw_density_date() {
       return y2(d.value);
     });
 
-  density_date
+  densityDate
     .append('path')
-    .datum(nested_data_date)
+    .datum(nestedDataDate)
     .attr('class', 'area')
     .attr('d', area)
     .attr('transform', `translate(${margin2.left},${margin2.top})`);
 
-  density_date
+  densityDate
     .append('g')
     .attr('transform', `translate(${margin2.left},${h2 + margin2.top})`)
     .attr('class', 'x axis--x')
     .call(xAxis2);
 }
 
-function update_density_date() {
-  nested_data_date = group_date.all();
-  nested_data_date = d3
+function updateDensityDate() {
+  nestedDataDate = groupDate.all();
+  nestedDataDate = d3
     .nest()
     .key(function (d) {
       return `${d.key.getWeek()}-${d.key.getMonth()}-${d.key.getFullYear()}`;
@@ -803,15 +803,15 @@ function update_density_date() {
         return parseFloat(d.value);
       });
     })
-    .entries(nested_data_date);
+    .entries(nestedDataDate);
 
-  nested_data_date = nested_data_date.sort(sortByDateAscending);
+  nestedDataDate = nestedDataDate.sort(sortByDateAscending);
 
-  const max_message = d3.max(nested_data_date, function (d) {
+  const maxMessage = d3.max(nestedDataDate, function (d) {
     return d.value;
   });
 
-  y2.domain([0, max_message]);
+  y2.domain([0, maxMessage]);
 
   const area = d3
     .area()
@@ -824,20 +824,20 @@ function update_density_date() {
       return y2(d.value);
     });
 
-  density_date.selectAll('path').datum(nested_data_date);
+  densityDate.selectAll('path').datum(nestedDataDate);
 
-  density_date.selectAll('.area').transition().attr('d', area);
+  densityDate.selectAll('.area').transition().attr('d', area);
 }
 
-function draw_density_time() {
+function drawDensityTime() {
   // Draw the vertical curve for density of messages along time of day
-  density_time.selectAll().remove();
-  nested_data_time = group_time.all();
-  const max_message = d3.max(nested_data_time, function (d) {
+  densityTime.selectAll().remove();
+  nestedDataTime = groupTime.all();
+  const maxMessage = d3.max(nestedDataTime, function (d) {
     return d.value;
   });
 
-  x4.domain([0, max_message]);
+  x4.domain([0, maxMessage]);
 
   const area = d3
     .area()
@@ -850,14 +850,14 @@ function draw_density_time() {
       return x4(d.value);
     });
 
-  density_time
+  densityTime
     .append('path')
-    .datum(nested_data_time)
+    .datum(nestedDataTime)
     .attr('class', 'area')
     .attr('d', area)
     .attr('transform', `translate(${margin4.left},${margin4.top})`);
 
-  density_time
+  densityTime
     .append('g')
     .attr('transform', `translate(${margin4.left},${margin4.top})`)
     .attr('class', function (d) {
@@ -866,13 +866,13 @@ function draw_density_time() {
     .call(yAxis4);
 }
 
-function update_density_time() {
-  nested_data_time = group_time.all();
-  const max_message = d3.max(nested_data_time, function (d) {
+function updateDensityTime() {
+  nestedDataTime = groupTime.all();
+  const maxMessage = d3.max(nestedDataTime, function (d) {
     return d.value;
   });
 
-  x4.domain([0, max_message]);
+  x4.domain([0, maxMessage]);
 
   const area = d3
     .area()
@@ -885,58 +885,58 @@ function update_density_time() {
       return x4(d.value);
     });
 
-  density_time.selectAll('path').datum(nested_data_time);
+  densityTime.selectAll('path').datum(nestedDataTime);
 
-  density_time.selectAll('.area').transition().attr('d', area);
+  densityTime.selectAll('.area').transition().attr('d', area);
 }
 
-function brushed_date() {
+function brushedDate() {
   gtag('event', 'Brush', {
-    event_category: 'Brush',
-    event_label: 'Date',
+    eventCategory: 'Brush',
+    eventLabel: 'Date',
   });
   const s = d3.event.selection || x2.range();
   x1.domain(s.map(x2.invert, x2));
-  dim_date.filter([x1.domain()[0], x1.domain()[1]]);
-  update_density_time();
-  draw_scatterplot();
-  draw_barcharts();
+  dimDate.filter([x1.domain()[0], x1.domain()[1]]);
+  updateDensityTime();
+  drawScatterplot();
+  drawBarcharts();
 
-  axis_date_focus.select('.axis--x').call(xAxis1);
+  axisDateFocus.select('.axis--x').call(xAxis1);
 }
 
-function brushed_time() {
+function brushedTime() {
   gtag('event', 'Brush', {
-    event_category: 'Brush',
-    event_label: 'Time',
+    eventCategory: 'Brush',
+    eventLabel: 'Time',
   });
   const s = d3.event.selection || y4.range();
   y1.domain(s.map(y4.invert, y4));
-  dim_time.filter([y1.domain()[0], y1.domain()[1]]);
-  update_density_date();
-  draw_scatterplot();
-  draw_barcharts();
-  axis_time_focus.select('.axis--y').call(yAxis1);
+  dimTime.filter([y1.domain()[0], y1.domain()[1]]);
+  updateDensityDate();
+  drawScatterplot();
+  drawBarcharts();
+  axisTimeFocus.select('.axis--y').call(yAxis1);
 }
 
-function draw_scatterplot() {
+function drawScatterplot() {
   // Remove all the dots on the scatterplot, and redraw everything :
   // - based on the filtered datapoints
   // - based on the correct vertical and horizontal scales
   // - with the correct colors
-  context_canvas.clearRect(0, 0, canvas_el.width, canvas_el.height);
+  contextCanvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
   messages.allFiltered().forEach(function (d) {
     // Plot one dot
-    context_canvas.beginPath();
-    if (coloredBarchart && colorScale.domain().includes(coloredBarchart.get_data(d))) {
-      context_canvas.fillStyle = colorScale(coloredBarchart.get_data(d));
+    contextCanvas.beginPath();
+    if (coloredBarchart && colorScale.domain().includes(coloredBarchart.getData(d))) {
+      contextCanvas.fillStyle = colorScale(coloredBarchart.getData(d));
     } else {
-      context_canvas.fillStyle = color_base;
+      contextCanvas.fillStyle = colorBase;
     }
-    context_canvas.globalAlpha = 0.1;
-    context_canvas.arc(x1(d.date), y1(d.timeSeconds), 2, 0, 2 * Math.PI, true);
-    context_canvas.fill();
-    context_canvas.closePath();
+    contextCanvas.globalAlpha = 0.1;
+    contextCanvas.arc(x1(d.date), y1(d.timeSeconds), 2, 0, 2 * Math.PI, true);
+    contextCanvas.fill();
+    contextCanvas.closePath();
   });
 }
 
@@ -978,14 +978,14 @@ function sortByDateAscending(a, b) {
 }
 
 // Load the demo data to get an overview of the tool when first opening the website
-d3.json('../data/demo_messages.json', load_demo);
+d3.json('../data/demo_messages.json', loadDemo);
 
-function load_demo(json_file) {
+function loadDemo(jsonFile) {
   gtag('event', 'Load', {
-    event_category: 'Load',
-    event_label: 'Demo',
+    eventCategory: 'Load',
+    eventLabel: 'Demo',
   });
-  messages_array = json_file.messages_array;
-  user_name = get_username();
+  messagesArray = jsonFile.messagesArray;
+  userName = getUsername();
   main();
 }

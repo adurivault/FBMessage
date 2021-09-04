@@ -1,11 +1,11 @@
-function barChart(config_global) {
-  const h_bar = 12;
+function barChart(configGlobal) {
+  const hBar = 12;
   const onMouseover = function () {};
 
   function chart(bc) {
     bc.xScale.domain([
       0,
-      d3.max(bc.nested_data, function (d) {
+      d3.max(bc.nestedData, function (d) {
         return d.value;
       }),
     ]);
@@ -13,8 +13,8 @@ function barChart(config_global) {
     // On click, change the appearance of the bars, filter everything, and update barcharts, curves, and scatterplot
     function onClick(d) {
       gtag('event', 'Histogram', {
-        event_category: 'Filter',
-        event_label: bc.title,
+        eventCategory: 'Filter',
+        eventLabel: bc.title,
       });
 
       // Update the "clicked" sets
@@ -34,14 +34,14 @@ function barChart(config_global) {
       }
 
       // Update to match new filters
-      update_all();
+      updateAll();
     }
 
     // On mouseover, display tooltip
     function onMouseover(d) {
       div.transition().duration(200).style('opacity', 0.9);
       div
-        .html(bc.get_tooltip(d.key))
+        .html(bc.getTooltip(d.key))
         .style('left', `${d3.event.pageX}px`)
         .style('top', `${d3.event.pageY - 28}px`);
       d3.select(this).classed('mouseovered', true);
@@ -54,35 +54,35 @@ function barChart(config_global) {
     }
 
     // Select the svg element, if it exists.
-    const svg = bc.div_body.selectAll('svg').data([bc.nested_data]);
+    const svg = bc.divBody.selectAll('svg').data([bc.nestedData]);
 
     // Otherwise, create the skeletal chart.
     const svgEnter = svg.enter().append('svg');
 
     // Create a group for each bar. We will then add the bar and the labels to these groups
-    const bar_elements = svgEnter
+    const barElements = svgEnter
       .selectAll('.bar-element')
-      .data(bc.nested_data)
+      .data(bc.nestedData)
       .enter()
       .append('g')
       .attr('class', 'bar-element')
-      // .attr("id", function(d){try {return this_temp.get_data(d)} catch {return "other"}})
+      // .attr("id", function(d){try {return thisTemp.getData(d)} catch {return "other"}})
       .attr('transform', function (d, i) {
-        return `translate(${0},${i * (h_bar + 2)})`;
+        return `translate(${0},${i * (hBar + 2)})`;
       });
 
     bc.xScale.domain([
       0,
-      d3.max(bc.nested_data, function (d) {
+      d3.max(bc.nestedData, function (d) {
         return d.value;
       }),
     ]);
 
     // Add bars
-    bar_elements
+    barElements
       .append('rect')
       .attr('class', 'bar')
-      .attr('height', h_bar)
+      .attr('height', hBar)
       .attr('width', function (d) {
         return bc.xScale(d.value);
       })
@@ -101,11 +101,11 @@ function barChart(config_global) {
       .on('mouseout', onMouseout);
 
     // Add number-labels to bar charts
-    bar_elements
+    barElements
       .append('text')
       .attr('class', 'legend_hist_num')
       .attr('dy', '0.35em')
-      .attr('y', `${h_bar / 2}px`)
+      .attr('y', `${hBar / 2}px`)
       .attr('x', function (d) {
         return bc.xScale(d.value) + 2;
       })
@@ -119,13 +119,13 @@ function barChart(config_global) {
       .on('mouseout', onMouseout);
 
     // Add labels to bar charts
-    bar_elements
+    barElements
       .append('text')
       .attr('class', 'legend_hist_text')
       .attr('dy', '0.35em')
-      .attr('y', `${h_bar / 2}px`)
+      .attr('y', `${hBar / 2}px`)
       .text(function (d) {
-        return bc.get_legend(d.key);
+        return bc.getLegend(d.key);
       })
       .on('click', onClick)
       .on('mouseover', onMouseover)

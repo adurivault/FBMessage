@@ -1,76 +1,76 @@
-function read_files(files) {
+function readFiles(files) {
   // Go through selected files and perform pre-processing.
   explanationModal.style.display = 'none';
   exploreModal.style.display = 'none';
   processingModal.style.display = 'block';
   const re = new RegExp('messages/.*message.*.json');
-  messages_array = [];
+  messagesArray = [];
   gtag('event', 'Load', {
-    event_category: 'Load',
-    event_label: 'Custom',
+    eventCategory: 'Load',
+    eventLabel: 'Custom',
   });
-  let count_end = 0;
-  let count_init = 0;
+  let countEnd = 0;
+  let countInit = 0;
   for (let i = 0; i < files.length; i++) {
     (function (file, i) {
       if (re.test(file.webkitRelativePath)) {
         // if (file.webkitRelativePath.endsWith(".json")){
-        count_init += 1;
+        countInit += 1;
         const reader = new FileReader();
         reader.onloadend = function () {
           thread = JSON.parse(reader.result);
 
-          thread_info = {
-            is_still_participant: thread.is_still_participant,
-            thread_type: thread.thread_type,
+          threadInfo = {
+            isStillParticipant: thread.isStillParticipant,
+            threadType: thread.threadType,
             thread: decodeURIComponent(escape(thread.title)),
           };
           try {
-            thread_info.nb_participants = thread.participants.length;
+            threadInfo.nbParticipants = thread.participants.length;
           } catch (error) {
-            thread_info.nb_participants = 0;
+            threadInfo.nbParticipants = 0;
           }
 
-          thread_messages = thread.messages;
-          for (let i = 0; i < thread_messages.length; i++) {
-            message = thread_messages[i];
-            message_info = {
-              sender_name: decodeURIComponent(escape(message.sender_name)),
-              timestamp: message.timestamp || message.timestamp_ms / 1000,
+          threadMessages = thread.messages;
+          for (let i = 0; i < threadMessages.length; i++) {
+            message = threadMessages[i];
+            messageInfo = {
+              senderName: decodeURIComponent(escape(message.senderName)),
+              timestamp: message.timestamp || message.timestampMs / 1000,
               type: message.type,
             };
 
             if (message.photos != undefined) {
-              message_info.media = 'Photo';
+              messageInfo.media = 'Photo';
             } else if (message.videos != undefined) {
-              message_info.media = 'Video';
+              messageInfo.media = 'Video';
             } else if (message.files != undefined) {
-              message_info.media = 'File';
+              messageInfo.media = 'File';
             } else {
-              message_info.media = 'None';
+              messageInfo.media = 'None';
             }
 
             try {
-              message_info.message = decodeURIComponent(escape(message.content));
+              messageInfo.message = decodeURIComponent(escape(message.content));
             } catch (error) {
-              message_info.message = '';
+              messageInfo.message = '';
             }
 
             try {
-              message_info.length = decodeURIComponent(escape(message.content)).length;
+              messageInfo.length = decodeURIComponent(escape(message.content)).length;
             } catch (error) {
-              message_info.length = 0;
+              messageInfo.length = 0;
             }
 
             // if (message['reactions'].length == undefined) {
-            //     message_info['reactions'] = 0
+            //     messageInfo['reactions'] = 0
             // } else {
-            //     message_info['reactions'] = 0
+            //     messageInfo['reactions'] = 0
             // }
-            messages_array.push({ ...message_info, ...thread_info });
+            messagesArray.push({ ...messageInfo, ...threadInfo });
           }
-          count_end += 1; // Count the number of files that were processsed up to the end
-          if (count_init == count_end) {
+          countEnd += 1; // Count the number of files that were processsed up to the end
+          if (countInit == countEnd) {
             // If allfiles were processed to the end, the launch main program
             // reset();
             main();

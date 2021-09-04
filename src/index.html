@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <title>FBMessage Explorer</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="icon" type="image/JPG" href="img/fb.jpg" />
+  <link rel="icon" type="image/JPG" href="../img/fb.jpg" />
   <link href='https://fonts.googleapis.com/css?family=Nunito' rel='stylesheet'>
   <link href='https://fonts.googleapis.com/css?family=Didact Gothic' rel='stylesheet'>
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115468223-1"></script>
@@ -37,7 +37,7 @@
 
     <li class="nav-item" style="float:right">
       <input name="resetButton" class="custom-button" type="button" value="Reset All Filters"
-        onclick="reset_filters()" />
+        onclick="resetFilters()" />
     </li>
   </ul>
   <div id="density_time" style="display: inline-block; "></div>
@@ -130,7 +130,7 @@
     <p>
       - Click on the button below <br>
     <div style="text-align:center; padding:30px ">
-      <input id="file" type="file" name="file" class="inputfile" onchange="read_files(this.files)" style="float:center"
+      <input id="file" type="file" name="file" class="inputfile" onchange="readFiles(this.files)" style="float:center"
         webkitdirectory=true>
       <label for="file" class="custom-button">Use your own file</label>
     </div>
