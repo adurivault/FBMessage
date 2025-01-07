@@ -25,7 +25,7 @@ If you've downloaded both the unecrypted and encrypted data, your folder structu
 messages/
 |- e2ee_cutover/
 |- encrypted/
-|- inbox
+|- inbox/
 |- ...
 ```
 
