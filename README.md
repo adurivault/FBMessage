@@ -15,7 +15,19 @@ The goal of this project is to allow you to visualize your own Facebook Messages
 ## How does it work ?
 
 ### Create your datafile from your Facebook History
-First, you should extract your data from Facebook in JSON format [here](https://www.facebook.com/your_information/). Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/).
+First, you should extract your data from Facebook in JSON format [here](https://www.facebook.com/your_information/). Unzip the file. There should be a `messages` folder inside. Once you've got your data ready, you can go on the [website](https://adurivault.github.io/FBMessage/).
+
+#### Encrypted conversations (as of 2025)
+The above method only includes unecrypted messages. Meta enabled encryption on the majority of one-on-one conversations, meaning those conversations will only be downloaded up to the encryption cutoff. Encryption does not, as of now, affect group chats. To download your encrypted data, follow [this guide](https://www.facebook.com/help/messenger-app/677912386869109). Then, unpack the `messages.zip` file to a folder named `encrypted`. Place the `encrypted` folder inside the `messages` folder.
+
+If you've downloaded both the unecrypted and encrypted data, your folder structure should look something like this:
+```
+messages/
+|- e2ee_cutover/
+|- encrypted/
+|- inbox
+|- ...
+```
 
 ## Video Presentation
 
