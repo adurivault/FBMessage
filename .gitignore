@@ -3,7 +3,3 @@
 .DS_Store
 .DS_Store?
 python/*
-
-# Irrelevant file formats #
-###########################
-*.pptx

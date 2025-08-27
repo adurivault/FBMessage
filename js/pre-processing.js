@@ -31,7 +31,7 @@ function read_files(files){
             thread_info['nb_participants'] = 0
           }
 
-          thread_messages = thread['messages']
+          thread_messages = Array.isArray(thread['messages']) ? thread['messages'] : [];
           for (var i=0; i<thread_messages.length; i++){
             message = thread_messages[i]
             message_info = {
